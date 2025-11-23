@@ -37,3 +37,16 @@ Sur ton serveur DNS `192.168.2.40`, édite :
 
 ```bash
 sudo nano /etc/bind/db.mirecloud.com
+
+---
+
+## 4. Secret PostgreSQL
+Keycloak utilise une DB PostgreSQL externe.
+
+Créer le secret :
+```bash
+kubectl create secret generic keycloak-db-creds \
+  -n keycloak \
+  --from-literal=user=admin \
+  --from-literal=password=admin
+---
