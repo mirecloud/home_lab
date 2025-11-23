@@ -26,7 +26,8 @@ Ce document décrit **mon infrastructure Kubernetes maison**, mes choix techniqu
             ┌─────────────┴─────────────┐
             │                           │
   ┌───────────────┐           ┌────────────────┐
-  │ DNS LOCAL     │           │ Control Plane  │
+  │ DNS LOCAL
+    LDAP          │           │ Control Plane  │
   │ 192.168.2.40  │           │ 192.168.2.22   │
   │ (BIND/Pi-hole │           │ Ubuntu Server  │
   └───────────────┘           └───────┬────────┘
