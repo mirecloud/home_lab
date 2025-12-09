@@ -58,3 +58,16 @@ openssl x509 -req \
 
 
 Ton wildcard est valide 2 ans (825 jours, limite Chrome).
+
+🚀 PARTIE 3 — Structure finale des fichiers
+~/mirecloud-ca/
+│
+├── mirecloud-ca.key                    # clé privée CA (garder secrète)
+├── mirecloud-ca.crt                    # certificat CA (à distribuer)
+├── mirecloud-ca.srl
+│
+├── wildcard.mirecloud.com.key          # clé privée du wildcard
+├── wildcard.mirecloud.com.csr
+├── wildcard.mirecloud.com.crt          # cert wildcard signé
+├── wildcard.ext
+
