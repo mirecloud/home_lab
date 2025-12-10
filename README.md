@@ -1,6 +1,6 @@
-# 🚀 MireCloud Kubernetes Home Lab
+#   MireCloud Kubernetes Home Lab
 
-## 🧱 Overview
+##   Overview
 
 This document describes the complete architecture of my MireCloud Kubernetes Home Lab — a production‑style cluster designed for training DevOps/SRE workflows, identity management, observability, networking, and automation.
 
@@ -15,7 +15,7 @@ The lab includes:
 
 ---
 
-## 🌐 Network Topology (LAN 192.168.2.0/24)
+##   Network Topology (LAN 192.168.2.0/24)
 
 ```
                     ┌────────────────────┐
@@ -35,7 +35,7 @@ The lab includes:
 
 ---
 
-## 🏗️ Cluster Components
+##   Cluster Components
 
 ### **Control Plane (192.168.2.75)**
 - Ubuntu Server
@@ -52,7 +52,7 @@ The lab includes:
 
 ---
 
-## 🧩 Core Services Installed
+##   Core Services Installed
 
 ### **Networking**
 - **Cilium** – eBPF networking, ClusterMesh ready
@@ -81,7 +81,7 @@ The lab includes:
 
 ---
 
-## 🗄️ Storage Layout
+##   Storage Layout
 
 ### **NFS Server (Control Node)**
 Used by:
@@ -98,7 +98,7 @@ A StorageClass points to:
 
 ---
 
-## 🌍 DNS & Domain Integration
+##   DNS & Domain Integration
 
 Your internal DNS zone:
 
@@ -119,7 +119,7 @@ DNS server also hosts:
 
 ---
 
-## 🔐 PKI, TLS & Certificates
+##   PKI, TLS & Certificates
 
 You maintain:
 - Wildcard cert: `*.mirecloud.com`
@@ -134,7 +134,7 @@ You maintain:
 
 ---
 
-## 📦 Applications Planned / Installed
+##   Applications Planned / Installed
 
 - Keycloak OIDC SSO
 - Grafana + Prometheus
@@ -146,7 +146,7 @@ You maintain:
 
 ---
 
-## 🧪 Purpose of the Lab
+##  Purpose of the Lab
 
 This lab gives you hands‑on experience with:
 - Realistic multi‑node Kubernetes admin
@@ -175,31 +175,7 @@ It simulates a **production‑grade environment** for:
 `mirecloud-k8s-diagram.png`
 
 ---
+ 
 
-## 🧑‍💻 Final Notes
-
-Your lab is not “just a home lab” —  
-it’s a **full cloud‑native platform**, structured like a real SaaS company stack.
-
-Great foundation for:
-- Freelancing
-- Portfolio projects
-- Cloud certification
-- Automation & experimentation
-- Developing real microservice architectures
-
----
-
-## ✔️ Next recommended additions
-
-- ArgoCD full GitOps
-- HashiCorp Vault
-- External‑DNS
-- Service Mesh (Istio or Cilium Mesh)
-- Kafka Connect + Debezium
-- Backups via Velero
-
----
-
-### 🚀 Welcome to MireCloud — your own personal cloud.
+###  Welcome to MireCloud — your own personal cloud.
 
