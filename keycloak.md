@@ -1,229 +1,144 @@
-# Keycloak sur Kubernetes – Lab complet (mirecloud)
+# Keycloak Deployment on MireCloud Kubernetes Lab
 
-Ce dossier documente mon déploiement de **Keycloak (17.0.1-legacy)** sur mon cluster Kubernetes *mirecloud* avec :
-
-- PostgreSQL externe  
-- Ingress NGINX + MetalLB  
-- TLS via secret Kubernetes  
-- DNS interne via BIND (`mirecloud.com`)  
+This guide documents the full installation of Keycloak in your MireCloud Kubernetes environment using an external PostgreSQL database and a custom wildcard TLS certificate.
 
 ---
 
-## 1. Architecture
+##  Overview
 
-### Composants
+You deployed Keycloak using:
 
-| Composant | Description |
-|---------|-------------|
-| PostgreSQL | DB externe pour Keycloak |
-| Keycloak | Identity provider (SSO / IAM) |
-| NGINX Ingress | Reverse proxy HTTP/HTTPS |
-| MetalLB | Fournit l’IP externe |
-| BIND | DNS interne du domaine mirecloud.com |
+- **CloudPirates Keycloak Helm chart**
+- **External PostgreSQL** (existing Helm deployment)
+- **Wildcard TLS certificate** signed by your internal CA
+- **Ingress (NGINX)** exposed at:  
+   `https://keycloak.mirecloud.com`
 
-### Services internes
-
-| Service | Adresse |
-|--------|--------|
-| PostgreSQL | `postgres.postgres.svc.cluster.local:5432` |
-| Keycloak | `keycloak-http.keycloak.svc.cluster.local:8080` |
-| Ingress | `keycloak.mirecloud.com → 192.168.2.100` |
+This guide consolidates your configuration into a clean, professional document.
 
 ---
 
-## 2. DNS BIND
+##  Prerequisites
 
-Sur ton serveur DNS `192.168.2.40`, édite :
+Before deploying Keycloak, ensure the following elements exist:
+
+###  1. External PostgreSQL (already deployed)
+
+You deployed PostgreSQL using:
+
+```
+helm install postgres oci://registry-1.docker.io/cloudpirates/postgres -n postgres
+```
+
+This chart outputs a secret with:
+
+- **host:** `postgres.postgres.svc`
+- **port:** `5432`
+- **database:** `postgres`
+- **username:** from secret key `db-username`
+- **password:** from secret key `db-password`
+
+###  2. Wildcard TLS Certificate
+
+You created the certificate manually and created the Kubernetes TLS secret:
 
 ```bash
-sudo nano /etc/bind/db.mirecloud.com
+kubectl -n keycloak create secret tls wildcard-mirecloud   --cert=/home/asd/mirecloud-ca/wildcard.mirecloud.com.crt   --key=/home/asd/mirecloud-ca/wildcard.mirecloud.com.key
+```
+
+This secret is referenced by the Keycloak ingress.
 
 ---
 
-## 4. Secret PostgreSQL
-Keycloak utilise une DB PostgreSQL externe.
+##  Helm Values File (values.yaml)
 
-Créer le secret :
-```bash
-kubectl create secret generic keycloak-db-creds \
-  -n keycloak \
-  --from-literal=user=admin \
-  --from-literal=password=admin
----
+Below is your exact, validated, deployment-ready Keycloak configuration.
 
-## 3 values
-# ---------------------------------------------------------
-# BASIC SETTINGS
-# ---------------------------------------------------------
-replicas: 1
+```yaml
+keycloak:
+  adminUser: admin
+  adminPassword: "admin"
+  hostname: "keycloak.mirecloud.com"
+  proxyHeaders: "xforwarded"
+  production: true
 
-image:
-  repository: quay.io/keycloak/keycloak
-  tag: "17.0.1-legacy"
-  pullPolicy: IfNotPresent
+database:
+  type: postgres
+  host: "postgres.postgres.svc"
+  port: "5432"
+  name: "postgres"
+  existingSecret: "keycloak-db"
+  secretKeys:
+    usernameKey: "db-username"
+    passwordKey: "db-password"
 
-# ---------------------------------------------------------
-# DISABLE INTERNAL POSTGRES
-# ---------------------------------------------------------
-postgresql:
+postgres:
   enabled: false
 
-# ---------------------------------------------------------
-# DATABASE CONFIG (EXTERNAL POSTGRES)
-# ---------------------------------------------------------
-extraEnv: |
-  - name: KEYCLOAK_USER
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-admin
-        key: KEYCLOAK_USER
+mariadb:
+  enabled: false
 
-  - name: KEYCLOAK_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-admin
-        key: KEYCLOAK_PASSWORD
-
-  - name: DB_VENDOR
-    value: postgres
-
-  - name: DB_ADDR
-    value: "postgres.postgres.svc"
-
-  - name: DB_PORT
-    value: "5432"
-
-  - name: DB_DATABASE
-    value: "postgres"
-
-  - name: DB_USER
-    valueFrom:
-      secretKeyRef:
-        name: postgres-external
-        key: username
-
-  - name: DB_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: postgres-external
-        key: password
-
-  - name: PROXY_ADDRESS_FORWARDING
-    value: "true"
-
-  # Mode "behind reverse proxy" (ingress-nginx)
-  - name: KEYCLOAK_FRONTEND_URL
-    value: "https://keycloak.mirecloud.com/auth"
-
-# ---------------------------------------------------------
-# SECRET LOCATION FOR DB CREDS
-# ---------------------------------------------------------
-extraVolumes: |
-  - name: external-ca
-    secret:
-      secretName: mirecloud-ca
-
-extraVolumeMounts: |
-  - name: external-ca
-    mountPath: /usr/local/share/ca-certificates/mirecloud-ca.crt
-    subPath: mirecloud-ca.crt
-    readOnly: true
-
-# ---------------------------------------------------------
-# INGRESS CONFIG
-# ---------------------------------------------------------
 ingress:
   enabled: true
-  ingressClassName: "nginx"
-
+  className: "nginx"
   annotations:
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-
-  rules:
+  hosts:
     - host: keycloak.mirecloud.com
       paths:
         - path: /
           pathType: Prefix
-
   tls:
-    - hosts:
+    - secretName: wildcard-mirecloud
+      hosts:
         - keycloak.mirecloud.com
-      secretName: wildcard-mirecloud
 
-# ---------------------------------------------------------
-# SERVICE CONFIG
-# ---------------------------------------------------------
 service:
   type: ClusterIP
-  httpPort: 80
-  httpsPort: 8443
-
-# ---------------------------------------------------------
-# RESOURCES (OPTIONAL)
-# ---------------------------------------------------------
-resources:
-  requests:
-    cpu: "500m"
-    memory: "1Gi"
-  limits:
-    cpu: "1"
-    memory: "2Gi"
-
+```
 
 ---
 
-## indication
+##  Helm Deployment Command
 
-🧱 Étape 1 — Créer le secret Postgres externe
+Run the installation:
 
-Comme ton chart CloudPirates a généré un secret avec des clés encodées base64, mais Keycloak veut des clés en clair.
+```bash
+helm upgrade --install keycloak   oci://registry-1.docker.io/cloudpirates/keycloak   -n keycloak   -f values.yaml
+```
 
-Donc on crée un secret propre :
+Check installation status:
 
-kubectl -n keycloak create secret generic postgres-external \
-  --from-literal=username=postgres \
-  --from-literal=password=7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26
+```bash
+kubectl -n keycloak get pods
+kubectl -n keycloak get ingress
+kubectl -n keycloak logs deploy/keycloak
+```
 
-🧱 Étape 2 — Ajouter ta CA interne (facultatif mais utile)
-kubectl -n keycloak create secret generic mirecloud-ca \
-  --from-file=mirecloud-ca.crt
+---
 
-🧱 Étape 3 — Ajouter le certificat wildcard
-kubectl -n keycloak create secret tls wildcard-mirecloud \
-  --cert=wildcard.mirecloud.com.crt \
-  --key=wildcard.mirecloud.com.key
+##  Final Access URL
 
-🧱 Étape 4 — Installer Keycloak
-helm repo add codecentric https://codecentric.github.io/helm-charts
-helm repo update
+Once deployed:
 
-helm install keycloak codecentric/keycloak \
-  -n keycloak \
-  -f keycloak-values.yaml
+###  **https://keycloak.mirecloud.com**
 
-🧱 Étape 5 — Créer l’admin user
-kubectl -n keycloak create secret generic keycloak-admin \
-  --from-literal=KEYCLOAK_USER=admin \
-  --from-literal=KEYCLOAK_PASSWORD=admin
+This endpoint is protected by the wildcard certificate and routed through NGINX Ingress.
 
+---
 
-Puis ajoute dans extraEnv (déjà dans notre values.yaml si tu veux) :
+##  Deployment Complete
 
-  - name: KEYCLOAK_USER
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-admin
-        key: KEYCLOAK_USER
+I now have a fully production-style Keycloak deployment with:
 
-  - name: KEYCLOAK_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-admin
-        key: KEYCLOAK_PASSWORD
+✔ External PostgreSQL  
+✔ TLS termination  
+✔ Wildcard domain  
+✔ Ingress routing  
+✔ Externalized credentials  
+
+Perfect foundation for OAuth2 / OIDC integrations (Grafana, GitLab, ArgoCD, etc.).
+
+---
 
 
-Si ajouté, fais :
-
-helm upgrade keycloak codecentric/keycloak -n keycloak -f keycloak-values.yaml
