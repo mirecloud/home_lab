@@ -170,7 +170,8 @@ It simulates a **production‑grade environment** for:
 
 ## 📸 Architecture Diagram
 
-(Insert PNG generated earlier into your repo)
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/1e063e0f-b85e-49c7-99c5-7bce7252143d" />
+
 `mirecloud-k8s-diagram.png`
 
 ---
