@@ -1,21 +1,30 @@
- helm upgrade --install pgadmin  runix/pgadmin4 --set env.email=info@mirecloud.com --set env.password=admin --set service.type=LoadBalancer -n pgadmin
-Release "pgadmin" does not exist. Installing it now.
-level=WARN msg="unable to find exact version; falling back to closest available version" chart=pgadmin4 requested="" selected=1.50.0
-NAME: pgadmin
-LAST DEPLOYED: Tue Dec  9 12:20:51 2025
-NAMESPACE: pgadmin
-STATUS: deployed
-REVISION: 1
-DESCRIPTION: Install complete
-NOTES:
-CHART NAME: pgadmin4
-CHART VERSION: 1.50.0
-APP VERSION: 9.8
+#  MireCloud – PGAdmin Deployment on Kubernetes
 
+This document describes how PGAdmin4 is deployed inside the MireCloud Kubernetes Lab, using the Helm chart `runix/pgadmin4`. It includes installation, configuration, and UI access instructions.
 
+---
 
-1. Get the application URL by running these commands:
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get --namespace pgadmin svc -w pgadmin-pgadmin4'
-  export SERVICE_IP=$(kubectl get svc --namespace pgadmin pgadmin-pgadmin4 -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  echo http://$SERVICE_IP:80
+##  Overview
+
+PGAdmin is deployed as:
+
+- A Kubernetes Deployment
+- Exposed via a LoadBalancer service
+- Configured with:
+  - Email: info@mirecloud.com
+  - Password: admin
+- Namespace: `pgadmin`
+
+This provides a graphical interface for managing the PostgreSQL service running in the `postgres` namespace.
+
+---
+
+##  Installation Command
+
+```bash
+helm upgrade --install pgadmin \
+  runix/pgadmin4 \
+  --set env.email=info@mirecloud.com \
+  --set env.password=admin \
+  --set service.type=LoadBalancer \
+  -n pgadmin
