@@ -1,4 +1,4 @@
-# 🔐 Lab LDAP sur Ubuntu – mirecloud.com
+#  Lab LDAP sur Ubuntu – mirecloud.com
 
 Ce dépôt documente l’installation et la configuration d’un serveur **LDAP (OpenLDAP)** pour le domaine **mirecloud.com**.
 
@@ -6,7 +6,7 @@ Objectif : implémenter un annuaire prêt pour l’intégration avec Keycloak, L
 
 ---
 
-## 📌 Informations de base
+##  Informations de base
 
 | Élément | Valeur |
 |--------|--------|
@@ -19,7 +19,7 @@ Objectif : implémenter un annuaire prêt pour l’intégration avec Keycloak, L
 
 ---
 
-## 🚀 Installation OpenLDAP
+##  Installation OpenLDAP
 
 ### Mise à jour
 ```bash
@@ -52,7 +52,7 @@ Valeurs à entrer :
 
 ---
 
-## ✅ Vérification
+##  Vérification
 
 ```bash
 ldapwhoami -x
@@ -64,7 +64,7 @@ ldapwhoami -x -D cn=admin,dc=mirecloud,dc=com -W
 
 ---
 
-## 📁 Création de la structure LDAP
+##  Création de la structure LDAP
 
 Créer `base.ldif` :
 
@@ -86,7 +86,7 @@ ldapadd -x -D cn=admin,dc=mirecloud,dc=com -W -f base.ldif
 
 ---
 
-## 👤 Ajout d’un utilisateur
+##  Ajout d’un utilisateur
 
 Créer `user.ldif` :
 
@@ -112,7 +112,7 @@ ldapadd -x -D cn=admin,dc=mirecloud,dc=com -W -f user.ldif
 
 ---
 
-## 🔑 Attribuer un mot de passe
+##  Attribuer un mot de passe
 
 ```bash
 ldappasswd -x -D cn=admin,dc=mirecloud,dc=com -W uid=emmanuel,ou=users,dc=mirecloud,dc=com
@@ -120,7 +120,7 @@ ldappasswd -x -D cn=admin,dc=mirecloud,dc=com -W uid=emmanuel,ou=users,dc=mirecl
 
 ---
 
-## 🔎 Vérification LDAP
+##  Vérification LDAP
 
 ```bash
 ldapsearch -x -b dc=mirecloud,dc=com
@@ -128,7 +128,7 @@ ldapsearch -x -b dc=mirecloud,dc=com
 
 ---
 
-## 🌐 Interface Web (optionnelle)
+##  Interface Web (optionnelle)
 
 ```bash
 sudo apt install phpldapadmin -y
@@ -146,21 +146,12 @@ Login :
 
 ---
 
-## ⚙️ Prochaines étapes
+ 
 
-Après ce lab, tu peux enchaîner :
-
-- Intégration avec Keycloak
-- Auth Linux via SSSD
-- Intégration Kubernetes avec OIDC
-- Sécurisation TLS de LDAP
-
----
-
-## 👔 Usage CV
+##  Usage CV
 
 > Déploiement d’un annuaire OpenLDAP pour mirecloud.com, structuration utilisateurs & groupes, préparation IAM et SSO.
 
 ---
 
-✅ Statut : fonctionnel & prêt pour extension IAM
+ Statut : fonctionnel & prêt pour extension IAM
