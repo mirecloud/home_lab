@@ -98,7 +98,7 @@ Your folder should now look like this:
 
 ---
 
-#  You Are Now Running Your Own PKI
+#  I AM Now Running Your Own PKI
 
 This PKI enables:
 
@@ -109,7 +109,7 @@ This PKI enables:
 - GitLab HTTPS  
 - Internal microservices authentication  
 
-For production use, store the **CA private key offline**, in a secure location.
+
 
 ---
 
