@@ -6,7 +6,7 @@ This guide documents the full installation of Keycloak in your MireCloud Kuberne
 
 ##  Overview
 
-You deployed Keycloak using:
+I deployed Keycloak using:
 
 - **CloudPirates Keycloak Helm chart**
 - **External PostgreSQL** (existing Helm deployment)
@@ -24,10 +24,10 @@ Before deploying Keycloak, ensure the following elements exist:
 
 ###  1. External PostgreSQL (already deployed)
 
-You deployed PostgreSQL using:
+I deployed PostgreSQL using helm:
 
 ```
-helm install postgres oci://registry-1.docker.io/cloudpirates/postgres -n postgres
+Please refer to the Postgres.md file in the same repo
 ```
 
 This chart outputs a secret with:
