@@ -1,6 +1,6 @@
 #  PostgreSQL Deployment — MireCloud Lab
 
-This document summarizes the deployment and configuration of your **PostgreSQL instance** installed via the CloudPirates Helm chart, used as the external database for Keycloak.
+This document summarizes the deployment and configuration of My **PostgreSQL instance** installed via the CloudPirates Helm chart, used as the external database for Keycloak.
 
 ---
 
@@ -75,19 +75,9 @@ Inside the pod:
 psql "postgresql://postgres:7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26@postgres.postgres.svc:5432/postgres"
 ```
 
-You should land in the psql shell.
+ 
 
----
+ 
 
-##  Notes
-
-- This database is external and persistent across Keycloak redeployments.
-- Only Keycloak should use this DB (avoid sharing the DB with other apps).
-- If you reinstall Keycloak, **do NOT delete the Postgres secret or PVCs** unless you want a fresh database.
-
----
-
-##  Ready for Keycloak
-
-This PostgreSQL instance is fully compatible with your Keycloak Helm deployment.
+ 
 
