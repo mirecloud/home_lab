@@ -168,7 +168,7 @@ It simulates a **production‑grade environment** for:
 
 ---
 
-## 📸 Architecture Diagram
+## Architecture Diagram
 
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/1e063e0f-b85e-49c7-99c5-7bce7252143d" />
 
@@ -177,5 +177,5 @@ It simulates a **production‑grade environment** for:
 ---
  
 
-###  Welcome to MireCloud — your own personal cloud.
+###  Welcome to MireCloud — My own personal cloud.
 
