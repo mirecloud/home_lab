@@ -1,0 +1,11 @@
+pgadmin4:
+  env:
+    email: info@mirecloud.com
+    password: admin
+
+  service:
+    type: LoadBalancer
+
+  persistentVolume:
+    enabled: true
+    size: 5Gi

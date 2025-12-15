@@ -1,0 +1,41 @@
+##  Helm Values File (values.yaml)
+keycloak:
+  adminUser: admin
+  adminPassword: "admin"
+  hostname: "keycloak.mirecloud.com"
+  proxyHeaders: "xforwarded"
+  production: true
+
+database:
+  type: postgres
+  host: "postgres.postgres.svc"
+  port: "5432"
+  name: "postgres"
+  existingSecret: "keycloak-db"
+  secretKeys:
+    usernameKey: "db-username"
+    passwordKey: "db-password"
+
+postgres:
+  enabled: false
+
+mariadb:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  hosts:
+    - host: keycloak.mirecloud.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: wildcard-mirecloud
+      hosts:
+        - keycloak.mirecloud.com
+
+service:
+  type: ClusterIP
