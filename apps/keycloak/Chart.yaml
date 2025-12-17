@@ -1,0 +1,11 @@
+apiVersion: v2
+name: keycloak-wrapper
+description: Wrapper chart for Keycloak
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+dependencies:
+  - name: keycloak
+    # On reprend la source que tu utilisais manuellement
+    repository: "oci://registry-1.docker.io/cloudpirates"
+    version: "22.0.0" # Version stable récente, ajuste si tu en visais une précise
