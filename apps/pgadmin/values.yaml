@@ -8,12 +8,13 @@ pgadmin4:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
     hosts:
       - host: pgadmin.mirecloud.com
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: wildcard-mirecloud
+      - secretName: pgadmin-tls-auto
         hosts:
           - pgadmin.mirecloud.com
