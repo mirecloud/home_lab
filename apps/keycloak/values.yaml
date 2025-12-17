@@ -29,8 +29,8 @@ database:
   name: "postgres"
   existingSecret: "keycloak-db"
   secretKeys:
-    usernameKey: "postgres"
-    passwordKey: "7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26"
+    usernameKey: "db-username"
+    passwordKey: "db-password"
 
 postgres:
   enabled: false
