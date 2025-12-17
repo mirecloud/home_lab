@@ -27,10 +27,8 @@ database:
   host: "postgres.postgres.svc"
   port: "5432"
   name: "postgres"
-  existingSecret: "keycloak-db"
-  secretKeys:
-    usernameKey: "db-username"
-    passwordKey: "db-password"
+  dbUser: "postgres"
+  dbPassword: "7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26"
 
 postgres:
   enabled: false
