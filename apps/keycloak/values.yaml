@@ -32,7 +32,7 @@ database:
     usernameKey: "db-username"
     passwordKey: "db-password"
 
-postgres:
+postgresql:
   enabled: false
 mariadb:
   enabled: false
