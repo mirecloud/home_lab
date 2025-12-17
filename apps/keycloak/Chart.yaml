@@ -8,4 +8,4 @@ dependencies:
   - name: keycloak
     # On reprend la source que tu utilisais manuellement
     repository: "oci://registry-1.docker.io/cloudpirates"
-    version: "22.0.0" # Version stable récente, ajuste si tu en visais une précise
+    version: "26.4.7" # Version stable récente, ajuste si tu en visais une précise
