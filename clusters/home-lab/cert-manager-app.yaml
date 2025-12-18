@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/mirecloud/home_lab.git" # <--- METS TON URL
+    repoURL: "git@github.com:mirecloud/home_lab.git" # <--- METS TON URL
     targetRevision: HEAD
     path: infrastructure/cert-manager
   destination:

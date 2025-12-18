@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/mirecloud/home_lab.git"
+    repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: HEAD
     path: apps/pgadmin
   destination:
