@@ -1,4 +1,3 @@
-# ✅ CORRECT : On cible la dépendance nommée dans Chart.yaml
 kube-prometheus-stack:
   grafana:
     enabled: true
