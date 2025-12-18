@@ -18,3 +18,8 @@ database:
   username: postgres
   existingSecret: byo-db-creds # Password is retrieved via .passwor
 
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "start"
+  - "--http-port=8080"
+  - "--hostname-strict=false"
