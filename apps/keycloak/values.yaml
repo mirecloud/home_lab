@@ -1,14 +1,18 @@
-keycloak:
-  # 1. LA COMMANDE DE DÉMARRAGE (CRITIQUE : Sans ça, le pod s'éteint)
+# AVANT : keycloak:
+# APRÈS (CORRECT) :
+keycloakx:
+  # Commande de démarrage (Toujours indispensable)
   command:
     - "/opt/keycloak/bin/kc.sh"
     - "start"
-    - "--http-enabled=true" # Active le HTTP (car TLS est géré par l'Ingress)
+    - "--http-enabled=true"
     - "--http-port=8080"
-    - "--hostname-strict=false" # Permet d'accepter le trafic venant de l'Ingress sans bloquer
-    - "--proxy-headers=xforwarded" # Important derrière un Ingress NGINX
+    - "--hostname-strict=false"
+    - "--proxy-headers=xforwarded"
 
-  # 2. Ton Admin (Validé)
+  # Le reste ne change pas, assure-toi juste que tout est bien indenté sous "keycloakx:"
+  replicas: 1
+
   extraEnv: |
     - name: KEYCLOAK_ADMIN
       value: admin
@@ -17,8 +21,9 @@ keycloak:
         secretKeyRef:
           name: keycloak-admin-password
           key: password
+    - name: KC_PROXY
+      value: edge
 
-  # 3. Ta Base de données (Validé - Utilise les fonctionnalités natives du chart)
   dbchecker:
     enabled: true
 
@@ -28,14 +33,12 @@ keycloak:
     port: 5432
     database: postgres
     username: postgres
-    existingSecret: byo-db-creds # Le secret qu'on a créé avec la clé 'password'
+    existingSecret: byo-db-creds
 
-  # 4. Ton Ingress (Pour accéder à l'interface)
   ingress:
     enabled: true
     ingressClassName: nginx
     annotations:
-      # Pour éviter les erreurs 502/Bad Gateway courantes avec Keycloak
       nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
     rules:
       - host: keycloak.mirecloud.com
@@ -47,6 +50,5 @@ keycloak:
         hosts:
           - keycloak.mirecloud.com
 
-  # 5. Service
   service:
     type: ClusterIP
