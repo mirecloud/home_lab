@@ -1,0 +1,8 @@
+# Chart: hashicorp/vault
+server:
+  dev:
+    enabled: true
+  # On active l'interface UI pour que tu puisses vérifier
+  ui:
+    enabled: true
+    serviceType: "ClusterIP"

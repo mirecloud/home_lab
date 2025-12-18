@@ -1,0 +1,4 @@
+# Chart: external-secrets/external-secrets
+installCRDs: true
+webhook:
+  create: true
