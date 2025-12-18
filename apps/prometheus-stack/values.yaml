@@ -19,9 +19,9 @@ kube-prometheus-stack:
         tls_skip_verify_insecure: true
         client_id: "grafana"
         client_secret: $__env{client_secret}
-        auth_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/auth"
-        token_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/token"
-        api_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/userinfo"
+        auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
+        token_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/token"
+        api_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/userinfo"
         scopes: "openid profile email"
         allow_sign_up: true
         role_attribute_path: "contains(realm_access.roles[*], 'admin') && 'Admin' || 'Viewer'"
