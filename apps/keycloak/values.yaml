@@ -1,38 +1,20 @@
-keycloak:
-  # Tes identifiants initiaux
-  adminUser: admin
-  adminPassword: "admin"
-  hostname: "keycloak.mirecloud.com"
-  proxyHeaders: "xforwarded"
-  production: true
+extraEnv: |
+  - name: KEYCLOAK_ADMIN
+    value: admin
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-admin-password
+        key: password
 
-  ingress:
-    enabled: true
-    className: "nginx"
-    annotations:
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-    hosts:
-      - host: keycloak.mirecloud.com
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: keycloak-tls-auto
-        hosts:
-          - keycloak.mirecloud.com
+dbchecker:
+  enabled: true
 
 database:
-  type: postgres
-  host: "postgres.postgres.svc"
-  port: "5432"
-  name: "postgres"
-  existingSecret: "keycloak-db"
-  secretKeys:
-    usernameKey: "db-username"
-    passwordKey: "db-password"
+  vendor: postgres
+  hostname: postgres.postgres.svc
+  port: 5432
+  database: postgres
+  username: postgres
+  existingSecret: byo-db-creds # Password is retrieved via .passwor
 
-postgresql:
-  enabled: false
-mariadb:
-  enabled: false
