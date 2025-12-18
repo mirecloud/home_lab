@@ -7,5 +7,5 @@ appVersion: "1.0.0"
 dependencies:
   - name: keycloakx
     # On reprend la source que tu utilisais manuellement
-    repository: "oci://ghcr.io/codecentric/helm-charts/keycloakx"
+    repository: "oci://ghcr.io/codecentric/helm-charts"
     version: "7.1.5" # Version stable récente, ajuste si tu en visais une précise
