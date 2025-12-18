@@ -1,25 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: prometheus-stack
+  name: Prometheus-stack
+  namespace: argocd
 spec:
-  template:
-    spec:
-      source:
-        repoURL: "https://github.com/mirecloud/home_lab.git"
-        targetRevision: HEAD
-        path: "apps/prometheus-stack"
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: prometheus
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-  generator:
-    list:
-      elements:
-        - name: prometheus-stack
-          spec:
-            source:
-              targetRevision: HEAD
+  project: default
+  source:
+    repoURL: "https://github.com/mirecloud/home_lab.git"
+    targetRevision: HEAD
+    path: apps/prometheus-stack
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
