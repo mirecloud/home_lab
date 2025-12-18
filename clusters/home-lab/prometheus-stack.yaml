@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: prometheus-stack
+spec:
+  template:
+    spec:
+      source:
+        repoURL: "https://github.com/mirecloud/home_lab.git"
+        targetRevision: HEAD
+        path: "apps/prometheus-stack"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: prometheus
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+  generator:
+    list:
+      elements:
+        - name: prometheus-stack
+          spec:
+            source:
+              targetRevision: HEAD

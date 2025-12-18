@@ -1,0 +1,48 @@
+grafana:
+  enabled: true
+
+  # Le secret Kubernetes contenant la clé "client_secret"
+  envFromSecret: grafana-keycloak-secret
+
+  grafana.ini:
+    server:
+      domain: grafana.mirecloud.com
+      root_url: "https://grafana.mirecloud.com"
+      serve_from_sub_path: false
+
+    auth:
+      disable_login_form: false
+      oauth_auto_login: false
+
+    auth.generic_oauth:
+      enabled: true
+      name: "Keycloak"
+      tls_skip_verify_insecure: true
+      client_id: "grafana"
+      client_secret: $__env{client_secret}
+
+      # IMPORTANT : nouvelle structure Keycloak Quarkus (PAS de /auth/)
+      auth_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/auth"
+      token_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/token"
+      api_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/userinfo"
+
+      scopes: "openid profile email"
+      allow_sign_up: true
+      use_refresh_token: true
+      role_attribute_path: "contains(realm_access.roles[*], 'admin') && 'Admin' || 'Viewer'"
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+      nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    rules:
+      - host: grafana.mirecloud.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: grafana-tls-cert
+        hosts:
+          - grafana.mirecloud.com
