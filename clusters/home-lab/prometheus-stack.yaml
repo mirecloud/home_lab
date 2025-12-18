@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: Prometheus-stack
+  name: prometheus-stack
   namespace: argocd
 spec:
   project: default
