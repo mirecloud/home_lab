@@ -11,7 +11,7 @@ keycloakx:
     - "--proxy-headers=xforwarded"
 
   # Le reste ne change pas, assure-toi juste que tout est bien indenté sous "keycloakx:"
-  replicas: 1
+  replicas: 2
 
   extraEnv: |
     - name: KEYCLOAK_ADMIN
