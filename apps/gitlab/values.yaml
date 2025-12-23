@@ -1,0 +1,45 @@
+global:
+  ingress:
+    apiVersion: ""
+    configureCertmanager: false
+    useNewIngressForCerts: false
+    provider: nginx
+    # class:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+    enabled: true
+    tls:
+      - secretName: gitlab-tls-auto
+        hosts:
+          - gitlab.mirecloud.com
+    #   enabled: true
+    #   secretName:
+    path: /
+    pathType: Prefix
+
+  certificates:
+    customCAs:
+      - secret: secret-custom-ca
+
+    # - secret: custom-CA
+    # - secret: more-custom-CAs
+    #   keys:
+    #     - custom-ca-1.crt
+    # - configMap: custom-CA-cm
+    # - configMap: more-custom-CAs-cm
+    #   keys:
+    #     - custom-ca-2.crt
+    #     - custom-ca-3.crt
+gitlab-runner:
+  install: false
+
+postgresql:
+  install: false
+
+psql:
+  host: postgres.postgres.svc.cluster.local
+  port: 5432
+  username: postgres
+  database: gitlab
+  password: 7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26
