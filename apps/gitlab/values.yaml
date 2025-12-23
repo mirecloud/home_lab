@@ -13,18 +13,8 @@ global:
     tls:
       secretName: gitlab-tls-auto
 
-  certificates:
-    customCAs:
-      - secret: secret-custom-ca
-
-certmanager:
-  enabled: false
-
-nginx-ingress:
-  enabled: false
-
-prometheus:
-  install: false
+  certmanager:
+    enabled: false
 
 gitlab-runner:
   install: false
@@ -32,14 +22,11 @@ gitlab-runner:
 postgresql:
   install: false
 
-redis:
-  install: true
-
 psql:
   host: postgres.postgres.svc.cluster.local
   port: 5432
   username: postgres
   database: gitlab
   password:
-    secret: gitlab-postgres
+    secret: gitlab-postgres-secret
     key: password
