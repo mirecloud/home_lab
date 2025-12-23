@@ -1,26 +1,15 @@
 global:
-  edition: ce
-
   hosts:
     domain: mirecloud.com
     gitlab:
       name: gitlab.mirecloud.com
-    registry:
-      name: registry.mirecloud.com
 
   ingress:
     enabled: true
     provider: nginx
-    class: nginx
-    configureCertmanager: false
-    useNewIngressForCerts: false
-    path: /
-    pathType: Prefix
-
     annotations:
       kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: mirecloud-ca-issuer
-
     tls:
       secretName: gitlab-tls-auto
 
@@ -28,31 +17,14 @@ global:
     customCAs:
       - secret: secret-custom-ca
 
-  psql:
-    host: postgres.postgres.svc.cluster.local
-    port: 5432
-    database: gitlab
-    username: postgres
-    password:
-      secret: gitlab-postgres-password
-      key: password
+certmanager:
+  enabled: false
 
-gitlab:
-  webservice:
-    ingress:
-      tls:
-        enabled: true
+nginx-ingress:
+  enabled: false
 
-  kas:
-    enabled: false
-
-  gitlab-shell:
-    enabled: true
-
-  gitaly:
-    persistence:
-      enabled: true
-      size: 10Gi
+prometheus:
+  install: false
 
 gitlab-runner:
   install: false
@@ -63,5 +35,11 @@ postgresql:
 redis:
   install: true
 
-minio:
-  install: true
+psql:
+  host: postgres.postgres.svc.cluster.local
+  port: 5432
+  username: postgres
+  database: gitlab
+  password:
+    secret: gitlab-postgres
+    key: password
