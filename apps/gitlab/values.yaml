@@ -1,8 +1,11 @@
-# 1. DÉSACTIVER L'INSTALLATION DU CERT-MANAGER INCLUS (Le Fix du conflit)
+# --- DÉBUT DES MODIFICATIONS ---
+
+# On désactive le sous-chart au niveau racine avec la clé standard
 certmanager:
   enabled: false
+  installCRDs: false # Ceinture et bretelles
 
-# 2. CONFIGURATION GLOBALE
+# Configuration globale
 global:
   hosts:
     domain: mirecloud.com
@@ -11,18 +14,21 @@ global:
 
   ingress:
     enabled: true
-    configureCertmanager: false # On gère nous-mêmes via l'annotation ci-dessous
+    configureCertmanager: false # Dit à GitLab: "Ne configure pas les Certificats, je m'en occupe"
     provider: nginx
-    class: nginx # Parfois nécessaire selon la version du chart
+    class: nginx
     annotations:
       kubernetes.io/ingress.class: nginx
-      # C'est ici qu'on branche ton Cert-Manager existant
       cert-manager.io/cluster-issuer: mirecloud-ca-issuer
     tls:
       enabled: true
       secretName: gitlab-tls-auto
 
-# 3. RESTE DE TA CONFIG
+  # On désactive aussi l'intégration interne
+  certmanager:
+    enabled: false
+
+# --- RESTE DE TA CONFIGURATION ---
 gitlab-runner:
   install: false
 
