@@ -1,0 +1,10 @@
+apiVersion: v2
+name: gitlab-wrapper
+description: Wrapper pour déployer GitLab via ArgoCD
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+dependencies:
+  - name: gitlab
+    version: 8.4.1 # C'est la version stable actuelle (~17.4)
+    repository: https://charts.gitlab.io/

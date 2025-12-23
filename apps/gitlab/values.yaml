@@ -1,9 +1,24 @@
-# On désactive le sous-chart au niveau racine
+# 1. DÉSACTIVATION DES COMPOSANTS INTERNES
+# Traduction de: --set certmanager.enabled=false --set certmanager.installCRDs=false
 certmanager:
   enabled: false
   installCRDs: false
 
-# CONFIGURATION GLOBALE
+# Traduction de: --set nginx-ingress.enabled=false
+nginx-ingress:
+  enabled: false
+
+# Traduction de: --set prometheus.install=false
+prometheus:
+  install: false
+
+gitlab-runner:
+  install: false
+
+postgresql:
+  install: false
+
+# 2. CONFIGURATION GLOBALE
 global:
   hosts:
     domain: mirecloud.com
@@ -12,7 +27,7 @@ global:
 
   ingress:
     enabled: true
-    configureCertmanager: false
+    configureCertmanager: false # Traduction de: --set global.ingress.configureCertmanager=false
     provider: nginx
     class: nginx
     annotations:
@@ -22,10 +37,11 @@ global:
       enabled: true
       secretName: gitlab-tls-auto
 
-  # Désactive l'utilisation de cert-manager interne
+  # Désactive l'utilisation logique de cert-manager interne
   certmanager:
     enabled: false
 
+  # Connexion à ta base de données externe
   psql:
     host: postgres.postgres.svc.cluster.local
     port: 5432
@@ -34,11 +50,3 @@ global:
     password:
       secret: gitlab-postgres-secret
       key: password
-
-# RESTE DE LA CONFIG
-gitlab-runner:
-  install: false
-
-postgresql:
-  install: false
-# On supprime l'ancien bloc psql qui était ici en bas et qui ne servait à rien
