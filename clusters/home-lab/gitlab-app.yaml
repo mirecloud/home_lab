@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/mirecloud/home_lab.git # 👈 Ton repo
+    repoURL: git@github.com:mirecloud/home_lab.git
     targetRevision: main
-    path: apps/gitlab # 👈 Le dossier contenant Chart.yaml et values.yaml
+    path: apps/gitlab
     helm:
       valueFiles:
         - values.yaml
@@ -20,4 +20,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true # ArgoCD créera le namespace s'il manque
+      - CreateNamespace=true
