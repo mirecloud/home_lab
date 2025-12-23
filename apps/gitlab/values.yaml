@@ -30,4 +30,6 @@ psql:
   port: 5432
   username: postgres
   database: gitlab
-  password: 7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26
+  password:
+    secret: gitlab-postgres-secret
+    key: password
