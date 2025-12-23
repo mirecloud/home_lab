@@ -1,24 +1,32 @@
-# 1. DÉSACTIVATION DES COMPOSANTS INTERNES
-# Traduction de: --set certmanager.enabled=false --set certmanager.installCRDs=false
-certmanager:
-  enabled: false
-  installCRDs: false
+# --- CONFIGURATION DU WRAPPER (Indispensable pour ArgoCD) ---
+gitlab:
+  # 1. Le Fix pour ton erreur actuelle : On désactive la vérification d'upgrade
+  upgradeCheck:
+    enabled: false
 
-# Traduction de: --set nginx-ingress.enabled=false
-nginx-ingress:
-  enabled: false
+  # 2. On désactive les migrations (car déjà faites lors de ton install manuelle)
+  # Cela évite qu'ArgoCD reste bloqué sur "Running Migrations" à chaque sync
+  migrations:
+    enabled: false
 
-# Traduction de: --set prometheus.install=false
-prometheus:
-  install: false
+  # 3. Désactivation des composants internes (Sous la clé 'gitlab' !)
+  certmanager:
+    enabled: false
+    installCRDs: false
 
-gitlab-runner:
-  install: false
+  nginx-ingress:
+    enabled: false
 
-postgresql:
-  install: false
+  prometheus:
+    install: false
 
-# 2. CONFIGURATION GLOBALE
+  gitlab-runner:
+    install: false
+
+  postgresql:
+    install: false
+
+# --- CONFIGURATION GLOBALE (Reste à la racine) ---
 global:
   hosts:
     domain: mirecloud.com
@@ -27,7 +35,7 @@ global:
 
   ingress:
     enabled: true
-    configureCertmanager: false # Traduction de: --set global.ingress.configureCertmanager=false
+    configureCertmanager: false
     provider: nginx
     class: nginx
     annotations:
