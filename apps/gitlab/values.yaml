@@ -1,6 +1,6 @@
 # 1. DÉSACTIVER L'INSTALLATION DU CERT-MANAGER INCLUS (Le Fix du conflit)
 certmanager:
-  install: false
+  enabled: false
 
 # 2. CONFIGURATION GLOBALE
 global:
@@ -21,10 +21,6 @@ global:
     tls:
       enabled: true
       secretName: gitlab-tls-auto
-
-  # Désactive l'utilisation de cert-manager interne (redondance, mais bonne pratique)
-  certmanager:
-    enabled: false
 
 # 3. RESTE DE TA CONFIG
 gitlab-runner:
