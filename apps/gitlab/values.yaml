@@ -1,11 +1,9 @@
-# --- DÉBUT DES MODIFICATIONS ---
-
-# On désactive le sous-chart au niveau racine avec la clé standard
+# On désactive le sous-chart au niveau racine
 certmanager:
   enabled: false
-  installCRDs: false # Ceinture et bretelles
+  installCRDs: false
 
-# Configuration globale
+# CONFIGURATION GLOBALE
 global:
   hosts:
     domain: mirecloud.com
@@ -14,7 +12,7 @@ global:
 
   ingress:
     enabled: true
-    configureCertmanager: false # Dit à GitLab: "Ne configure pas les Certificats, je m'en occupe"
+    configureCertmanager: false
     provider: nginx
     class: nginx
     annotations:
@@ -24,22 +22,23 @@ global:
       enabled: true
       secretName: gitlab-tls-auto
 
-  # On désactive aussi l'intégration interne
+  # Désactive l'utilisation de cert-manager interne
   certmanager:
     enabled: false
 
-# --- RESTE DE TA CONFIGURATION ---
+  psql:
+    host: postgres.postgres.svc.cluster.local
+    port: 5432
+    username: postgres
+    database: gitlab
+    password:
+      secret: gitlab-postgres-secret
+      key: password
+
+# RESTE DE LA CONFIG
 gitlab-runner:
   install: false
 
 postgresql:
   install: false
-
-psql:
-  host: postgres.postgres.svc.cluster.local
-  port: 5432
-  username: postgres
-  database: gitlab
-  password:
-    secret: gitlab-postgres-secret
-    key: password
+# On supprime l'ancien bloc psql qui était ici en bas et qui ne servait à rien
