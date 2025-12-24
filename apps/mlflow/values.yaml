@@ -40,3 +40,9 @@ mlflow:
       - secretName: mlflow-tls
         hosts:
           - mlflow.mirecloud.com
+
+extraArgs:
+  - "--host"
+  - "0.0.0.0"
+  - "--allowed-hosts"
+  - "mlflow.mirecloud.com"
