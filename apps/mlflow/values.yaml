@@ -3,7 +3,7 @@ mlflow:
     # 1. Configuration Postgres
     postgres:
       enabled: true
-      host: "postgresql.postgresql.svc"
+      host: "postgres.postgres.svc"
       port: 5432
       database: "mlflow"
       # On laisse user/password vides car gérés par le secret ci-dessous
