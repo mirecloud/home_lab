@@ -1,46 +1,67 @@
-mlflow:
-  backendStore:
-    # 1. Configuration Postgres
-    postgres:
-      enabled: true
-      host: "postgres.postgres.svc"
-      port: 5432
-      database: "mlflow"
-      # On laisse user/password vides car gérés par le secret ci-dessous
+# -- (int) Numbers of replicas
+replicaCount: 1
 
-    # 2.
-    existingDatabaseSecret:
-      name: "postgres-database-secret"
-      usernameKey: "usernameKey"
-      passwordKey: "passwordKey"
+image:
+  repository: burakince/mlflow
+  pullPolicy: IfNotPresent
+  tag: ""
 
-    # 3. Activation de la migration automatique (recommandé par la doc)
-    databaseMigration: true
-
-  # Authentification (Reste inchangé, c'était bon)
-  auth:
+# -- Configuration de la base de données (Postgres Externe)
+backendStore:
+  postgres:
     enabled: true
-    existingAdminSecret:
-      name: "mlflow-admin-credentials"
-      usernameKey: "usernameKey"
-      passwordKey: "passwordKey"
+    host: "postgres.postgres.svc"
+    port: 5432
+    database: "mlflow"
 
-  ingress:
-    enabled: true
-    className: "nginx"
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: mirecloud-ca-issuer
-    hosts:
-      - host: mlflow.mirecloud.com
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls:
-      - secretName: mlflow-tls
-        hosts:
-          - mlflow.mirecloud.com
+  # Connexion au secret existant (celui qu'on a réparé)
+  existingDatabaseSecret:
+    name: "postgres-database-secret"
+    usernameKey: "usernameKey"
+    passwordKey: "passwordKey"
 
-  gunicornOpts: ""
-  extraArgs:
-    allowedHosts: "*"
+  # Migration automatique au démarrage
+  databaseMigration: true
+
+# -- Configuration de l'Authentification (Basic Auth)
+auth:
+  enabled: true
+  existingAdminSecret:
+    name: "mlflow-admin-credentials"
+    usernameKey: "usernameKey"
+    passwordKey: "passwordKey"
+
+# -- Configuration de l'Ingress (Accès Web)
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: mirecloud-ca-issuer
+    # Force le SSL
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  hosts:
+    - host: mlflow.mirecloud.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: mlflow-tls
+      hosts:
+        - mlflow.mirecloud.com
+
+# -- LE FIX CRITIQUE --
+# 1. On désactive les logs pour supprimer l'argument "--gunicorn-opts" incompatible
+log:
+  enabled: false
+
+# 2. On configure Uvicorn pour accepter ton domaine
+extraArgs:
+  allowedHosts: "*"
+
+# -- Autres paramètres par défaut
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  containerPort: 5000
