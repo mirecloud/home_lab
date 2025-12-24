@@ -41,8 +41,5 @@ mlflow:
         hosts:
           - mlflow.mirecloud.com
 
-server:
-  extraArgs:
-    - "--host=0.0.0.0"
-    - "--port=5000"
-    - "--allowed-hosts=*"
+extraArgs:
+  allowedHosts: "*"
