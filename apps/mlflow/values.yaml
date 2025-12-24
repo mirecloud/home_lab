@@ -11,8 +11,8 @@ mlflow:
     # 2.
     existingDatabaseSecret:
       name: "postgres-database-secret"
-      usernameKey: "username"
-      passwordKey: "password"
+      usernameKey: "usernameKey"
+      passwordKey: "passwordKey"
 
     # 3. Activation de la migration automatique (recommandé par la doc)
     databaseMigration: true
@@ -22,8 +22,8 @@ mlflow:
     enabled: true
     existingAdminSecret:
       name: "mlflow-admin-credentials"
-      usernameKey: "username"
-      passwordKey: "password"
+      usernameKey: "usernameKey"
+      passwordKey: "passwordKey"
 
   ingress:
     enabled: true
