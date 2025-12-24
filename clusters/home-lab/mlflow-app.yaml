@@ -9,6 +9,10 @@ spec:
     repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: HEAD
     path: apps/mlflow
+    # AJOUTE CE BLOC ICI :
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: mlflow
