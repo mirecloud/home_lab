@@ -41,5 +41,5 @@ mlflow:
         hosts:
           - mlflow.mirecloud.com
 
-extraArgs:
-  allowedHosts: "*"
+  extraArgs:
+    allowedHosts: "*"
