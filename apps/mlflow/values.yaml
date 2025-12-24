@@ -41,5 +41,6 @@ mlflow:
         hosts:
           - mlflow.mirecloud.com
 
+  gunicornOpts: ""
   extraArgs:
     allowedHosts: "*"
