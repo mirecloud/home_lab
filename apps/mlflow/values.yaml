@@ -1,16 +1,23 @@
 mlflow:
   backendStore:
+    # 1. Configuration Postgres
     postgres:
       enabled: true
-      host: "postgresql.postgresql.svc" # Vérifie que ce DNS est correct dans ton cluster
+      host: "postgresql.postgresql.svc"
       port: 5432
       database: "mlflow"
+      # On laisse user/password vides car gérés par le secret ci-dessous
 
-  existingDatabaseSecret:
-    name: "postgres-database-secret"
-    usernameKey: "username"
-    passwordKey: "password"
+    # 2.
+    existingDatabaseSecret:
+      name: "postgres-database-secret"
+      usernameKey: "username"
+      passwordKey: "password"
 
+    # 3. Activation de la migration automatique (recommandé par la doc)
+    databaseMigration: true
+
+  # Authentification (Reste inchangé, c'était bon)
   auth:
     enabled: true
     existingAdminSecret:
