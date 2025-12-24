@@ -45,4 +45,4 @@ server:
   extraArgs:
     - --host=0.0.0.0
     - --port=5000
-    - --allowed-hosts=* <-- C'EST LA CLEF
+    - --allowed-hosts=*
