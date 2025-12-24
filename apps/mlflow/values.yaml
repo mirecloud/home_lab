@@ -1,0 +1,48 @@
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql.postgresql.svc"
+    port: 5432
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "postgres-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
+
+auth:
+  # -- Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time.
+  enabled: true
+
+  # -- Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored.
+  existingAdminSecret:
+    # -- The name of the existing admin credentials secret.
+    name: "mlflow-admin-credentials"
+    # -- The key of the admin username in the existing admin credentials secret.
+    usernameKey: "username"
+    # -- The key of the admin password in the existing admin credentials secret.
+    passwordKey: "password"
+  # -- Default permission
+
+ingress:
+  # -- Specifies if you want to create an ingress access
+  enabled: true
+  # -- New style ingress class name. Only possible if you use K8s 1.18.0 or later version
+  className: "nginx"
+  # -- Additional ingress annotations
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: mirecloud-ca-issuer
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: mlflow.mirecloud.com
+      paths:
+        - path: /
+          # -- Ingress path type
+          pathType: ImplementationSpecific
+  # -- Ingress tls configuration for https access
+  tls:
+    - secretName: mlflow-tls
+      hosts:
+        - mlflow.mirecloud.com
