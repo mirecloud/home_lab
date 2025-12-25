@@ -42,8 +42,6 @@ mlflow:
 
       # Force le SSL
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      nginx.ingress.kubernetes.io/use-http2: "false"
-      nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
 
     hosts:
       - host: mlflow.mirecloud.com
