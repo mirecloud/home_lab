@@ -1,0 +1,13 @@
+external-secrets:
+  # CRITIQUE : Doit matcher "bound_service_account_names" dans Vault
+  fullnameOverride: "external-secrets"
+
+  installCRDs: true
+
+  webhook:
+    create: true
+    certManager:
+      enabled: true # Utilise le cert-manager qu'on a installé en Phase 1
+
+  certController:
+    create: true
