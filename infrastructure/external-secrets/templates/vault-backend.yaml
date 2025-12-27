@@ -3,14 +3,14 @@ kind: ClusterSecretStore
 metadata:
   name: vault-backend
   annotations:
-    # On garde la vague 5 pour être sûr qu'il passe APRES l'install
     argocd.argoproj.io/sync-wave: "5"
-    # C'EST LA LIGNE QUI TE SAUVE LA VIE :
+    # C'est LA ligne qui corrige l'erreur de ta première capture d'écran
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   provider:
     vault:
-      server: "http://vault.vault.svc.cluster.local:8200"
+      # On tape sur le Service "Active" pour tomber sur le Leader (vault-0 actuellement)
+      server: "http://vault-active.vault.svc.cluster.local:8200"
       path: "secret"
       version: "v2"
       auth:
@@ -18,5 +18,5 @@ spec:
           mountPath: "kubernetes"
           role: "vault-backend"
           serviceAccountRef:
-            name: "ext-secrets-external-secrets"
+            name: "external-secrets"
             namespace: "external-secrets"
