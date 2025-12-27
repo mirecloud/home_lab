@@ -1,14 +1,13 @@
-fullnameOverride: external-secrets
+external-secrets:
+  installCRDs: true
 
-installCRDs: true
-
-webhook:
-  enabled: true
-  certManager:
+  webhook:
     enabled: true
-    issuerRef:
-      name: mirecloud-ca-issuer
-      kind: ClusterIssuer
+    certManager:
+      enabled: true
+      issuerRef:
+        name: mirecloud-ca-issuer
+        kind: ClusterIssuer
 
-certController:
-  create: false
+  certController:
+    create: false
