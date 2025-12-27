@@ -1,13 +1,14 @@
-external-secrets:
-  # CRITIQUE : Doit matcher "bound_service_account_names" dans Vault
-  fullnameOverride: "external-secrets"
+fullnameOverride: external-secrets
 
-  installCRDs: true
+installCRDs: true
 
-  webhook:
-    create: true
-    certManager:
-      enabled: true # Utilise le cert-manager qu'on a installé en Phase 1
+webhook:
+  enabled: true
+  certManager:
+    enabled: true
+    issuerRef:
+      name: mirecloud-ca-issuer
+      kind: ClusterIssuer
 
-  certController:
-    create: true
+certController:
+  create: false
