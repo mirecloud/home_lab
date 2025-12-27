@@ -1,13 +1,20 @@
 external-secrets:
+  # CRITIQUE : Force le nom du ServiceAccount pour l'auth Vault
+  fullnameOverride: "external-secrets"
+
+  # Installe les CRDs automatiquement (ClusterSecretStore, ExternalSecret, etc.)
   installCRDs: true
 
+  # Configuration du Webhook (Communication interne)
   webhook:
-    enabled: true
+    create: true
     certManager:
-      enabled: true
-      issuerRef:
-        name: mirecloud-ca-issuer
-        kind: ClusterIssuer
+      # On laisse ESO gérer ses propres certs internes pour éviter les erreurs "Issuer not found"
+      enabled: false
+    # Augmente un peu le timeout pour éviter les erreurs de sync
+    timeoutSeconds: 10
 
+  # Configuration du contrôleur de certificats
   certController:
-    create: false
+    create: true
+    requeueInterval: "5m"

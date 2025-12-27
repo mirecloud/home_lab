@@ -3,13 +3,14 @@ kind: ClusterSecretStore
 metadata:
   name: vault-backend
   annotations:
+    # Vague 5 : On s'assure que l'opérateur est installé (Vague 0) avant de créer ça
     argocd.argoproj.io/sync-wave: "5"
-    # C'est LA ligne qui corrige l'erreur de ta première capture d'écran
+    # L'ANTIDOTE : Permet à ArgoCD d'appliquer le fichier même si la CRD n'est pas encore prête
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   provider:
     vault:
-      # On tape sur le Service "Active" pour tomber sur le Leader (vault-0 actuellement)
+      # Adresse du Service HA de Vault (Mode Prod)
       server: "http://vault-active.vault.svc.cluster.local:8200"
       path: "secret"
       version: "v2"
