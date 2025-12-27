@@ -3,8 +3,10 @@ kind: ClusterSecretStore
 metadata:
   name: vault-backend
   annotations:
-    # On demande à ArgoCD d'attendre un peu que les CRDs soient là
+    # On garde la vague 5 pour être sûr qu'il passe APRES l'install
     argocd.argoproj.io/sync-wave: "5"
+    # C'EST LA LIGNE QUI TE SAUVE LA VIE :
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   provider:
     vault:
@@ -16,7 +18,5 @@ spec:
           mountPath: "kubernetes"
           role: "vault-backend"
           serviceAccountRef:
-            # ATTENTION : Avec le wrapper, vérifie bien que ce nom est correct une fois déployé.
-            # Si tu as une erreur d'auth, c'est souvent le nom ici qui a changé (ex: external-secrets-wrapper-...)
-            name: "ext-secrets-external-secrets" 
+            name: "ext-secrets-external-secrets"
             namespace: "external-secrets"
