@@ -2,6 +2,9 @@ apiVersion: external-secrets.io/v1beta1
 kind: ClusterSecretStore
 metadata:
   name: vault-backend
+  annotations:
+    # On demande à ArgoCD d'attendre un peu que les CRDs soient là
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   provider:
     vault:
@@ -11,7 +14,9 @@ spec:
       auth:
         kubernetes:
           mountPath: "kubernetes"
-          role: "vault-backend"     # <--- C'est ICI que tu avais "argocd-role"
+          role: "vault-backend"
           serviceAccountRef:
-            name: "ext-secrets-external-secrets" # Le compte exact que tu as trouvé tout à l'heure
+            # ATTENTION : Avec le wrapper, vérifie bien que ce nom est correct une fois déployé.
+            # Si tu as une erreur d'auth, c'est souvent le nom ici qui a changé (ex: external-secrets-wrapper-...)
+            name: "ext-secrets-external-secrets" 
             namespace: "external-secrets"

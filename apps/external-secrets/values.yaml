@@ -1,4 +1,9 @@
-# Chart: external-secrets/external-secrets
-installCRDs: true
-webhook:
-  create: true
+# Configuration spécifique à la dépendance "external-secrets"
+external-secrets:
+  installCRDs: true # <--- OBLIGATOIRE. Doit être indenté sous "external-secrets"
+
+  webhook:
+    create: true
+
+  certController:
+    create: true
