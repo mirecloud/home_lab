@@ -1,7 +1,7 @@
-apiVersion: external-secrets.io/v1
+apiVersion: external-secrets.io/v1beta1
 kind: ClusterSecretStore
 metadata:
-  name: vault-backend  
+  name: vault-backend
 spec:
   provider:
     vault:
@@ -11,4 +11,7 @@ spec:
       auth:
         kubernetes:
           mountPath: "kubernetes"
-          role: "ext-secrets-external-secrets" 
+          role: "vault-backend"   # <--- C'ÉTAIT ÇA TON ERREUR (C'était "argocd-role")
+          serviceAccountRef:
+            name: "external-secrets" # Le nom du SA de l'opérateur dans le namespace external-secrets
+            namespace: "external-secrets" # OBLIGATOIRE si ClusterSecretStore
