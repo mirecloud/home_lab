@@ -1,0 +1,36 @@
+vault:
+  server:
+    # --- SÉCURITÉ ---
+    dev:
+      enabled: false # PROD : Sealed par défaut
+
+    # --- STOCKAGE PERSISTANT ---
+    dataStorage:
+      enabled: true
+      size: 10Gi
+      storageClass: null # Prendra ton NFS ou Longhorn par défaut
+
+    # --- HAUTE DISPO (RAFT) ---
+    ha:
+      enabled: true
+      replicas: 3 # Quorum de 3 noeuds
+      raft:
+        enabled: true
+        setNodeId: true
+        config: |
+          ui = true
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+          }
+          storage "raft" {
+            path = "/vault/data"
+          }
+          service_registration "kubernetes" {}
+
+  # --- UI ---
+  ui:
+    enabled: true
+    serviceType: ClusterIP
+    externalPort: 8200
