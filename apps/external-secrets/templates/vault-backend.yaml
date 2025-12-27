@@ -11,4 +11,4 @@ spec:
       auth:
         kubernetes:
           mountPath: "kubernetes"
-          role: "argocd-role" 
+          role: "ext-secrets-external-secrets" 
