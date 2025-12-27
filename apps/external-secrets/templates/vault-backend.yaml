@@ -11,7 +11,7 @@ spec:
       auth:
         kubernetes:
           mountPath: "kubernetes"
-          role: "vault-backend"   # <--- C'ÉTAIT ÇA TON ERREUR (C'était "argocd-role")
+          role: "vault-backend"     # <--- C'est ICI que tu avais "argocd-role"
           serviceAccountRef:
-            name: "external-secrets" # Le nom du SA de l'opérateur dans le namespace external-secrets
-            namespace: "external-secrets" # OBLIGATOIRE si ClusterSecretStore
+            name: "ext-secrets-external-secrets" # Le compte exact que tu as trouvé tout à l'heure
+            namespace: "external-secrets"
