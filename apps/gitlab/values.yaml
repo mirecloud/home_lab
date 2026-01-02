@@ -1,69 +1,75 @@
 gitlab:
   # --------------------------------------------------------
-  # 1. DÉSACTIVATION DES VÉRIFICATIONS & MAINTENANCE
+  # 1. DÉSACTIVATION DES CHECKS BLOQUANTS
   # --------------------------------------------------------
   upgradeCheck:
     enabled: false
 
-  # Hack pour valider le template Helm (même si on utilise CertManager externe)
+  # Obligatoire pour satisfaire le template Helm GitLab
+  # (même si on n’utilise PAS le certmanager GitLab)
   certmanager-issuer:
     email: admin@mirecloud.com
 
   # --------------------------------------------------------
-  # 2. CONFIGURATION GLOBALE (DONT LE FIX METRICS)
+  # 2. CONFIGURATION GLOBALE
   # --------------------------------------------------------
   global:
     common:
       check: false
+
     edition: ce
+
     hosts:
       domain: mirecloud.com
       https: true
 
-    # 🔥 LE FIX FINAL POUR LE MONITORING 🔥
-    # Active la génération des configurations métriques partout
+    # 🔥 OBLIGATOIRE POUR ACTIVER LES METRICS PARTOUT 🔥
     metrics:
       enabled: true
 
-    # Certificats pour le SSO
+    # Certificats custom (CA interne pour Keycloak)
     certificates:
       customCAs:
         - secret: gitlab-custom-ca-secret
 
-    # Base de données Externe (CNPG)
+    # --------------------------------------------------------
+    # Base de données PostgreSQL EXTERNE (CNPG)
+    # --------------------------------------------------------
     psql:
-      password:
-        useSecret: true
-        secret: gitlab-postgresql-password
-        key: postgres-password
       host: postgres.postgres.svc
       port: 5432
       username: postgres
       database: gitlab
+      password:
+        useSecret: true
+        secret: gitlab-postgresql-password
+        key: postgres-password
 
-    # Minio Interne
+    # MinIO interne GitLab
     minio:
       enabled: true
 
-    # Redis Interne
+    # Redis interne GitLab
     redis:
       host: ""
 
   # --------------------------------------------------------
-  # 3. CONFIGURATION SSO (KEYCLOAK)
+  # 3. SSO KEYCLOAK (OMNIAUTH)
   # --------------------------------------------------------
   appConfig:
     omniauth:
       enabled: true
-      autoLinkUser: ["openid_connect"]
-      allowSingleSignOn: ["openid_connect"]
+      autoLinkUser:
+        - openid_connect
+      allowSingleSignOn:
+        - openid_connect
       blockAutoCreatedUsers: false
       providers:
         - secret: gitlab-oidc-config
           key: provider
 
   # --------------------------------------------------------
-  # 4. CONFIGURATION RESEAU (INGRESS)
+  # 4. INGRESS & TLS
   # --------------------------------------------------------
   ingress:
     configureCertmanager: false
@@ -79,8 +85,9 @@ gitlab:
 
   # --------------------------------------------------------
   # 5. OBSERVABILITÉ (SERVICE MONITORS)
+  # ⚠️ Le label DOIT matcher Prometheus :
+  #     serviceMonitorSelector.matchLabels.release = prometheus-stack
   # --------------------------------------------------------
-  # Note : Grâce au global.metrics.enabled, ces blocs seront enfin lus !
 
   webservice:
     metrics:
@@ -88,7 +95,7 @@ gitlab:
       serviceMonitor:
         enabled: true
         additionalLabels:
-          release: kube-prometheus-stack
+          release: prometheus-stack
 
   sidekiq:
     metrics:
@@ -96,7 +103,7 @@ gitlab:
       serviceMonitor:
         enabled: true
         additionalLabels:
-          release: kube-prometheus-stack
+          release: prometheus-stack
 
   gitlab-exporter:
     enabled: true
@@ -105,7 +112,7 @@ gitlab:
       serviceMonitor:
         enabled: true
         additionalLabels:
-          release: kube-prometheus-stack
+          release: prometheus-stack
 
   gitlab-shell:
     metrics:
@@ -113,21 +120,24 @@ gitlab:
       serviceMonitor:
         enabled: true
         additionalLabels:
-          release: kube-prometheus-stack
+          release: prometheus-stack
 
   # --------------------------------------------------------
   # 6. COMPOSANTS DÉSACTIVÉS
   # --------------------------------------------------------
 
-  # On utilise notre propre Prometheus via les ServiceMonitors
+  # On utilise kube-prometheus-stack, pas celui de GitLab
   prometheus:
     install: false
 
+  # DB interne désactivée (CNPG externe)
   postgresql:
     install: false
 
+  # Runner géré hors cluster
   gitlab-runner:
     install: false
 
+  # Migrations ACTIVÉES (DB fraîche)
   migrations:
     enabled: true
