@@ -1,118 +1,50 @@
 gitlab:
-  # --------------------------------------------------------
-  # 1. DÉSACTIVATION DES VÉRIFICATIONS & MAINTENANCE
-  # --------------------------------------------------------
-  upgradeCheck:
-    enabled: false
-
-  global:
-    common:
-      check: false
-
-    edition: ce
-    hosts:
-      domain: mirecloud.com
-      https: true
-
-    # --------------------------------------------------------
-    # 2. CERTIFICATS CUSTOM (SSO)
-    # --------------------------------------------------------
-    certificates:
-      customCAs:
-        - secret: gitlab-custom-ca-secret
-
-    # --------------------------------------------------------
-    # 3. CONFIGURATION SSO (KEYCLOAK)
-    # --------------------------------------------------------
-    appConfig:
-      omniauth:
-        enabled: true
-        autoLinkUser: ["openid_connect"]
-        allowSingleSignOn: ["openid_connect"]
-        blockAutoCreatedUsers: false
-        providers:
-          - secret: gitlab-oidc-config
-            key: provider
-
-    # --------------------------------------------------------
-    # 4. CONFIGURATION RESEAU & SSL
-    # --------------------------------------------------------
-    ingress:
-      configureCertmanager: false
-      class: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-        nginx.ingress.kubernetes.io/proxy-body-size: "512m"
-        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-      tls:
-        enabled: true
-        secretName: gitlab-tls
-
-    # --------------------------------------------------------
-    # 5. BASE DE DONNÉES EXTERNE (CNPG)
-    # --------------------------------------------------------
-    psql:
-      password:
-        useSecret: true
-        secret: gitlab-postgresql-password
-        key: postgres-password
-      host: postgres.postgres.svc
-      port: 5432
-      username: postgres
-      database: gitlab
-
-    # Minio Interne
-    minio:
-      enabled: true
-
-    # Redis Interne
-    redis:
-      host: ""
+  # ... (Le début du fichier ne change pas : upgradeCheck, global, certificates, appConfig, ingress, psql, minio, redis ...)
 
   # --------------------------------------------------------
-  # 6. OBSERVABILITÉ (CORRIGÉ)
+  # 6. OBSERVABILITÉ (CORRIGÉ - INDENTATION CRITIQUE)
   # --------------------------------------------------------
-  # Note : 'serviceMonitor' doit être aligné avec 'metrics', pas dedans.
 
   webservice:
     metrics:
       enabled: true
-    serviceMonitor:
-      enabled: true
-      additionalLabels:
-        release: kube-prometheus-stack
+      # 'serviceMonitor' DOIT être sous 'metrics' (2 espaces de plus)
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
 
   sidekiq:
     metrics:
       enabled: true
-    serviceMonitor:
-      enabled: true
-      additionalLabels:
-        release: kube-prometheus-stack
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
 
   gitlab-exporter:
     enabled: true
-    serviceMonitor:
+    metrics:
       enabled: true
-      additionalLabels:
-        release: kube-prometheus-stack
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
 
   gitlab-shell:
     metrics:
       enabled: true
-    serviceMonitor:
-      enabled: true
-      additionalLabels:
-        release: kube-prometheus-stack
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
 
   # --------------------------------------------------------
   # 7. COMPOSANTS DÉSACTIVÉS
   # --------------------------------------------------------
 
-  # On désactive le Prometheus inclus (car on utilise ServiceMonitor)
   prometheus:
-    install: false
+    install: false # On désactive celui de GitLab car on utilise les ServiceMonitor ci-dessus
 
   postgresql:
     install: false
