@@ -1,0 +1,17 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: keycloak-admin-es
+  namespace: keycloak
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: keycloak-admin-password # Doit correspondre au nom dans ton values.yaml
+  data:
+  - secretKey: password
+    remoteRef:
+      key: secret/keycloak/admin
+      property: password
