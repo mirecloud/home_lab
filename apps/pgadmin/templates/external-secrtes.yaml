@@ -1,17 +1,17 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: keycloak-admin-es
-  namespace: keycloak
+  name: pgadmin-admin-es
+  namespace: pgadmin
 spec:
   refreshInterval: 1m
   secretStoreRef:
     name: vault-backend
     kind: ClusterSecretStore
   target:
-    name: keycloak-admin-password # Doit correspondre au nom dans ton values.yaml
+    name: pgadmin-admin-password # Doit correspondre au nom dans ton values.yaml
   data:
   - secretKey: password
     remoteRef:
-      key: secret/keycloak/admin
+      key: secret/pgadmin/admin
       property: password
