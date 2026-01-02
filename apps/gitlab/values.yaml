@@ -1,29 +1,31 @@
-# -----------------------------------------------------------------------
-# Wrapper pour GitLab
-# -----------------------------------------------------------------------
 gitlab:
-  # Configuration Globale
+  # --- DÉSACTIVATION TOTALE DES VÉRIFICATIONS ---
+  upgradeCheck:
+    enabled: false   # Désactive le check de version DB
+  
+  global:
+    common:
+      check: false   # Désactive les checks de configuration généraux (souvent ignoré mais vital ici)
+  # ---------------------------------------------
+
   global:
     edition: ce
     hosts:
       domain: mirecloud.com
       https: true
-
-    # Ingress
+    
     ingress:
-      # On désactive la configuration automatique de CertManager par GitLab
       configureCertmanager: false
       class: nginx
       annotations:
         cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
         nginx.ingress.kubernetes.io/proxy-body-size: "512m"
         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
       tls:
         enabled: true
         secretName: gitlab-tls
 
-    # Base de données Externe
+    # Ta configuration Postgres Externe
     psql:
       password:
         useSecret: true
@@ -34,40 +36,24 @@ gitlab:
       username: gitlab
       database: gitlab
 
-    # Minio (Interne)
     minio:
       enabled: true
-
-    # Redis (Interne)
-    # On retire "password: {}" qui causait les warnings
-    # On retire "host: """ qui était inutile pour le redis interne
+    
+    # Redis interne (simplifié pour éviter les erreurs de schéma)
     redis:
       host: ""
 
-  # --- DÉSACTIVATIONS ---
-
-  # Désactiver le check de mise à jour (Vital pour passer d'interne à externe)
-  upgradeCheck:
-    enabled: false
-
-  # Migrations activées
+  # On s'assure que les migrations tournent pour peupler ta DB vide
   migrations:
     enabled: true
 
-  # Désactiver le Postgres inclus
+  # Désactivation des composants internes
   postgresql:
     install: false
-
-  # Désactiver le Cert-Manager inclus
-  # Si "install: false" bloque le validateur, on essaie "enabled: false"
-  # ou on retire le bloc si global.ingress.configureCertmanager suffit.
-  # Tentons la méthode propre standard d'abord :
+  
   certmanager:
     install: false
-    # Si ça bloque encore, commente "install: false" et laisse juste le bloc vide
-    # ou supprime tout le bloc 'certmanager'.
 
-  # Runner
   gitlab-runner:
     install: true
     rbac:
