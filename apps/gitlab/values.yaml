@@ -15,7 +15,7 @@ gitlab:
       https: true
 
     # --------------------------------------------------------
-    # 2. CERTIFICATS CUSTOM (Pour que le SSO marche !)
+    # 2. CERTIFICATS CUSTOM (SSO)
     # --------------------------------------------------------
     certificates:
       customCAs:
@@ -71,52 +71,54 @@ gitlab:
       host: ""
 
   # --------------------------------------------------------
-  # 6. OBSERVABILITÉ (NOUVEAU !)
+  # 6. OBSERVABILITÉ (CORRIGÉ)
   # --------------------------------------------------------
+  # Note : 'serviceMonitor' doit être aligné avec 'metrics', pas dedans.
 
-  # On active les ServiceMonitors pour que ton Prometheus externe puisse lire GitLab
-  # Important : Le label 'release: kube-prometheus-stack' doit correspondre au nom de ton install prometheus
   webservice:
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: kube-prometheus-stack
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus-stack
 
   sidekiq:
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: kube-prometheus-stack
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus-stack
 
   gitlab-exporter:
     enabled: true
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus-stack
+
+  gitlab-shell:
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: kube-prometheus-stack
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus-stack
 
   # --------------------------------------------------------
-  # 7. COMPOSANTS DÉSACTIVÉS (NETTOYAGE)
+  # 7. COMPOSANTS DÉSACTIVÉS
   # --------------------------------------------------------
 
-  # On désactive le Prometheus inclus dans GitLab (car tu as le tien)
+  # On désactive le Prometheus inclus (car on utilise ServiceMonitor)
   prometheus:
     install: false
 
-  # On désactive le Postgres inclus (car tu as CNPG)
   postgresql:
     install: false
 
-  # Le runner est géré à part (VM)
   gitlab-runner:
     install: false
 
-  # Migrations activées pour l'initialisation
   migrations:
     enabled: true
