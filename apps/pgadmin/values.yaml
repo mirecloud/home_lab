@@ -1,6 +1,6 @@
 # Configuration de l'environnement de base (Obligatoire pour éviter le crash)
 env:
-  email: "admin@mirecloud.com"
+  email: "info@mirecloud.com"
   contextPath: "/" # <--- C'est CETTE ligne qui manquait et causait l'erreur
 
 # Injection du mot de passe via Vault (ExternalSecret)
