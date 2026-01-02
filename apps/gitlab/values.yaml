@@ -1,6 +1,6 @@
 gitlab:
   # --------------------------------------------------------
-  # 1. DÉSACTIVATION DES VÉRIFICATIONS
+  # 1. DÉSACTIVATION DES VÉRIFICATIONS & MAINTENANCE
   # --------------------------------------------------------
   upgradeCheck:
     enabled: false
@@ -50,7 +50,7 @@ gitlab:
         secretName: gitlab-tls
 
     # --------------------------------------------------------
-    # 5. BASE DE DONNÉES EXTERNE
+    # 5. BASE DE DONNÉES EXTERNE (CNPG)
     # --------------------------------------------------------
     psql:
       password:
@@ -59,7 +59,6 @@ gitlab:
         key: postgres-password
       host: postgres.postgres.svc
       port: 5432
-      # Changement demandé : on utilise le super-admin
       username: postgres
       database: gitlab
 
@@ -72,13 +71,52 @@ gitlab:
       host: ""
 
   # --------------------------------------------------------
-  # 6. COMPOSANTS
+  # 6. OBSERVABILITÉ (NOUVEAU !)
   # --------------------------------------------------------
-  migrations:
-    enabled: true
 
+  # On active les ServiceMonitors pour que ton Prometheus externe puisse lire GitLab
+  # Important : Le label 'release: kube-prometheus-stack' doit correspondre au nom de ton install prometheus
+  webservice:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
+
+  sidekiq:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
+
+  gitlab-exporter:
+    enabled: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
+
+  # --------------------------------------------------------
+  # 7. COMPOSANTS DÉSACTIVÉS (NETTOYAGE)
+  # --------------------------------------------------------
+
+  # On désactive le Prometheus inclus dans GitLab (car tu as le tien)
+  prometheus:
+    install: false
+
+  # On désactive le Postgres inclus (car tu as CNPG)
   postgresql:
     install: false
 
+  # Le runner est géré à part (VM)
   gitlab-runner:
-    install: false # Sera installé sur VM à part
+    install: false
+
+  # Migrations activées pour l'initialisation
+  migrations:
+    enabled: true
