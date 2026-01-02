@@ -15,25 +15,27 @@ gitlab:
       https: true
 
     # --------------------------------------------------------
-    # 2. CONFIGURATION SSO (KEYCLOAK) - NOUVEAU !
+    # 2. CERTIFICATS CUSTOM (Pour que le SSO marche !)
+    # --------------------------------------------------------
+    certificates:
+      customCAs:
+        - secret: gitlab-custom-ca-secret
+
+    # --------------------------------------------------------
+    # 3. CONFIGURATION SSO (KEYCLOAK)
     # --------------------------------------------------------
     appConfig:
       omniauth:
         enabled: true
-        # Lie automatiquement le compte si l'email est identique
         autoLinkUser: ["openid_connect"]
-        # Force le SSO pour ce provider
         allowSingleSignOn: ["openid_connect"]
-        # false = Crée automatiquement l'utilisateur au premier login
         blockAutoCreatedUsers: false
-
-        # Pointe vers le secret créé par ExternalSecret
         providers:
           - secret: gitlab-oidc-config
             key: provider
 
     # --------------------------------------------------------
-    # 3. CONFIGURATION RESEAU & SSL
+    # 4. CONFIGURATION RESEAU & SSL
     # --------------------------------------------------------
     ingress:
       configureCertmanager: false
@@ -48,7 +50,7 @@ gitlab:
         secretName: gitlab-tls
 
     # --------------------------------------------------------
-    # 4. BASE DE DONNÉES EXTERNE
+    # 5. BASE DE DONNÉES EXTERNE
     # --------------------------------------------------------
     psql:
       password:
@@ -57,7 +59,7 @@ gitlab:
         key: postgres-password
       host: postgres.postgres.svc
       port: 5432
-      # Important : On utilise l'utilisateur 'gitlab' (celui du secret Vault)
+      # Changement demandé : on utilise le super-admin
       username: postgres
       database: gitlab
 
@@ -70,7 +72,7 @@ gitlab:
       host: ""
 
   # --------------------------------------------------------
-  # 5. COMPOSANTS
+  # 6. COMPOSANTS
   # --------------------------------------------------------
   migrations:
     enabled: true
@@ -79,4 +81,4 @@ gitlab:
     install: false
 
   gitlab-runner:
-    install: false # Désactivé comme convenu (sera sur VM)
+    install: false # Sera installé sur VM à part
