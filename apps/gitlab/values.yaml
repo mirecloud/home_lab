@@ -1,61 +1,65 @@
-# Configuration Globale
-global:
-  edition: ce
-  hosts:
-    domain: mirecloud.com
-    https: true
+# -----------------------------------------------------------------------
+# Configuration pour le sous-chart "gitlab"
+# Assure-toi que "gitlab" est bien le nom dans ton Chart.yaml (dependencies)
+# -----------------------------------------------------------------------
+gitlab:
+  # Configuration Globale (Propage aux sous-composants)
+  global:
+    edition: ce
+    hosts:
+      domain: mirecloud.com
+      https: true
 
-  # Configuration de l'Ingress
-  ingress:
-    configureCertmanager: false
-    class: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-      # Augmenter le timeout pour les gros push Git
-      nginx.ingress.kubernetes.io/proxy-body-size: "512m"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-    tls:
+    # Ingress (Désactivé ici car géré par tes annotations globales ou spécifiques)
+    ingress:
+      configureCertmanager: false
+      class: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+        nginx.ingress.kubernetes.io/proxy-body-size: "512m"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+      tls:
+        enabled: true
+        secretName: gitlab-tls
+
+    # --- CONNEXION POSTGRES EXTERNE ---
+    psql:
+      password:
+        useSecret: true
+        secret: gitlab-postgresql-password
+        key: postgres-password
+      host: postgres.postgres.svc
+      port: 5432
+      username: Postgres
+      database: gitlab
+    # ----------------------------------
+
+    # Redis & Minio internes (pour l'instant)
+    redis:
+      host: ""
+      password: {}
+    minio:
       enabled: true
-      secretName: gitlab-tls
 
-  # --- CONNEXION POSTGRES EXTERNE ---
-  psql:
-    password:
-      useSecret: true
-      secret: gitlab-postgresql-password
-      key: postgres-password
-    host: postgres.postgres.svc
-    port: 5432
-    username: postgres # <--- CORRECTION ICI (C'était 'postgres')
-    database: gitlab
-  # ----------------------------------
+  # C'est ICI que ça compte : On dit au sous-chart de NE PAS vérifier l'upgrade
+  upgradeCheck:
+    enabled: false
 
-  # Configuration Redis (Interne)
-  redis:
-    host: ""
-    password: {}
-
-  # Configuration Minio (Interne)
-  minio:
+  # On active les migrations pour qu'il peuple ta DB vide
+  migrations:
     enabled: true
 
-# --- FIX POUR L'ERREUR D'UPGRADE ---
-# C'est ce bloc qui va dire à Helm "Arrête de vérifier, installe !"
-upgradeCheck:
-  enabled: false
-# -----------------------------------
+  # On désactive le Postgres inclus (INDENTÉ sous gitlab)
+  postgresql:
+    install: false
 
-# Désactiver le Postgres inclus
-postgresql:
-  install: false
+  # On désactive le Cert-Manager inclus (INDENTÉ sous gitlab)
+  certmanager:
+    install: false
 
-# Désactiver Cert-Manager inclus
-certmanager:
-  install: false
-
-# Configuration du runner
-gitlab-runner:
-  install: true
-  rbac:
-    create: true
+  # Configuration du runner
+  gitlab-runner:
+    install: true
+    rbac:
+      create: true
