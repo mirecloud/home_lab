@@ -1,60 +1,51 @@
-# --- CONFIGURATION DU WRAPPER (Indispensable pour ArgoCD) ---
-gitlab:
-  # 1. Le Fix pour ton erreur actuelle : On désactive la vérification d'upgrade
-  upgradeCheck:
-    enabled: false
-
-  # 2. On désactive les migrations (car déjà faites lors de ton install manuelle)
-  # Cela évite qu'ArgoCD reste bloqué sur "Running Migrations" à chaque sync
-  migrations:
-    enabled: false
-
-  # 3. Désactivation des composants internes (Sous la clé 'gitlab' !)
-  certmanager:
-    enabled: false
-    installCRDs: false
-
-  nginx-ingress:
-    enabled: false
-
-  prometheus:
-    install: false
-
-  gitlab-runner:
-    install: false
-
-  postgresql:
-    install: false
-
-# --- CONFIGURATION GLOBALE (Reste à la racine) ---
+# Configuration Globale
 global:
+  edition: ce
   hosts:
     domain: mirecloud.com
-    gitlab:
-      name: gitlab.mirecloud.com
+    https: true
 
+  # Configuration de l'Ingress
   ingress:
-    enabled: true
-    configureCertmanager: false
-    provider: nginx
+    configureCertmanager: false # On utilise ton propre Cert-Manager
     class: nginx
     annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: mirecloud-ca-issuer
+      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
     tls:
       enabled: true
-      secretName: gitlab-tls-auto
+      secretName: gitlab-tls # Cert-Manager créera ce certificat
 
-  # Désactive l'utilisation logique de cert-manager interne
-  certmanager:
-    enabled: false
-
-  # Connexion à ta base de données externe
+  # --- CONNEXION POSTGRES EXTERNE ---
   psql:
-    host: postgres.postgres.svc.cluster.local
+    password:
+      useSecret: true
+      secret: gitlab-postgresql-password # Créé par ExternalSecret
+      key: postgres-password
+    host: postgres.postgres.svc # Le nom DNS de ton service Postgres existant
     port: 5432
     username: postgres
     database: gitlab
-    password:
-      secret: gitlab-postgres-secret
-      key: password
+  # ----------------------------------
+
+  # Configuration Redis (On garde l'interne pour l'instant pour simplifier)
+  redis:
+    host: ""
+    password: {}
+
+  # Configuration Minio (Stockage objets interne pour l'instant)
+  minio:
+    enabled: true
+
+# Désactiver le Postgres inclus dans le chart
+postgresql:
+  install: false
+
+# Configuration Cert-Manager (On désactive celui inclus car tu as le tien)
+certmanager:
+  install: false
+
+# Configuration du runner (Optionnel, pour faire tourner les pipelines)
+gitlab-runner:
+  install: true
+  rbac:
+    create: true
