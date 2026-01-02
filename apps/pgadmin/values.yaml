@@ -1,14 +1,22 @@
 pgadmin4:
   env:
+    # ATTENTION : J'ai vu "info@mirecloud.com" dans tes logs.
+    # Assure-toi d'utiliser le même email pour te connecter !
     email: "info@mirecloud.com"
-    contextPath: "" # <--- METS JUSTE DES GUILLEMETS VIDES ICI (au lieu de "/")
+    contextPath: ""
 
-  extraEnv:
-    - name: PGADMIN_DEFAULT_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: pgadmin-admin-password
-          key: password
+  # --- CONFIGURATION SECRETE NATIVE ---
+  # Au lieu de 'extraEnv', on dit au chart : "Le secret existe déjà, utilise-le."
+  existingSecret: "pgadmin-admin-password"
+
+  # On mappe les clés attendues par PgAdmin vers les clés de ton secret Vault
+  secretKeys:
+    pgadmin-password: "password"
+    # (Si tu avais mis l'email dans Vault, on le mapperait ici aussi)
+  # ------------------------------------
+
+  # On supprime (ou laisse vide) extraEnv pour ne pas créer de doublons
+  extraEnv: []
 
   ingress:
     enabled: true
