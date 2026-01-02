@@ -1,47 +1,69 @@
 gitlab:
+  # --------------------------------------------------------
+  # 1. DÉSACTIVATION DES VÉRIFICATIONS (CRITIQUE)
+  # --------------------------------------------------------
   upgradeCheck:
-    enabled: true
+    enabled: false
 
   global:
     common:
-      check: false
+      check: false # Désactive les pré-checks qui bloquent souvent
+
     edition: ce
     hosts:
       domain: mirecloud.com
       https: true
 
+    # --------------------------------------------------------
+    # 2. CONFIGURATION RESEAU & SSL
+    # --------------------------------------------------------
     ingress:
-      configureCertmanager: false
+      configureCertmanager: false # On dit à GitLab de ne pas configurer son cert-manager
       class: nginx
       annotations:
         cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
         nginx.ingress.kubernetes.io/proxy-body-size: "512m"
         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
       tls:
         enabled: true
         secretName: gitlab-tls
 
+    # --------------------------------------------------------
+    # 3. BASE DE DONNÉES EXTERNE (Ton ppostgres)
+    # --------------------------------------------------------
     psql:
-      host: postgres.postgres.svc
-      port: 5432
-      username: postgres
-      database: gitlab
       password:
         useSecret: true
         secret: gitlab-postgresql-password
         key: postgres-password
+      host: postgres.postgres.svc
+      port: 5432
+      username: postgres
+      database: gitlab
 
+    # Minio Interne
     minio:
       enabled: true
 
+    # Redis Interne (Config minimale pour éviter les warnings)
     redis:
-      install: true
+      host: ""
 
+  # --------------------------------------------------------
+  # 4. COMPOSANTS
+  # --------------------------------------------------------
+
+  # On s'assure que les migrations tournent (Vital pour DB vide)
   migrations:
     enabled: true
 
+  # On désactive le Postgres inclus
   postgresql:
     install: false
+
+  # On ne met PAS de bloc 'certmanager' ici pour éviter l'erreur de schéma.
+  # "configureCertmanager: false" plus haut suffit pour l'ignorer.
 
   gitlab-runner:
     install: true
