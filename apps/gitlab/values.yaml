@@ -1,17 +1,17 @@
 # -----------------------------------------------------------------------
-# Configuration pour le sous-chart "gitlab"
-# Assure-toi que "gitlab" est bien le nom dans ton Chart.yaml (dependencies)
+# Wrapper pour GitLab
 # -----------------------------------------------------------------------
 gitlab:
-  # Configuration Globale (Propage aux sous-composants)
+  # Configuration Globale
   global:
     edition: ce
     hosts:
       domain: mirecloud.com
       https: true
 
-    # Ingress (Désactivé ici car géré par tes annotations globales ou spécifiques)
+    # Ingress
     ingress:
+      # On désactive la configuration automatique de CertManager par GitLab
       configureCertmanager: false
       class: nginx
       annotations:
@@ -23,7 +23,7 @@ gitlab:
         enabled: true
         secretName: gitlab-tls
 
-    # --- CONNEXION POSTGRES EXTERNE ---
+    # Base de données Externe
     psql:
       password:
         useSecret: true
@@ -31,34 +31,43 @@ gitlab:
         key: postgres-password
       host: postgres.postgres.svc
       port: 5432
-      username: Postgres
+      username: gitlab
       database: gitlab
-    # ----------------------------------
 
-    # Redis & Minio internes (pour l'instant)
-    redis:
-      host: ""
-      password: {}
+    # Minio (Interne)
     minio:
       enabled: true
 
-  # C'est ICI que ça compte : On dit au sous-chart de NE PAS vérifier l'upgrade
+    # Redis (Interne)
+    # On retire "password: {}" qui causait les warnings
+    # On retire "host: """ qui était inutile pour le redis interne
+    redis:
+      host: ""
+
+  # --- DÉSACTIVATIONS ---
+
+  # Désactiver le check de mise à jour (Vital pour passer d'interne à externe)
   upgradeCheck:
     enabled: false
 
-  # On active les migrations pour qu'il peuple ta DB vide
+  # Migrations activées
   migrations:
     enabled: true
 
-  # On désactive le Postgres inclus (INDENTÉ sous gitlab)
+  # Désactiver le Postgres inclus
   postgresql:
     install: false
 
-  # On désactive le Cert-Manager inclus (INDENTÉ sous gitlab)
+  # Désactiver le Cert-Manager inclus
+  # Si "install: false" bloque le validateur, on essaie "enabled: false"
+  # ou on retire le bloc si global.ingress.configureCertmanager suffit.
+  # Tentons la méthode propre standard d'abord :
   certmanager:
     install: false
+    # Si ça bloque encore, commente "install: false" et laisse juste le bloc vide
+    # ou supprime tout le bloc 'certmanager'.
 
-  # Configuration du runner
+  # Runner
   gitlab-runner:
     install: true
     rbac:
