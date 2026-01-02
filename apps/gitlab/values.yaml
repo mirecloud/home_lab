@@ -66,6 +66,4 @@ gitlab:
   # "configureCertmanager: false" plus haut suffit pour l'ignorer.
 
   gitlab-runner:
-    install: true
-    rbac:
-      create: true
+    install: false
