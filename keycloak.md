@@ -133,7 +133,7 @@ keycloakx:
     existingSecret: byo-db-creds
 ```
 
-⚠️ **Important**
+ **Important**
 - Remove any inline passwords.
 - Remove any manually defined `Secret` resources (`kind: Secret`, `stringData`, etc.).
 
