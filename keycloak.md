@@ -1,144 +1,229 @@
-# Keycloak Deployment on MireCloud Kubernetes Lab
+# Keycloak Integration Guide (Secure / Zero-Trust)
 
-This guide documents the full installation of Keycloak in your MireCloud Kubernetes environment using an external PostgreSQL database and a custom wildcard TLS certificate.
+This document describes the **production-grade deployment of Keycloak** in the HomeLab with a strict security posture.
 
----
-
-##  Overview
-
-I deployed Keycloak using:
-
-- **CloudPirates Keycloak Helm chart**
-- **External PostgreSQL** (existing Helm deployment)
-- **Wildcard TLS certificate** signed by your internal CA
-- **Ingress (NGINX)** exposed at:  
-   `https://keycloak.mirecloud.com`
-
-This guide consolidates your configuration into a clean, professional document.
+**Design goals**
+1. **Secrets management**: All sensitive values are stored in HashiCorp Vault and injected into Kubernetes using External Secrets Operator (ESO).
+2. **Transport security**: HTTPS is enforced using certificates issued by the internal Certificate Authority (`mirecloud-ca`) via cert-manager.
+3. **GitOps compliance**: No secrets are committed to Git. Everything is declarative and ArgoCD-compatible.
 
 ---
 
-##  Prerequisites
+## Prerequisites
 
-Before deploying Keycloak, ensure the following elements exist:
+Before proceeding, ensure the following components are already in place:
 
-###  1. External PostgreSQL (already deployed)
+- Vault is installed, initialized, unsealed, and configured  
+  (see `VAULT_INTEGRATION.md`).
+- The `ClusterSecretStore` named **`vault-backend`** is in `Valid` state.
+- cert-manager is installed and operational.
+- The `ClusterIssuer` **`mirecloud-ca-issuer`** is in `Ready` state.
+- A PostgreSQL database for Keycloak is available.
 
-I deployed PostgreSQL using helm:
+---
 
-```
-Please refer to the Postgres.md file in the same repo
-```
+## Phase 1 – Create Secrets in Vault
 
-This chart outputs a secret with:
+All credentials are stored directly in Vault.  
+They must **never** be committed to Git.
 
-- **host:** `postgres.postgres.svc`
-- **port:** `5432`
-- **database:** `postgres`
-- **username:** from secret key `db-username`
-- **password:** from secret key `db-password`
-
-###  2. Wildcard TLS Certificate
-
-You created the certificate manually and created the Kubernetes TLS secret:
+**Commands executed from a trusted node (example: `node-4`):**
 
 ```bash
-kubectl -n keycloak create secret tls wildcard-mirecloud   --cert=/home/asd/mirecloud-ca/wildcard.mirecloud.com.crt   --key=/home/asd/mirecloud-ca/wildcard.mirecloud.com.key
+# Database password used by Keycloak
+kubectl -n vault exec -ti vault-0 -- sh -c   "vault kv put secret/keycloak/db password='REPLACE_WITH_DB_PASSWORD'"
+
+# Keycloak admin account password
+kubectl -n vault exec -ti vault-0 -- sh -c   "vault kv put secret/keycloak/admin password='REPLACE_WITH_STRONG_ADMIN_PASSWORD'"
 ```
 
-This secret is referenced by the Keycloak ingress.
+**Verification**
+
+```bash
+kubectl -n vault exec -ti vault-0 -- vault kv list secret/keycloak
+```
+
+Expected output:
+```
+Keys
+----
+admin
+db
+```
 
 ---
 
-##  Helm Values File (values.yaml)
+## Phase 2 – External Secrets Configuration (GitOps)
 
-Below is your exact, validated, deployment-ready Keycloak configuration.
+External Secrets Operator is responsible for synchronizing Vault secrets into Kubernetes `Secret` objects.
+
+**File**
+```
+apps/keycloak/templates/external-secrets.yaml
+```
 
 ```yaml
-keycloak:
-  adminUser: admin
-  adminPassword: "admin"
-  hostname: "keycloak.mirecloud.com"
-  proxyHeaders: "xforwarded"
-  production: true
-
-database:
-  type: postgres
-  host: "postgres.postgres.svc"
-  port: "5432"
-  name: "postgres"
-  existingSecret: "keycloak-db"
-  secretKeys:
-    usernameKey: "db-username"
-    passwordKey: "db-password"
-
-postgres:
-  enabled: false
-
-mariadb:
-  enabled: false
-
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-  hosts:
-    - host: keycloak.mirecloud.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: wildcard-mirecloud
-      hosts:
-        - keycloak.mirecloud.com
-
-service:
-  type: ClusterIP
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: keycloak-db-es
+  namespace: keycloak
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: byo-db-creds
+  data:
+    - secretKey: password
+      remoteRef:
+        key: secret/keycloak/db
+        property: password
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: keycloak-admin-es
+  namespace: keycloak
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: keycloak-admin-password
+  data:
+    - secretKey: password
+      remoteRef:
+        key: secret/keycloak/admin
+        property: password
 ```
 
 ---
 
-##  Helm Deployment Command
+## Phase 3 – Helm Chart Configuration (`values.yaml`)
 
-Run the installation:
+Keycloak must consume the Kubernetes secrets generated by ESO and expose HTTPS using cert-manager.
+
+### 3.1 Admin Credentials & Database Configuration
+
+**File**
+```
+apps/keycloak/values.yaml
+```
+
+```yaml
+keycloakx:
+  extraEnv: |
+    - name: KEYCLOAK_ADMIN
+      value: admin
+    - name: KEYCLOAK_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin-password
+          key: password
+
+  database:
+    vendor: postgres
+    hostname: postgres.postgres.svc
+    port: 5432
+    database: postgres
+    username: postgres
+    existingSecret: byo-db-creds
+```
+
+ **Important**
+- Remove any inline passwords.
+- Remove any manually defined `Secret` resources (`kind: Secret`, `stringData`, etc.).
+
+---
+
+### 3.2 Ingress & TLS Configuration
+
+```yaml
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+      nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    rules:
+      - host: keycloak.mirecloud.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: keycloak-tls-cert
+        hosts:
+          - keycloak.mirecloud.com
+```
+
+The TLS secret (`keycloak-tls-cert`) is created automatically by cert-manager.
+
+---
+
+## Phase 4 – Deployment & Verification
+
+### GitOps workflow
 
 ```bash
-helm upgrade --install keycloak   oci://registry-1.docker.io/cloudpirates/keycloak   -n keycloak   -f values.yaml
+git add .
+git commit -m "security: keycloak integration with vault and internal CA"
+git push
 ```
 
-Check installation status:
+### ArgoCD
+
+1. Open the **Keycloak** application.
+2. Click **Refresh**.
+3. Click **Sync**.
+
+---
+
+## Verification Checklist
+
+### Kubernetes Secrets
 
 ```bash
-kubectl -n keycloak get pods
-kubectl -n keycloak get ingress
-kubectl -n keycloak logs deploy/keycloak
+kubectl get secret -n keycloak
 ```
 
+Expected:
+```
+byo-db-creds
+keycloak-admin-password
+keycloak-tls-cert
+```
+
+### External Secrets Status
+
+```bash
+kubectl get externalsecret -n keycloak
+```
+
+Expected:
+```
+STATUS: SecretSynced
+READY:  True
+```
+
+### Application Access
+
+- Open: **https://keycloak.mirecloud.com**
+- TLS certificate should be trusted (CA installed locally).
+- Login with:
+  - **Username**: `admin`
+  - **Password**: value stored in Vault
+
 ---
 
-##  Final Access URL
+## Security Outcome
 
-Once deployed:
+- No credentials in Git.
+- Vault as the single source of truth.
+- Automated secret synchronization.
+- End-to-end TLS using an internal CA.
+- Fully GitOps-compatible and reproducible.
 
-###  **https://keycloak.mirecloud.com**
-
-This endpoint is protected by the wildcard certificate and routed through NGINX Ingress.
-
----
-
-##  Deployment Complete
-
-I now have a fully production-style Keycloak deployment with:
-
-✔ External PostgreSQL  
-✔ TLS termination  
-✔ Wildcard domain  
-✔ Ingress routing  
-✔ Externalized credentials  
-
-Perfect foundation for OAuth2 / OIDC integrations (Grafana, GitLab, ArgoCD, etc.).
-
----
-
-
+This setup is suitable for both advanced homelabs and enterprise-style environments.
