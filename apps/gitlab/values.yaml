@@ -1,19 +1,15 @@
 gitlab:
-  # --- DÉSACTIVATION TOTALE DES VÉRIFICATIONS ---
   upgradeCheck:
-    enabled: false   # Désactive le check de version DB
-  
-  global:
-    common:
-      check: false   # Désactive les checks de configuration généraux (souvent ignoré mais vital ici)
-  # ---------------------------------------------
+    enabled: true
 
   global:
+    common:
+      check: false
     edition: ce
     hosts:
       domain: mirecloud.com
       https: true
-    
+
     ingress:
       configureCertmanager: false
       class: nginx
@@ -25,33 +21,26 @@ gitlab:
         enabled: true
         secretName: gitlab-tls
 
-    # Ta configuration Postgres Externe
     psql:
-      password:
-        useSecret: true
-        secret: gitlab-postgresql-password
-        key: postgres-password
       host: postgres.postgres.svc
       port: 5432
       username: postgres
       database: gitlab
+      password:
+        useSecret: true
+        secret: gitlab-postgresql-password
+        key: postgres-password
 
     minio:
       enabled: true
-    
-    # Redis interne (simplifié pour éviter les erreurs de schéma)
-    redis:
-      host: ""
 
-  # On s'assure que les migrations tournent pour peupler ta DB vide
+    redis:
+      install: true
+
   migrations:
     enabled: true
 
-  # Désactivation des composants internes
   postgresql:
-    install: false
-  
-  certmanager:
     install: false
 
   gitlab-runner:
