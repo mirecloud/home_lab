@@ -1,22 +1,34 @@
-pgadmin4:
-  env:
-  email: "admin@mirecloud.com" # Ton email de login
-  existingSecret: "pgadmin-admin-password" # <-- Le nom défini dans ton ExternalSecret
-  secretKeys:
-    password: "password" # <-- La clé définie dans ton ExternalSecret
-  service:
-    type: ClusterIP # On change LoadBalancer -> ClusterIP car on utilise l'Ingress
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-    hosts:
-      - host: pgadmin.mirecloud.com
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: pgadmin-tls-auto
-        hosts:
-          - pgadmin.mirecloud.com
+# Configuration de l'environnement de base (Obligatoire pour éviter le crash)
+env:
+  email: "admin@mirecloud.com"
+  contextPath: "/" # <--- C'est CETTE ligne qui manquait et causait l'erreur
+
+# Injection du mot de passe via Vault (ExternalSecret)
+# On utilise extraEnv pour surcharger la variable sans casser la structure "env"
+extraEnv:
+  - name: PGADMIN_DEFAULT_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: pgadmin-admin-password # Le nom du secret créé par ExternalSecrets
+        key: password # La clé dans le secret
+
+# Configuration de l'Ingress (On garde ta config qui était bonne)
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+  hosts:
+    - host: pgadmin.mirecloud.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: pgadmin-tls
+      hosts:
+        - pgadmin.mirecloud.com
+
+# Persistance (Optionnel mais recommandé)
+persistentVolume:
+  enabled: true
+  size: 5Gi
