@@ -33,7 +33,7 @@ gitlab:
         key: postgres-password
       host: postgres.postgres.svc
       port: 5432
-      username: gitlab
+      username: postgres
       database: gitlab
 
     minio:
