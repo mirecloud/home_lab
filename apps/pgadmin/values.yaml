@@ -1,7 +1,9 @@
 pgadmin4:
   env:
-    email: info@mirecloud.com
-    password: admin # (On changera ça pour un secret plus tard)
+  email: "admin@mirecloud.com" # Ton email de login
+  existingSecret: "pgadmin-admin-password" # <-- Le nom défini dans ton ExternalSecret
+  secretKeys:
+    password: "password" # <-- La clé définie dans ton ExternalSecret
   service:
     type: ClusterIP # On change LoadBalancer -> ClusterIP car on utilise l'Ingress
   ingress:
