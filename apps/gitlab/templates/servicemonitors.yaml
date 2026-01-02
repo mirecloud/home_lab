@@ -1,0 +1,53 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gitlab-webservice
+  namespace: gitlab
+  labels:
+    release: prometheus-stack  # <--- DOIT MATCHER TON PROMETHEUS
+    app: gitlab-webservice
+spec:
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: webservice
+  endpoints:
+  - port: workhorse
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gitlab-sidekiq
+  namespace: gitlab
+  labels:
+    release: prometheus-stack
+    app: gitlab-sidekiq
+spec:
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: sidekiq
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gitlab-exporter
+  namespace: gitlab
+  labels:
+    release: prometheus-stack
+    app: gitlab-exporter
+spec:
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: gitlab-exporter
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
