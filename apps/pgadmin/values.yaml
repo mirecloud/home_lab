@@ -1,34 +1,42 @@
-# Configuration de l'environnement de base (Obligatoire pour éviter le crash)
-env:
-  email: "info@mirecloud.com"
-  contextPath: "/" # <--- C'est CETTE ligne qui manquait et causait l'erreur
+# -------------------------------------------------------------------
+# Configuration pour le sous-chart "pgadmin4"
+# TOUT ce qui concerne l'appli doit être indenté sous cette clé !
+# -------------------------------------------------------------------
+pgadmin4:
+  env:
+    email: "admin@mirecloud.com"
+    contextPath: "/"
 
-# Injection du mot de passe via Vault (ExternalSecret)
-# On utilise extraEnv pour surcharger la variable sans casser la structure "env"
-extraEnv:
-  - name: PGADMIN_DEFAULT_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: pgadmin-admin-password # Le nom du secret créé par ExternalSecrets
-        key: password # La clé dans le secret
+  # On injecte le secret créé par ExternalSecrets
+  extraEnv:
+    - name: PGADMIN_DEFAULT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: pgadmin-admin-password
+          key: password
 
-# Configuration de l'Ingress (On garde ta config qui était bonne)
-ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-  hosts:
-    - host: pgadmin.mirecloud.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: pgadmin-tls
-      hosts:
-        - pgadmin.mirecloud.com
+  # Configuration Ingress (C'est ici qu'on l'active pour de vrai)
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+      nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    hosts:
+      - host: pgadmin.mirecloud.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: pgadmin-tls
+        hosts:
+          - pgadmin.mirecloud.com
 
-# Persistance (Optionnel mais recommandé)
-persistentVolume:
-  enabled: true
-  size: 5Gi
+  # Persistance
+  persistentVolume:
+    enabled: true
+    size: 5Gi
+# -------------------------------------------------------------------
+# Ici, on pourrait mettre des valeurs globales si nécessaire
+# Mais pour l'instant, c'est vide.
+# -------------------------------------------------------------------
