@@ -35,7 +35,7 @@ infrastructure/
 3. **External Secrets Config**
    - `infrastructure/external-secrets-config`
 
-⚠️ **Important :**
+ **Important :**
 Attendre que l'opérateur ESO soit **Healthy** avant de déployer la configuration.
 Les CRDs (`ClusterSecretStore`) doivent exister.
 
@@ -63,7 +63,7 @@ spec:
 
 Ce fichier permet à External Secrets de s'authentifier auprès de Vault.
 
-⚠️ **Point critique :**
+ **Point critique :**
 Toujours utiliser le **service stable** `vault`, jamais `vault-active`.
 
 ```yaml
