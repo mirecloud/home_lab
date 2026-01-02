@@ -1,6 +1,6 @@
 pgadmin4:
   env:
-    email: "admin@mirecloud.com"
+    email: "info@mirecloud.com"
     contextPath: "" # <--- METS JUSTE DES GUILLEMETS VIDES ICI (au lieu de "/")
 
   extraEnv:
