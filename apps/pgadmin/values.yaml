@@ -1,13 +1,8 @@
-# -------------------------------------------------------------------
-# Configuration pour le sous-chart "pgadmin4"
-# TOUT ce qui concerne l'appli doit être indenté sous cette clé !
-# -------------------------------------------------------------------
 pgadmin4:
   env:
     email: "admin@mirecloud.com"
-    contextPath: "/"
+    contextPath: "" # <--- METS JUSTE DES GUILLEMETS VIDES ICI (au lieu de "/")
 
-  # On injecte le secret créé par ExternalSecrets
   extraEnv:
     - name: PGADMIN_DEFAULT_PASSWORD
       valueFrom:
@@ -15,7 +10,6 @@ pgadmin4:
           name: pgadmin-admin-password
           key: password
 
-  # Configuration Ingress (C'est ici qu'on l'active pour de vrai)
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -32,11 +26,6 @@ pgadmin4:
         hosts:
           - pgadmin.mirecloud.com
 
-  # Persistance
   persistentVolume:
     enabled: true
     size: 5Gi
-# -------------------------------------------------------------------
-# Ici, on pourrait mettre des valeurs globales si nécessaire
-# Mais pour l'instant, c'est vide.
-# -------------------------------------------------------------------
