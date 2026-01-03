@@ -1,42 +1,74 @@
 gitlab:
   # --------------------------------------------------------
-  # 1. DÉSACTIVATION DES CHECKS BLOQUANTS
+  # 1. DÉSACTIVATION DES CHECKS BLOQUANTS & COMPOSANTS
   # --------------------------------------------------------
   upgradeCheck:
     enabled: false
 
+  # On désactive le Nginx interne de GitLab
   nginx-ingress:
     enabled: false
-  # Obligatoire pour satisfaire le template Helm GitLab
-  # (même si on n’utilise PAS le certmanager GitLab)
+
+  # On désactive le CertManager interne de GitLab
+  certmanager:
+    install: false
+
+  # Obligatoire pour le template, même si désactivé
   certmanager-issuer:
     email: info@mirecloud.com
 
+  prometheus:
+    install: false
+
+  gitlab-runner:
+    install: false
+
+  postgresql:
+    install: false
+
   # --------------------------------------------------------
-  # 2. CONFIGURATION GLOBALE
+  # 2. CONFIGURATION GLOBALE (Tout se joue ici)
   # --------------------------------------------------------
   global:
     common:
       check: false
-
     edition: ce
 
     hosts:
       domain: mirecloud.com
       https: true
+      gitlab:
+        name: gitlab.mirecloud.com
+      registry:
+        name: registry.mirecloud.com
+      minio:
+        name: minio.mirecloud.com
+      kas:
+        name: kas.mirecloud.com
 
-    #  OBLIGATOIRE POUR ACTIVER LES METRICS PARTOUT
+    # --- INGRESS (DÉPLACÉ ICI - C'EST LA CORRECTION) ---
+    ingress:
+      configureCertmanager: false
+      class: nginx # C'est ça qui va dire aux Ingress de parler à ton NGINX
+      annotations:
+        cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+        nginx.ingress.kubernetes.io/proxy-body-size: "0"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "900"
+      tls:
+        enabled: true
+        secretName: gitlab-tls-cert
+
+    # --- Metrics Globales ---
     metrics:
       enabled: true
 
-    # Certificats custom (CA interne pour Keycloak)
+    # --- Certificats Custom ---
     certificates:
       customCAs:
         - secret: gitlab-custom-ca-secret
 
-    # --------------------------------------------------------
-    # Base de données PostgreSQL EXTERNE (CNPG)
-    # --------------------------------------------------------
+    # --- Base de données PostgreSQL ---
     psql:
       host: postgres.postgres.svc
       port: 5432
@@ -47,99 +79,57 @@ gitlab:
         secret: gitlab-postgresql-password
         key: postgres-password
 
-    # MinIO interne GitLab
+    # --- MinIO ---
     minio:
       enabled: true
 
-    # Redis interne GitLab
+    # --- Redis (Interne pour l'instant) ---
     redis:
-      host: ""
+      host: "" # Laisse GitLab gérer son Redis si tu n'as pas de cluster externe
+
+    # --- SSO (Keycloak) ---
+    appConfig:
+      omniauth:
+        enabled: true
+        autoLinkUser: ["openid_connect"]
+        allowSingleSignOn: ["openid_connect"]
+        blockAutoCreatedUsers: false
+        providers:
+          - secret: gitlab-oidc-config
+            key: provider
 
   # --------------------------------------------------------
-  # 3. SSO KEYCLOAK (OMNIAUTH)
+  # 3. OBSERVABILITÉ (SERVICE MONITORS)
   # --------------------------------------------------------
-  appConfig:
-    omniauth:
-      enabled: true
-      autoLinkUser:
-        - openid_connect
-      allowSingleSignOn:
-        - openid_connect
-      blockAutoCreatedUsers: false
-      providers:
-        - secret: gitlab-oidc-config
-          key: provider
-
-  # --------------------------------------------------------
-  # 4. INGRESS & TLS
-  # --------------------------------------------------------
-  ingress:
-    configureCertmanager: false
-    class: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-      nginx.ingress.kubernetes.io/proxy-body-size: "512m"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-    tls:
-      enabled: true
-      secretName: gitlab-tls
-
-  # --------------------------------------------------------
-  # 5. OBSERVABILITÉ (SERVICE MONITORS)
-  #  Le label DOIT matcher Prometheus :
-  #     serviceMonitorSelector.matchLabels.release = prometheus-stack
-  # --------------------------------------------------------
-
   webservice:
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: prometheus-stack
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: prometheus-stack
 
   sidekiq:
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: prometheus-stack
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: prometheus-stack
 
   gitlab-exporter:
     enabled: true
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: prometheus-stack
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: prometheus-stack
 
   gitlab-shell:
     metrics:
       enabled: true
-      serviceMonitor:
-        enabled: true
-        additionalLabels:
-          release: prometheus-stack
-
-  # --------------------------------------------------------
-  # 6. COMPOSANTS DÉSACTIVÉS
-  # --------------------------------------------------------
-
-  # On utilise kube-prometheus-stack, pas celui de GitLab
-  prometheus:
-    install: false
-
-  # DB interne désactivée (CNPG externe)
-  postgresql:
-    install: false
-
-  # Runner géré hors cluster
-  gitlab-runner:
-    install: false
-
-  # Migrations ACTIVÉES (DB fraîche)
-  migrations:
-    enabled: true
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: prometheus-stack
