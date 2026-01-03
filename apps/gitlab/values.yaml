@@ -5,10 +5,12 @@ gitlab:
   upgradeCheck:
     enabled: false
 
+  nginx-ingress:
+    enabled: false
   # Obligatoire pour satisfaire le template Helm GitLab
   # (même si on n’utilise PAS le certmanager GitLab)
   certmanager-issuer:
-    email: admin@mirecloud.com
+    email: info@mirecloud.com
 
   # --------------------------------------------------------
   # 2. CONFIGURATION GLOBALE
@@ -23,7 +25,7 @@ gitlab:
       domain: mirecloud.com
       https: true
 
-    # 🔥 OBLIGATOIRE POUR ACTIVER LES METRICS PARTOUT 🔥
+    #  OBLIGATOIRE POUR ACTIVER LES METRICS PARTOUT
     metrics:
       enabled: true
 
@@ -85,7 +87,7 @@ gitlab:
 
   # --------------------------------------------------------
   # 5. OBSERVABILITÉ (SERVICE MONITORS)
-  # ⚠️ Le label DOIT matcher Prometheus :
+  #  Le label DOIT matcher Prometheus :
   #     serviceMonitorSelector.matchLabels.release = prometheus-stack
   # --------------------------------------------------------
 
