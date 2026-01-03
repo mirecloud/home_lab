@@ -1,17 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: keycloak
+  name: gitlab
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: HEAD
-    path: apps/keycloak
+    path: apps/gitlab
+
+    # --- AJOUTE CE BLOC HELM ---
+    helm:
+      skipSchemaValidation: true
+    # ---------------------------
+
   destination:
     server: https://kubernetes.default.svc
-    namespace: keycloak
+    namespace: gitlab
   syncPolicy:
     automated:
       prune: true
