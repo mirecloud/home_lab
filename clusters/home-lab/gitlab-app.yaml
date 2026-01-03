@@ -6,12 +6,15 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:mirecloud/home_lab.git
-    targetRevision: main
+    repoURL: "git@github.com:mirecloud/home_lab.git"
+    targetRevision: HEAD
     path: apps/gitlab
+
+    # --- BLOC CRITIQUE A AJOUTER ---
     helm:
-      valueFiles:
-        - values.yaml
+      skipSchemaValidation: true
+    # -------------------------------
+
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab
