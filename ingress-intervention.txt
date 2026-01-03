@@ -1,0 +1,77 @@
+📝 Rapport d'Intervention : Consolidation de l'Ingress Controller
+Date : 03 Janvier 2026 Système affecté : Cluster Kubernetes (MireCloud) Composants : MetalLB, Nginx Ingress Controller, GitLab, Keycloak Statut : ✅ Résolu
+
+1. Le Contexte
+Le cluster hébergeait deux contrôleurs Ingress en parallèle (concurrence de ressources) :
+
+System Nginx : Contrôleur principal (Namespace default), destiné à gérer Keycloak, Grafana, etc.
+
+GitLab Nginx : Contrôleur embarqué (Namespace gitlab), installé par le Helm Chart GitLab.
+
+2. L'Incident
+Symptômes :
+
+Perte d'accès aux services périphériques (Keycloak, Grafana, PgAdmin).
+
+L'objet Ingress de Keycloak n'obtenait aucune adresse IP (ADDRESS vide).
+
+Logs du contrôleur Nginx : Ignoring ingress... error="no object matching key \"nginx\" in local store".
+
+Analyse :
+
+Conflit d'IP (Race Condition) au niveau de MetalLB entre les deux contrôleurs pour l'obtention de l'IP 192.168.2.200.
+
+Le contrôleur "System Nginx" rejetait silencieusement toutes les configurations car il lui manquait son objet d'identification IngressClass.
+
+3. Root Cause Analysis (RCA)
+Dette Technique : Le contrôleur Nginx système avait été installé sans définir l'objet Kubernetes IngressClass. Il fonctionnait "par hasard" tant qu'il n'était pas sollicité explicitement ou en concurrence.
+
+Configuration Silencieuse : En basculant la configuration de GitLab pour utiliser la classe nginx (système), nous avons révélé l'absence de cette déclaration officielle. Le contrôleur s'est mis en sécurité ("Fail Closed").
+
+4. La Solution Appliquée
+Étape A : Création de l'IngressClass manquante
+Nous avons créé l'objet manquant pour légitimer le contrôleur système :
+
+YAML
+
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx
+Étape B : Désactivation du Contrôleur GitLab
+Modification du fichier apps/gitlab/values.yaml pour empêcher GitLab de déployer son propre LoadBalancer :
+
+YAML
+
+gitlab:
+  nginx-ingress:
+    enabled: false # 🛑 On éteint le contrôleur embarqué
+  global:
+    ingress:
+      class: nginx # 👉 On pointe vers le contrôleur système unique
+Étape C : Redémarrage
+Un rollout restart du déploiement nginx-ingress-controller a été nécessaire pour forcer la prise en compte de la nouvelle IngressClass.
+
+5. Architecture Finale (Cible)
+Désormais, le cluster opère sur un modèle unifié :
+
+Point d'entrée unique : 192.168.2.200 (Géré par MetalLB).
+
+Contrôleur Unique : Nginx Ingress Controller (Namespace default).
+
+Routing :
+
+gitlab.mirecloud.com ➡️ Service GitLab
+
+keycloak.mirecloud.com ➡️ Service Keycloak
+
+grafana.mirecloud.com ➡️ Service Prometheus/Grafana
+
+💡 Note pour l'entrevue Flinks
+"Comment gérez-vous la complexité d'un cluster Kubernetes ?"
+
+"Dans mon HomeLab, j'ai récemment dû refactoriser la couche réseau. J'avais une fragmentation avec plusieurs Ingress Controllers qui consommaient des IPs et des ressources inutilement. J'ai identifié une 'Configuration Drift' où un contrôleur manquait son IngressClass. J'ai consolidé tout le trafic sur un seul contrôleur Nginx, réduit la surface d'attaque, et centralisé la gestion des certificats TLS. Cela a permis d'économiser environ 500Mo de RAM et de libérer une IP publique."
