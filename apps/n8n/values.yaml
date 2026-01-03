@@ -1,0 +1,66 @@
+# 1. Base de données (Validé avec ton Vault)
+db:
+  type: postgresdb
+  postgresdb:
+    connectionTimeout: 10000
+  externalPostgresql:
+    host: "postgres.postgres.svc"
+    port: 5432
+    database: "n8n" # Assure-toi d'avoir fait: CREATE DATABASE n8n; dans Postgres
+    username: "postgres"
+    existingSecret: "n8n-db-creds" # Ton secret lié à Vault
+
+# 2. Ingress (CORRIGÉ pour le Chart Helm)
+ingress:
+  enabled: true
+  className: "nginx" # Le chart attend 'className', pas 'ingressClassName'
+  annotations:
+    cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m" # Crucial pour upload de fichiers
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+  hosts:
+    - host: n8n.mirecloud.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: n8n-tls-cert
+      hosts:
+        - n8n.mirecloud.com
+
+# 3. Mode Queue & Scalabilité (Niveau Expert)
+# Sépare l'interface web (Main) des exécutions (Workers)
+worker:
+  mode: queue
+  count: 2 # Deux ouvriers pour commencer
+  concurrency: 10 # 10 tâches simultanées par ouvrier
+
+# Redis est requis pour que le Main parle aux Workers
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: "RedisStrongPassword123!" # Tu peux aussi mettre ça dans Vault plus tard
+
+# 4. Variables d'Environnement Critiques
+extraEnvVars:
+  - name: N8N_HOST
+    value: "n8n.mirecloud.com"
+  - name: N8N_PORT
+    value: "5678"
+  - name: N8N_PROTOCOL
+    value: "https"
+  - name: WEBHOOK_URL
+    value: "https://n8n.mirecloud.com/"
+  - name: N8N_ENCRYPTION_KEY
+    value: "bazboutey" # IMPORTANT: Sauvegarde cette clé ailleurs !
+  - name: GENERIC_TIMEZONE
+    value: "America/Toronto"
+
+# 5. Persistance (Pour ne pas perdre tes fichiers uploadés)
+persistence:
+  enabled: true
+  accessMode: ReadWriteMany # Requis pour partager les fichiers entre Main et Workers
+  size: 5Gi
+  # storageClass: "" # Laisse vide si tu utilises ton NFS par défaut
