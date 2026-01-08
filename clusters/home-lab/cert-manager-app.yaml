@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "git@github.com:mirecloud/home_lab.git" # <--- METS TON URL
+    repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: HEAD
     path: infrastructure/cert-manager
   destination:
@@ -18,3 +18,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
