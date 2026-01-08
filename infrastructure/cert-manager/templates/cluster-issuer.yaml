@@ -6,4 +6,4 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
 spec:
   ca:
-    secretName: mirecloud-ca-key-pair
+    secretName: mirecloud-ca-issuer
