@@ -2,5 +2,12 @@ cert-manager:
   installCRDs: true
   prometheus:
     enabled: false
+
+  # FIX 1 : Chercher les secrets dans le bon namespace
   extraArgs:
     - --cluster-resource-namespace=cert-manager
+
+  # FIX 2 : Utiliser le réseau physique (Bypass des bugs CNI/Firewall)
+  webhook:
+    hostNetwork: true
+    securePort: 10260
