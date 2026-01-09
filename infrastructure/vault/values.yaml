@@ -13,7 +13,7 @@ vault:
     # --- HAUTE DISPO (RAFT) ---
     ha:
       enabled: true
-      replicas: 3 # Quorum de 3 noeuds
+      replicas: 2 # Quorum de 3 noeuds
       raft:
         enabled: true
         setNodeId: true
