@@ -54,7 +54,7 @@ echo 'N2xzb0d2TnFDdW9xeFZMeHFMMGhDMHlMM1d6UUdRMjY=' | base64 -d
 ##  Connection URI (decoded)
 
 ```
-postgresql://postgres:7lsoGvNqCuoqxVLxqL0hC0yL3WzQGQ26@postgres.postgres.svc:5432/postgres
+postgresql://postgres:zTcOYQeKvvB5gdEWP1qHRXcElm3KdHkr@postgres.postgres.svc:5432/postgres
 ```
 
 This URI is used by Keycloak for database persistence.
