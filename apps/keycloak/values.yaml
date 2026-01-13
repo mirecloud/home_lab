@@ -34,7 +34,7 @@ keycloakx:
 
   ingress:
     enabled: true
-    ingressClassName: nginx
+    ingressClassName: cilium
     annotations:
       # C'est parfait, il va utiliser ton nouveau Issuer Vault/CA
       cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
