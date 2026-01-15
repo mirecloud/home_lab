@@ -1,9 +1,6 @@
 keycloakx:
   replicas: 2
 
-  # ---------------------------------------------------
-  # 🚀 DÉMARRAGE KEYCLOAK (CRITIQUE)
-  # ---------------------------------------------------
   command:
     - "/opt/keycloak/bin/kc.sh"
     - "start"
@@ -11,11 +8,8 @@ keycloakx:
     - "--http-port=8080"
     - "--hostname=keycloak.mirecloud.com"
     - "--hostname-strict=false"
-    - "--proxy=edge"
+    - "--proxy-headers=xforwarded"
 
-  # ---------------------------------------------------
-  # 👤 ADMIN (via ExternalSecrets)
-  # ---------------------------------------------------
   extraEnv: |
     - name: KEYCLOAK_ADMIN
       value: admin
@@ -25,9 +19,6 @@ keycloakx:
           name: keycloak-admin-password
           key: password
 
-  # ---------------------------------------------------
-  # 🗄️ BASE DE DONNÉES EXTERNE
-  # ---------------------------------------------------
   dbchecker:
     enabled: true
 
@@ -39,9 +30,6 @@ keycloakx:
     username: postgres
     existingSecret: byo-db-creds
 
-  # ---------------------------------------------------
-  # 🌐 INGRESS (CILIUM)
-  # ---------------------------------------------------
   ingress:
     enabled: true
     ingressClassName: cilium
@@ -57,9 +45,6 @@ keycloakx:
         hosts:
           - keycloak.mirecloud.com
 
-  # ---------------------------------------------------
-  # 🔌 SERVICE
-  # ---------------------------------------------------
   service:
     type: ClusterIP
     ports:
