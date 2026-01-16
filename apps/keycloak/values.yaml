@@ -1,55 +1,60 @@
-keycloakx:
-  replicas: 2
+# Configuration propre pour Keycloak (Chart keycloakx)
+replicas: 2
 
-  command:
-    - "/opt/keycloak/bin/kc.sh"
-    - "start"
-    - "--http-enabled=true"
-    - "--http-port=8080"
-    - "--hostname=keycloak.mirecloud.com"
-    - "--hostname-strict=false"
-    - "--proxy-headers=xforwarded"
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "start"
+  - "--http-enabled=true"
+  - "--http-port=8080"
+  - "--hostname=keycloak.mirecloud.com" # Définit l'URL publique
+  - "--hostname-strict=false" # Permet plus de souplesse interne
+  - "--proxy-headers=xforwarded" # INDISPENSABLE derrière un Ingress (Cilium)
 
-  extraEnv: |
-    - name: KEYCLOAK_ADMIN
-      value: admin
-    - name: KEYCLOAK_ADMIN_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-admin-password
-          key: password
-    - name: KC_HOSTNAME_URL
-      value: https://keycloak.mirecloud.com
+# Variables d'environnement (Secrets & Admin)
+extraEnv: |
+  - name: KEYCLOAK_ADMIN
+    value: admin
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-admin-password
+        key: password
+  # Note: J'ai retiré KC_HOSTNAME_URL pour éviter les conflits avec la commande ci-dessus
 
-  dbchecker:
-    enabled: true
+# Vérificateur de base de données (utile pour attendre que Postgres soit prêt)
+dbchecker:
+  enabled: true
 
-  database:
-    vendor: postgres
-    hostname: postgres.postgres.svc
-    port: 5432
-    database: postgres
-    username: postgres
-    existingSecret: byo-db-creds
+# Connexion à ta base Postgres externe
+database:
+  vendor: postgres
+  hostname: postgres.postgres.svc
+  port: 5432
+  database: postgres
+  username: postgres
+  existingSecret: byo-db-creds
 
-  ingress:
-    enabled: true
-    ingressClassName: cilium
-    annotations:
-      cert-manager.io/cluster-issuer: mirecloud-ca-issuer
-    rules:
-      - host: keycloak.mirecloud.com
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: keycloak-tls-cert
-        hosts:
-          - keycloak.mirecloud.com
+# Configuration de l'accès externe (Ingress)
+ingress:
+  enabled: true
+  ingressClassName: cilium
+  annotations:
+    # Lien avec ton Issuer Vault/Cert-Manager
+    cert-manager.io/cluster-issuer: mirecloud-ca-issuer
+  rules:
+    - host: keycloak.mirecloud.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: keycloak-tls-cert
+      hosts:
+        - keycloak.mirecloud.com
 
-  service:
-    type: ClusterIP
-    ports:
-      http:
-        port: 80
-        targetPort: 8080
+# Configuration du Service interne
+service:
+  type: ClusterIP
+  ports:
+    http:
+      port: 80
+      targetPort: 8080
