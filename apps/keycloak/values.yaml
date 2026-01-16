@@ -4,6 +4,7 @@ keycloakx:
   command:
     - "/opt/keycloak/bin/kc.sh"
     - "start"
+    - "--optimized"
     - "--http-enabled=true"
     - "--http-port=8080"
     - "--hostname=keycloak.mirecloud.com"
@@ -18,6 +19,8 @@ keycloakx:
         secretKeyRef:
           name: keycloak-admin-password
           key: password
+    - name: KC_HOSTNAME_URL
+      value: https://keycloak.mirecloud.com
 
   dbchecker:
     enabled: true
