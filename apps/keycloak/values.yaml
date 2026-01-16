@@ -50,4 +50,4 @@ keycloakx:
           - keycloak.mirecloud.com
 
   service:
-    type: ClusterIP
+    type: LoadBalancer
