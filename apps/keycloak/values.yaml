@@ -1,6 +1,5 @@
 keycloakx:
-  # 1. On sépare la commande et l'argument pour forcer le "start"
-  # C'est ça qui corrige le bug où Keycloak affichait juste l'aide et s'arrêtait.
+  # Commande de démarrage
   command:
     - "/opt/keycloak/bin/kc.sh"
 
@@ -9,9 +8,9 @@ keycloakx:
 
   replicas: 2
 
-  # 2. Configuration via Variables d'Env (Plus propre que les arguments)
-  extraEnv:
-    # --- Admin ---
+  # CORRECTION ICI : Le pipe "|" transforme tout ce qui suit en une seule chaîne de texte (String)
+  # C'est ce que le chart attend, au lieu d'une liste YAML directe.
+  extraEnv: |
     - name: KEYCLOAK_ADMIN
       value: "admin"
     - name: KEYCLOAK_ADMIN_PASSWORD
@@ -19,21 +18,15 @@ keycloakx:
         secretKeyRef:
           name: keycloak-admin-password
           key: password
-
-    # --- Configuration Réseau & Hostname ---
     - name: KC_HOSTNAME
       value: "keycloak.mirecloud.com"
     - name: KC_HOSTNAME_STRICT
       value: "false"
     - name: KC_HTTP_ENABLED
       value: "true"
-
-    # --- Configuration Proxy (CRUCIAL pour Cilium/Ingress) ---
-    # "edge" dit à Keycloak : "Je suis derrière un Ingress qui gère le SSL, fais-lui confiance"
     - name: KC_PROXY
       value: "edge"
 
-  # 3. Base de données
   dbchecker:
     enabled: true
 
@@ -45,7 +38,6 @@ keycloakx:
     username: postgres
     existingSecret: byo-db-creds
 
-  # 4. Ingress (Exposition externe)
   ingress:
     enabled: true
     ingressClassName: cilium
@@ -61,7 +53,6 @@ keycloakx:
         hosts:
           - keycloak.mirecloud.com
 
-  # 5. Service Interne
   service:
     type: ClusterIP
     ports:
