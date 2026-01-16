@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-ingress
+spec:
+  ingressClassName: cilium
+  rules:
+  - host: keycloak.mirecloud.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak-keycloakx-http
+            port:
+              number: 80

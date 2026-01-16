@@ -32,22 +32,6 @@ keycloakx:
     username: postgres
     existingSecret: byo-db-creds # Créé par l'ExternalSecret
 
-  ingress:
-    enabled: true
-    ingressClassName: cilium
-    # Aucune annotation TLS/Cert-Manager pour ce test
-    annotations: {}
-    rules:
-      - host: keycloak.mirecloud.com
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: keycloak
-                port:
-                  number: 8080
-
     #tls:
     #- secretName: keycloak-tls-cert
     #hosts:
