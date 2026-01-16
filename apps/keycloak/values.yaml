@@ -7,8 +7,8 @@ keycloakx:
     - "--http-enabled=true"
     - "--http-port=8080"
     - "--hostname=keycloak.mirecloud.com"
-    - "--hostname-strict=false"
     - "--proxy-headers=xforwarded"
+    - "--proxy=edge"
 
   extraEnv: |
     - name: KEYCLOAK_ADMIN
