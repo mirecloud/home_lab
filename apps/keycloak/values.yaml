@@ -44,10 +44,10 @@ keycloakx:
         paths:
           - path: /
             pathType: Prefix
-    tls:
-      - secretName: keycloak-tls-cert
-        hosts:
-          - keycloak.mirecloud.com
+    #tls:
+    #- secretName: keycloak-tls-cert
+    #hosts:
+    #  - keycloak.mirecloud.com
 
   service:
     type: LoadBalancer
