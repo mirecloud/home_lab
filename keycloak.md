@@ -227,3 +227,166 @@ READY:  True
 - Fully GitOps-compatible and reproducible.
 
 This setup is suitable for both advanced homelabs and enterprise-style environments.
+
+# 🔐 LAB – Déploiement de Keycloak avec Cilium Gateway API & TLS (cert-manager)
+
+Ce document décrit l’architecture finale fonctionnelle pour exposer Keycloak via la Gateway API Kubernetes,
+en utilisant Cilium comme contrôleur réseau et cert-manager pour la gestion explicite du TLS.
+
+---
+
+## 1. Architecture cible
+
+- Exposition : Gateway API
+- Contrôleur réseau : Cilium
+- Routage : HTTPRoute → Service ClusterIP
+- TLS : cert-manager (explicite)
+- Terminaison SSL : Gateway (edge)
+- Ingress classique : désactivé
+
+Client → HTTPS → Gateway → HTTP → Service → Pod Keycloak (8080)
+
+---
+
+## 2. Pré-requis cluster
+
+### Gateway API CRDs
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
+```
+
+### Cilium
+
+Paramètres requis :
+
+```yaml
+gatewayAPI:
+  enabled: true
+kubeProxyReplacement: true
+```
+
+### cert-manager
+
+Un ClusterIssuer fonctionnel est requis.
+
+---
+
+## 3. Configuration Keycloak (Helm)
+
+### values.yaml
+
+```yaml
+keycloakx:
+  extraEnv: |
+    - name: KC_PROXY
+      value: "edge"
+    - name: KC_HOSTNAME
+      value: "keycloak.mirecloud.com"
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+
+  ingress:
+    enabled: false
+
+  service:
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+        targetPort: 8080
+```
+
+Déploiement :
+
+```bash
+helm upgrade --install keycloak . -n keycloak -f values.yaml
+```
+
+---
+
+## 4. Gateway API & TLS
+
+### keycloak-gateway.yaml
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: keycloak-tls-cert
+  namespace: keycloak
+spec:
+  secretName: keycloak-tls-secret
+  issuerRef:
+    name: mirecloud-ca-issuer
+    kind: ClusterIssuer
+  commonName: keycloak.mirecloud.com
+  dnsNames:
+    - keycloak.mirecloud.com
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: mirecloud-gateway
+  namespace: keycloak
+spec:
+  gatewayClassName: cilium
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - kind: Secret
+          name: keycloak-tls-secret
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: keycloak-route
+  namespace: keycloak
+spec:
+  parentRefs:
+    - name: mirecloud-gateway
+  hostnames:
+    - keycloak.mirecloud.com
+  rules:
+    - backendRefs:
+        - name: keycloak-keycloakx-http
+          port: 80
+```
+
+Application :
+
+```bash
+kubectl apply -f keycloak-gateway.yaml
+```
+
+---
+
+## 5. Vérification
+
+```bash
+kubectl get gateway -n keycloak
+kubectl get certificate -n keycloak
+kubectl describe httproute keycloak-route -n keycloak
+kubectl get endpoints -n keycloak keycloak-keycloakx-http
+```
+
+---
+
+## 6. Leçons clés
+
+- Pas d’Ingress legacy
+- TLS explicite
+- Gateway API = futur
+- targetPort mal défini = 503 garanti
+- KC_PROXY=edge obligatoire
+
+---
+
+Fin.
