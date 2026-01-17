@@ -1,4 +1,22 @@
-# 1. LA GATEWAY (La porte d'entrée qui prend l'IP)
+# --- 1. La Demande de Certificat ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: keycloak-tls-cert
+  namespace: keycloak
+spec:
+  # Le nom du secret Kubernetes qui va contenir le certificat final
+  secretName: keycloak-tls-secret
+  issuerRef:
+    # Ton Issuer Vault/CA existant
+    name: mirecloud-ca-issuer
+    kind: ClusterIssuer
+  commonName: keycloak.mirecloud.com
+  dnsNames:
+  - keycloak.mirecloud.com
+
+---
+# --- 2. La Gateway (Porte d'entrée) ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -7,14 +25,31 @@ metadata:
 spec:
   gatewayClassName: cilium
   listeners:
+  # Listener HTTP (Port 80) - Toujours utile pour les redirections
   - name: http
     protocol: HTTP
     port: 80
     allowedRoutes:
       namespaces:
         from: Same
+  
+  # Listener HTTPS (Port 443) - C'est ici que ça se passe
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      # "Terminate" signifie que la Gateway décrypte le SSL ici
+      # et envoie du trafic clair (HTTP) au pod Keycloak.
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: keycloak-tls-secret # Doit matcher le secretName du certificat plus haut
+    allowedRoutes:
+      namespaces:
+        from: Same
+
 ---
-# 2. LA ROUTE (Le chemin vers Keycloak)
+# --- 3. La Route (Le GPS) ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -31,5 +66,6 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: keycloak-keycloakx-http  # Nom exact du service créé par Helm
+    # On pointe vers le service Keycloak (Port 80, qui redirige vers 8080 du pod)
+    - name: keycloak-keycloakx-http
       port: 80
