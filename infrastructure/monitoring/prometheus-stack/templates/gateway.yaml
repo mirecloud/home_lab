@@ -1,0 +1,68 @@
+# --- 1. La Demande de Certificat ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tls-cert
+  namespace: monitoring  # ⚠️ Vérifie ton namespace !
+spec:
+  secretName: grafana-tls-secret
+  issuerRef:
+    name: mirecloud-ca-issuer
+    kind: ClusterIssuer
+  commonName: grafana.mirecloud.com
+  dnsNames:
+  - grafana.mirecloud.com
+
+---
+# --- 2. La Gateway (Porte d'entrée Grafana) ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: grafana-gateway
+  namespace: monitoring  # ⚠️ Vérifie ton namespace !
+spec:
+  gatewayClassName: cilium
+  listeners:
+  # Port 80 (HTTP)
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+  
+  # Port 443 (HTTPS)
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: grafana-tls-secret # Créé par le Certificate ci-dessus
+    allowedRoutes:
+      namespaces:
+        from: Same
+
+---
+# --- 3. La Route (Vers le Service Grafana) ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: grafana-route
+  namespace: monitoring  # ⚠️ Vérifie ton namespace !
+spec:
+  parentRefs:
+  - name: grafana-gateway
+  hostnames:
+  - "grafana.mirecloud.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    # ⚠️ IMPORTANT : Vérifie le nom exact de ton service Grafana !
+    # Souvent "grafana", "prometheus-grafana" ou "grafana-service"
+    - name: grafana
+      port: 80 # Le service Grafana écoute généralement sur 80 (et redirige vers 3000)
