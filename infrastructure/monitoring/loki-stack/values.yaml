@@ -1,43 +1,50 @@
+###############################################################################
+# LOKI (Wrapper Configuration)
+###############################################################################
 loki:
-  # --- 1. Configs à la racine du sous-chart ---
+  # --- Configs à la racine du sous-chart ---
   deploymentMode: SingleBinary
 
-  # --- 2. LE BLOC CRITIQUE (La "Double Loki") ---
+  # --- Configs internes ("Double Loki") ---
   loki:
     auth_enabled: false
-    limits_config:
-      retention_period: 168h
+    commonConfig:
+      replication_factor: 1
 
-  # --- CORRECTION : Les blocs suivants sont des helpers du Chart ---
-  # Ils doivent être à la racine du sous-chart (niveau 'deploymentMode')
-  # et NON imbriqués dans la section 'loki' (qui est pour la config brute).
+    # 👇 ON PASSE EN MODE S3 (MinIO)
+    storage:
+      type: s3
+      bucketNames:
+        chunks: chunks
+        ruler: ruler
+        admin: admin
+      s3:
+        # L'adresse IP de ton node-3 (API Port 9000)
+        endpoint: http://192.168.2.74:9000
+        # Tes credentials MinIO (vérifie /etc/default/minio sur node-3)
+        accessKeyId: minioadmin
+        secretAccessKey: minioadmin
+        # Paramètres obligatoires pour MinIO
+        s3ForcePathStyle: true
+        insecure: true
 
-  commonConfig:
-    replication_factor: 1
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: s3 # <--- Changement ici : s3 au lieu de filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
 
-  storage:
-    type: filesystem
-    bucketNames:
-      chunks: chunks
-      ruler: ruler
-      admin: admin
-
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: tsdb
-        object_store: filesystem
-        schema: v13
-        index:
-          prefix: index_
-          period: 24h
-
-  # --- 3. Retour à la racine pour les composants ---
+  # --- Retour à la racine ---
   singleBinary:
     replicas: 1
     persistence:
+      # On garde la persistance pour le WAL (Write Ahead Log), mais les données vont dans MinIO
       enabled: true
-      size: 20Gi
+      size: 10Gi
       accessModes:
         - ReadWriteOnce
 
@@ -45,15 +52,22 @@ loki:
   write: { replicas: 0 }
   read: { replicas: 0 }
   backend: { replicas: 0 }
-  minio: { enabled: false }
+
   gateway:
     enabled: true
-    service: { type: ClusterIP }
+    service:
+      type: ClusterIP
+
+  # Désactivation des extras
+  minio: { enabled: false } # On utilise ton MinIO externe, pas celui du chart
   monitoring:
     selfMonitoring: { enabled: false }
     grafanaAgent: { installOperator: false }
   test: { enabled: false }
 
+###############################################################################
+# PROMTAIL
+###############################################################################
 promtail:
   enabled: true
   config:
