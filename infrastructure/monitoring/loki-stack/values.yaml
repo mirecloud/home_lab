@@ -1,0 +1,66 @@
+# --- Configuration pour la dépendance 'loki' ---
+loki:
+  deploymentMode: SingleBinary
+
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  # Stockage Disque (Pas de S3)
+  storage:
+    type: filesystem
+
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+  # Mode Mono-Pod
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 20Gi
+      accessModes:
+        - ReadWriteOnce
+
+  # Désactivation des composants distribués
+  write:
+    replicas: 0
+  read:
+    replicas: 0
+  backend:
+    replicas: 0
+
+  # Gateway active (pour que Promtail et Grafana puissent taper dessus)
+  gateway:
+    enabled: true
+    service:
+      type: ClusterIP
+
+  # Désactivation des trucs inutiles
+  minio:
+    enabled: false
+  monitoring:
+    selfMonitoring:
+      enabled: false
+      grafanaAgent:
+        installOperator: false
+  test:
+    enabled: false
+
+# --- Configuration pour la dépendance 'promtail' ---
+promtail:
+  config:
+    clients:
+      # Promtail envoie les logs à la Gateway Loki (Service interne)
+      # Nom du service = <release-name>-loki-gateway
+      # Si tu appelles ta release ArgoCD "loki", ce sera "loki-loki-gateway"
+      # Si tu as un doute, on utilise le DNS générique ici :
+      - url: http://loki-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
