@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:TON_ORG/TON_REPO.git
+    repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: main
-    path: loki-stack-custom
+    path: infrastructure/monitoring/loki-stack
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
