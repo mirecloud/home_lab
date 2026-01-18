@@ -2,20 +2,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: loki-stack
-  namespace: argocd
 spec:
   project: default
   source:
-    repoURL: "git@github.com:mirecloud/home_lab.git"
-    targetRevision: HEAD
-    path: infrastructure/monitoring/loki-stack
+    repoURL: git@github.com:TON_ORG/TON_REPO.git
+    targetRevision: main
+    path: loki-stack-custom
   destination:
-    server: "https://kubernetes.default.svc"
+    server: https://kubernetes.default.svc
     namespace: monitoring
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true # <--- AJOUTE CETTE LIGNE ICI

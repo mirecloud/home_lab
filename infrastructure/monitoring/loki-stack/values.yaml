@@ -1,65 +1,73 @@
+###############################################################################
+# LOKI (subchart: loki)
+###############################################################################
 loki:
-  deploymentMode: SingleBinary
-  auth_enabled: false
+  loki:
+    deploymentMode: SingleBinary
+    auth_enabled: false
 
-  commonConfig:
-    replication_factor: 1
+    commonConfig:
+      replication_factor: 1
 
-  limits_config:
-    retention_period: 168h # 7 jours, sinon ton PVC va exploser
+    limits_config:
+      retention_period: 168h # 7 jours
 
-  storage:
-    type: filesystem
-    bucketNames:
-      chunks: chunks
-      ruler: ruler
-      admin: admin
+    storage:
+      type: filesystem
+      bucketNames:
+        chunks: chunks
+        ruler: ruler
+        admin: admin
 
-  schemaConfig:
-    configs:
-      - from: "2024-04-01"
-        store: tsdb
-        object_store: filesystem
-        schema: v13
-        index:
-          prefix: index_
-          period: 24h
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
 
-  singleBinary:
-    replicas: 1
-    persistence:
+    singleBinary:
+      replicas: 1
+      persistence:
+        enabled: true
+        size: 20Gi
+        accessModes:
+          - ReadWriteOnce
+
+    # OBLIGATOIRE en SingleBinary
+    write:
+      replicas: 0
+    read:
+      replicas: 0
+    backend:
+      replicas: 0
+
+    gateway:
       enabled: true
-      size: 20Gi
-      accessModes:
-        - ReadWriteOnce
+      service:
+        type: ClusterIP
 
-  # OBLIGATOIRE en SingleBinary
-  write:
-    replicas: 0
-  read:
-    replicas: 0
-  backend:
-    replicas: 0
-
-  gateway:
-    enabled: true
-    service:
-      type: ClusterIP
-
-  minio:
-    enabled: false
-
-  monitoring:
-    selfMonitoring:
+    minio:
       enabled: false
-    grafanaAgent:
-      installOperator: false
 
-  test:
-    enabled: false
+    monitoring:
+      selfMonitoring:
+        enabled: false
+      grafanaAgent:
+        installOperator: false
 
+    test:
+      enabled: false
+
+###############################################################################
+# PROMTAIL (subchart: promtail)
+###############################################################################
 promtail:
   enabled: true
+
   config:
     clients:
       - url: http://loki-stack-gateway.monitoring.svc.cluster.local/loki/api/v1/push
