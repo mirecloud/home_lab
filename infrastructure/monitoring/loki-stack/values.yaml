@@ -70,6 +70,9 @@ loki:
 ###############################################################################
 promtail:
   enabled: true
-  config:
-    clients:
-      - url: http://loki-stack-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+  # 👇 Ajoute ça pour donner à Promtail un accès direct au réseau
+  podSecurityContext:
+    runAsUser: 0
+    runAsGroup: 0
+  extraArgs:
+    - -client.external-labels=cluster=home-lab
