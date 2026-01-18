@@ -20,19 +20,16 @@ kube-prometheus-stack:
 
         # -----------------------------------------------------------
         # 1. URL PUBLIQUE (Front-channel)
-        # C'est l'URL que ton navigateur utilise.
-        #  CORRECTION : Suppression du "/auth"
+        # On remet "/auth" car ton Keycloak en a besoin !
         # -----------------------------------------------------------
-        auth_url: "https://keycloak.mirecloud.com/realms/mirecloud/protocol/openid-connect/auth"
+        auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
 
         # -----------------------------------------------------------
         # 2. URLs INTERNES (Back-channel)
-        # C'est l'URL que le POD Grafana utilise pour parler au POD Keycloak.
-        # On passe par le service interne (http) pour éviter les erreurs SSL/DNS.
-        #  CORRECTION : Suppression du "/auth" + Passage en interne
+        # On garde le réseau interne (cluster.local) MAIS on remet "/auth"
         # -----------------------------------------------------------
-        token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/realms/mirecloud/protocol/openid-connect/token"
-        api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/realms/mirecloud/protocol/openid-connect/userinfo"
+        token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/token"
+        api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/userinfo"
 
         scopes: "openid profile email"
         allow_sign_up: true
