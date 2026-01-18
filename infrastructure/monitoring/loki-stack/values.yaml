@@ -13,6 +13,7 @@ loki:
 
   storage:
     type: filesystem
+    # ✅ LE FIX EST LÀ :
     bucketNames:
       chunks: chunks
       ruler: ruler
@@ -36,29 +37,23 @@ loki:
       accessModes:
         - ReadWriteOnce
 
-  write:
-    replicas: 0
-  read:
-    replicas: 0
-  backend:
-    replicas: 0
+  # Désactivation des composants distribués
+  write: { replicas: 0 }
+  read: { replicas: 0 }
+  backend: { replicas: 0 }
 
   gateway:
     enabled: true
     service:
       type: ClusterIP
 
-  minio:
-    enabled: false
+  minio: { enabled: false }
 
   monitoring:
-    selfMonitoring:
-      enabled: false
-    grafanaAgent:
-      installOperator: false
+    selfMonitoring: { enabled: false }
+    grafanaAgent: { installOperator: false }
 
-  test:
-    enabled: false
+  test: { enabled: false }
 
 ###############################################################################
 # PROMTAIL
@@ -67,4 +62,9 @@ promtail:
   enabled: true
   config:
     clients:
-      - url: http://loki-stack-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      # ⚠️ CORRECTION PRÉVENTIVE ICI :
+      # J'ai rajouté "-loki-" au milieu.
+      # ArgoCD Release Name: loki-stack
+      # Subchart Name: loki
+      # Résultat service : loki-stack-loki-gateway
+      - url: http://loki-stack-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
