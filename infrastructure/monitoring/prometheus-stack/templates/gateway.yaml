@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: grafana-tls-cert
-  namespace: monitoring  # ⚠️ Vérifie ton namespace !
+  namespace: monitoring  #  Vérifie ton namespace !
 spec:
   secretName: grafana-tls-secret
   issuerRef:
@@ -19,7 +19,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: grafana-gateway
-  namespace: monitoring  # ⚠️ Vérifie ton namespace !
+  namespace: monitoring  #  Vérifie ton namespace !
 spec:
   gatewayClassName: cilium
   listeners:
@@ -50,7 +50,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: grafana-route
-  namespace: monitoring  # ⚠️ Vérifie ton namespace !
+  namespace: monitoring  #  Vérifie ton namespace !
 spec:
   parentRefs:
   - name: grafana-gateway
