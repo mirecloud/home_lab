@@ -1,19 +1,22 @@
-###############################################################################
-# LOKI (subchart grafana/loki)
-###############################################################################
 loki:
+  # --- 1. Configs à la racine du sous-chart ---
   deploymentMode: SingleBinary
-  auth_enabled: false
+
+  # --- 2. LE BLOC CRITIQUE (La "Double Loki") ---
+  loki:
+    auth_enabled: false
+    limits_config:
+      retention_period: 168h
+
+  # --- CORRECTION : Les blocs suivants sont des helpers du Chart ---
+  # Ils doivent être à la racine du sous-chart (niveau 'deploymentMode')
+  # et NON imbriqués dans la section 'loki' (qui est pour la config brute).
 
   commonConfig:
     replication_factor: 1
 
-  limits_config:
-    retention_period: 168h
-
   storage:
     type: filesystem
-    # ✅ LE FIX EST LÀ :
     bucketNames:
       chunks: chunks
       ruler: ruler
@@ -29,6 +32,7 @@ loki:
           prefix: index_
           period: 24h
 
+  # --- 3. Retour à la racine pour les composants ---
   singleBinary:
     replicas: 1
     persistence:
@@ -37,34 +41,21 @@ loki:
       accessModes:
         - ReadWriteOnce
 
-  # Désactivation des composants distribués
+  # Désactivation des composants
   write: { replicas: 0 }
   read: { replicas: 0 }
   backend: { replicas: 0 }
-
+  minio: { enabled: false }
   gateway:
     enabled: true
-    service:
-      type: ClusterIP
-
-  minio: { enabled: false }
-
+    service: { type: ClusterIP }
   monitoring:
     selfMonitoring: { enabled: false }
     grafanaAgent: { installOperator: false }
-
   test: { enabled: false }
 
-###############################################################################
-# PROMTAIL
-###############################################################################
 promtail:
   enabled: true
   config:
     clients:
-      # ⚠️ CORRECTION PRÉVENTIVE ICI :
-      # J'ai rajouté "-loki-" au milieu.
-      # ArgoCD Release Name: loki-stack
-      # Subchart Name: loki
-      # Résultat service : loki-stack-loki-gateway
       - url: http://loki-stack-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
