@@ -5,9 +5,11 @@ loki:
   commonConfig:
     replication_factor: 1
 
+  limits_config:
+    retention_period: 168h # 7 jours, sinon ton PVC va exploser
+
   storage:
     type: filesystem
-    # 👇 LE FIX EST ICI : Il faut définir ces noms même pour du filesystem
     bucketNames:
       chunks: chunks
       ruler: ruler
@@ -31,24 +33,33 @@ loki:
       accessModes:
         - ReadWriteOnce
 
-  # Désactivations
-  write: { replicas: 0 }
-  read: { replicas: 0 }
-  backend: { replicas: 0 }
+  # OBLIGATOIRE en SingleBinary
+  write:
+    replicas: 0
+  read:
+    replicas: 0
+  backend:
+    replicas: 0
 
   gateway:
     enabled: true
     service:
       type: ClusterIP
 
-  minio: { enabled: false }
+  minio:
+    enabled: false
+
   monitoring:
-    selfMonitoring: { enabled: false }
-    grafanaAgent: { installOperator: false }
-  test: { enabled: false }
+    selfMonitoring:
+      enabled: false
+    grafanaAgent:
+      installOperator: false
+
+  test:
+    enabled: false
 
 promtail:
+  enabled: true
   config:
     clients:
-      # Adapte le nom du service si besoin (voir explication plus bas)
-      - url: http://loki-stack-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+      - url: http://loki-stack-gateway.monitoring.svc.cluster.local/loki/api/v1/push
