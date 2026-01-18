@@ -6,13 +6,25 @@ metadata:
 spec:
   project: default
   source:
+    # Utilisation de SSH (Nécessite le Secret "repo-home-lab-ssh" créé juste avant)
     repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: main
     path: infrastructure/monitoring/loki-stack
+
+    # 👇 LE BLOC QUE TU VOULAIS AJOUTER
+    helm:
+      valueFiles:
+        - values.yaml
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # 👇 INDISPENSABLE pour Loki (évite les erreurs de taille de manifest)
+      - ServerSideApply=true
