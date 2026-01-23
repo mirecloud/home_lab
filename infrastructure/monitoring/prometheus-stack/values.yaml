@@ -1,6 +1,7 @@
 kube-prometheus-stack:
   grafana:
     enabled: true
+    # Récupère le client_secret depuis ton secret Kubernetes existant
     envFromSecret: grafana-keycloak-secret
 
     grafana.ini:
@@ -8,32 +9,49 @@ kube-prometheus-stack:
         domain: grafana.mirecloud.com
         root_url: "https://grafana.mirecloud.com"
         serve_from_sub_path: false
+
       auth:
         disable_login_form: false
         oauth_auto_login: false
+
       auth.generic_oauth:
         enabled: true
         name: "Keycloak"
+        # Désactive la vérif SSL si tes certificats internes ne sont pas parfaits
         tls_skip_verify_insecure: true
         client_id: "grafana"
+        # Cette variable est remplie par envFromSecret ci-dessus
         client_secret: $__env{client_secret}
 
         # -----------------------------------------------------------
-        # 1. URL PUBLIQUE (Front-channel)
-        # On remet "/auth" car ton Keycloak en a besoin !
+        # 1. URL PUBLIQUE (Front-channel) - Ce que l'utilisateur voit
         # -----------------------------------------------------------
         auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
 
         # -----------------------------------------------------------
-        # 2. URLs INTERNES (Back-channel)
-        # On garde le réseau interne (cluster.local) MAIS on remet "/auth"
+        # 2. URLs INTERNES (Back-channel) - Communication Pod à Pod
         # -----------------------------------------------------------
         token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/token"
         api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/userinfo"
 
         scopes: "openid profile email"
         allow_sign_up: true
+        # Mappe le rôle 'admin' de Keycloak vers 'Admin' Grafana
         role_attribute_path: "contains(realm_access.roles[*], 'admin') && 'Admin' || 'Viewer'"
+
+    # -----------------------------------------------------------
+    # CONFIGURATION AUTOMATIQUE DE LOKI
+    # Basée sur ton kubectl get svc -n monitoring
+    # -----------------------------------------------------------
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        uid: loki-datasource
+        access: proxy
+        # URL interne vers la Gateway Loki sur le port 80
+        url: http://loki-stack-gateway.monitoring.svc.cluster.local:80
+        jsonData:
+          maxLines: 1000
 
     ingress:
       enabled: false
