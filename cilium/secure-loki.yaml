@@ -1,0 +1,30 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "secure-loki-access"
+  namespace: monitoring
+spec:
+  # 1. LA CIBLE : On protège les pods qui ont le label 'app: loki'
+  endpointSelector:
+    matchLabels:
+      app: loki
+
+  # 2. LES RÈGLES D'ENTRÉE (Ingress)
+  ingress:
+    # Règle A : Autoriser Promtail (l'agent qui envoie les logs)
+    - fromEndpoints:
+        - matchLabels:
+            app: promtail
+      toPorts:
+        - ports:
+            - port: "3100"
+              protocol: TCP
+
+    # Règle B : Autoriser Grafana (l'interface qui lit les logs)
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: grafana
+      toPorts:
+        - ports:
+            - port: "3100"
+              protocol: TCP
