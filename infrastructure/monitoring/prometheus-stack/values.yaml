@@ -43,15 +43,6 @@ kube-prometheus-stack:
     # CONFIGURATION AUTOMATIQUE DE LOKI
     # Basée sur ton kubectl get svc -n monitoring
     # -----------------------------------------------------------
-    additionalDataSources:
-      - name: Loki
-        type: loki
-        uid: loki-datasource
-        access: proxy
-        # URL interne vers la Gateway Loki sur le port 80
-        url: http://loki-stack.monitoring.svc.cluster.local:80
-        jsonData:
-          maxLines: 1000
 
     ingress:
       enabled: false
