@@ -22,8 +22,8 @@ loki:
         # L'adresse IP de ton node-3 (API Port 9000)
         endpoint: http://192.168.2.74:9000
         # Tes credentials MinIO (vérifie /etc/default/minio sur node-3)
-        accessKeyId: minioadmin
-        secretAccessKey: minioadmin
+        accessKeyId: admin
+        secretAccessKey: password
         # Paramètres obligatoires pour MinIO
         s3ForcePathStyle: true
         insecure: true
