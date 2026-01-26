@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hubble-logger
+  namespace: monitoring # On le met ici pour que Promtail le trouve facilement
+  labels:
+    app: hubble-logger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hubble-logger
+  template:
+    metadata:
+      labels:
+        app: hubble-logger
+    spec:
+      containers:
+        - name: logger
+          # On utilise l'image client Hubble (compatible avec la plupart des versions récentes)
+          image: quay.io/cilium/hubble:v1.14.5
+          imagePullPolicy: IfNotPresent
+          # La commande magique : "Observe en continu (-f) et sors du JSON (-o json)"
+          command: ["hubble"]
+          args: ["observe", "-f", "-o", "json"]
+          env:
+            # On pointe vers le service Relay qui tourne dans kube-system
+            - name: HUBBLE_SERVER
+              value: "hubble-relay.kube-system.svc.cluster.local:80"
