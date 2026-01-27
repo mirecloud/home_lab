@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reloader
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # L'URL de TON dépôt Git (celui où tu as mis le dossier infrastructure/reloader)
+    repoURL: git@github.com:mirecloud/home_lab.git
+    targetRevision: HEAD
+    path: infrastructure/reloader # Le chemin vers ton Wrapper Chart
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default # Reloader s'installe souvent ici ou dans kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

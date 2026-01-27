@@ -1,0 +1,14 @@
+apiVersion: v2
+name: reloader
+description: Wrapper pour Reloader
+type: application
+version: 1.0.0
+appVersion: "1.4.12" # La version de l'application Reloader
+dependencies:
+  - name: reloader
+    # ATTENTION : On met juste le numéro, sans "chart-v"
+    version: 1.0.121 # Note : Stakater a des versions de chart différentes des tags.
+    # Si 2.2.7 ne marche pas, essaie 1.0.121 (souvent la dernière stable).
+    # D'après tes logs, le tag "chart-v2.2.7" est sorti récemment, essayons 2.2.7 d'abord.
+    #version: 2.2.7
+    repository: https://stakater.github.io/stakater-charts

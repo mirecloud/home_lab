@@ -1,0 +1,5 @@
+# infrastructure/reloader/values.yaml
+reloader:
+  # Configuration par défaut du chart officiel
+  reloader:
+    watchGlobally: true # Surveille tous les namespaces par défaut
