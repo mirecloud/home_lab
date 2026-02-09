@@ -133,7 +133,8 @@ vault auth enable kubernetes
 
 ```bash
 vault write auth/kubernetes/config \
-  kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
+    kubernetes_host="https://kubernetes.default.svc:443" \
+    disable_iss_validation=true
 ```
 
 3. Créer la policy :
