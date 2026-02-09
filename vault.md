@@ -168,6 +168,8 @@ vault write auth/kubernetes/role/vault-backend \
 ### Étape 1 – Créer le secret dans Vault
 
 ```bash
+vault secrets enable -path=secret  kv-v2
+
 vault kv put secret/keycloak admin-password="MonSuperMotDePasse"
 ```
 
