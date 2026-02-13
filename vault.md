@@ -133,7 +133,8 @@ vault auth enable kubernetes
 
 ```bash
 vault write auth/kubernetes/config \
-  kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
+    kubernetes_host="https://kubernetes.default.svc:443" \
+    disable_iss_validation=true
 ```
 
 3. Créer la policy :
@@ -167,6 +168,8 @@ vault write auth/kubernetes/role/vault-backend \
 ### Étape 1 – Créer le secret dans Vault
 
 ```bash
+vault secrets enable -path=secret  kv-v2
+
 vault kv put secret/keycloak admin-password="MonSuperMotDePasse"
 ```
 
