@@ -1,0 +1,68 @@
+# --- 1. La Demande de Certificat ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pgadmin-tls-cert
+  namespace: pgadmin  #  Vérifie ton namespace !
+spec:
+  secretName: pgadmin-tls-secret
+  issuerRef:
+    name: mirecloud-ca-issuer
+    kind: ClusterIssuer
+  commonName: pgadmin.mirecloud.com
+  dnsNames:
+  - pgadmin.mirecloud.com
+
+---
+# --- 2. La Gateway (Porte d'entrée Grafana) ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: pgadmin-gateway
+  namespace: pgadmin  #  Vérifie ton namespace !
+spec:
+  gatewayClassName: cilium
+  listeners:
+  # Port 80 (HTTP)
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+  
+  # Port 443 (HTTPS)
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: pgadmin-tls-secret # Créé par le Certificate ci-dessus
+    allowedRoutes:
+      namespaces:
+        from: Same
+
+---
+# --- 3. La Route (Vers le Service PgAdmin) ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: pgadmin-route
+  namespace: pgadmin  #  Vérifie ton namespace !
+spec:
+  parentRefs:
+  - name: pgadmin-gateway
+  hostnames:
+  - "pgadmin.mirecloud.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    #  IMPORTANT : Vérifie le nom exact de ton service PgAdmin !
+    # Souvent "pgadmin", "pgadmin-service"
+    - name: pgadmin-pgadmin4
+      port: 80 # Le service PgAdmin écoute généralement sur 80 (et redirige vers 3000)
