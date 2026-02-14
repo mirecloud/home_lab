@@ -161,21 +161,64 @@ vault write auth/kubernetes/role/vault-backend \
 
 ## 5. Mode d'emploi (Day‑to‑Day)
 
-### Exemple : ajouter un secret pour Keycloak
+### Exemple A : stocker le CA mirecloud dans Vault
+
+Ce cas couvre le stockage d'un certificat CA (fichiers `.crt` / `.key`) dans Vault pour qu'il puisse ensuite être injecté dans d'autres namespaces via External Secrets.
 
 ---
 
-### Étape 1 – Créer le secret dans Vault
+#### Étape 1 – Copier les fichiers dans le pod Vault
+
+Depuis le nœud (hors du pod) :
 
 ```bash
-vault secrets enable -path=secret  kv-v2
-
-vault kv put secret/keycloak admin-password="MonSuperMotDePasse"
+kubectl cp /home/asd/mirecloud-ca/mirecloud-ca.crt vault/vault-0:/tmp/tls.crt -n vault
+kubectl cp /home/asd/mirecloud-ca/mirecloud-ca.key vault/vault-0:/tmp/tls.key -n vault
 ```
 
 ---
 
-### Étape 2 – Créer l'ExternalSecret
+#### Étape 2 – Écrire le secret dans Vault
+
+```bash
+kubectl exec -ti vault-0 -n vault -- sh
+```
+
+Dans le shell du pod :
+
+```bash
+vault kv put secret/mirecloud/ca \
+    tls.crt=@/tmp/tls.crt \
+    tls.key=@/tmp/tls.key
+```
+
+---
+
+#### Étape 3 – Vérifier que le secret est bien stocké
+
+```bash
+kubectl exec -ti vault-0 -n vault -- vault kv get secret/mirecloud/ca
+```
+
+Résultat attendu : les champs `tls.crt` et `tls.key` apparaissent.
+
+---
+
+### Exemple B : ajouter un secret pour Keycloak
+
+---
+
+#### Étape 1 – Créer le secret dans Vault
+
+```bash
+vault kv put secret/keycloak admin-password="MonSuperMotDePasse"
+```
+
+> **Note :** Le moteur KV v2 sur le chemin `secret/` est activé lors de l'initialisation (section 4.B). Ne pas relancer `vault secrets enable` s'il est déjà actif.
+
+---
+
+#### Étape 2 – Créer l'ExternalSecret
 
 **Fichier :**
 `apps/keycloak/templates/external-secret.yaml`
@@ -202,7 +245,7 @@ spec:
 
 ---
 
-### Étape 3 – Consommer le secret dans Helm
+#### Étape 3 – Consommer le secret dans Helm
 
 ```yaml
 auth:
