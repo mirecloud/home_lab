@@ -1,0 +1,21 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "mirecloud-pool"
+spec:
+  blocks:
+    - start: "192.168.2.200"
+      stop: "192.168.2.240"
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: "mirecloud-l2-policy"
+spec:
+  # On remet le nodeSelector pour forcer Node-4 uniquement
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: node-4
+  interfaces:
+    - "^e.*" # Uniquement les interfaces Ethernet (eno1, enp...)
+  externalIPs: true

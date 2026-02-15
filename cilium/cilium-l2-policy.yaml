@@ -1,0 +1,15 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: home-lab-l2-policy
+spec:
+  # Quels nœuds participent ? (Ici : tous)
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists # Ou DoesNotExist si tu ne veux pas utiliser le master
+  # Quelles interfaces utiliser ? (laisse vide pour auto-detect, ou mets eth0)
+  interfaces:
+    - eno1 # Modifie si ta carte s'appelle ens18, eno1, etc.
+  externalIPs: true
+  loadBalancerIPs: true
