@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 780" width="900" height="780" font-family="'JetBrains Mono', 'Fira Code', 'Courier New', monospace">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#161b22;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#111827;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="browserGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#162640;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grafanaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a3a2a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#112a1e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="keycloakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a1010;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2dba82"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#58a6ff"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f0883e"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6e7681"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="780" fill="url(#bgGrad)"/>
+
+  <!-- Header bar -->
+  <rect x="0" y="0" width="900" height="52" fill="url(#headerGrad)"/>
+  <rect x="0" y="50" width="900" height="2" fill="#2dba82" opacity="0.8" filter="url(#glow)"/>
+
+  <!-- Terminal dots -->
+  <circle cx="24" cy="26" r="6" fill="#ff5f56"/>
+  <circle cx="44" cy="26" r="6" fill="#ffbd2e"/>
+  <circle cx="64" cy="26" r="6" fill="#27c93f"/>
+
+  <!-- Title -->
+  <text x="450" y="20" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="600" letter-spacing="3">OIDC AUTHORIZATION CODE FLOW</text>
+  <text x="450" y="38" text-anchor="middle" fill="#2dba82" font-size="10" letter-spacing="2">OpenID Connect · RFC 6749 · MireCloud Implementation</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Actor Columns Headers -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Browser Actor -->
+  <rect x="30" y="68" width="180" height="52" rx="6" fill="url(#browserGrad)" stroke="#1d4ed8" stroke-width="1.5"/>
+  <rect x="30" y="68" width="180" height="4" rx="3" fill="#3b82f6" opacity="0.9"/>
+  <text x="120" y="90" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600" letter-spacing="1">USER BROWSER</text>
+  <text x="120" y="108" text-anchor="middle" fill="#60a5fa" font-size="9" opacity="0.8">Front-Channel Actor</text>
+
+  <!-- Grafana Actor -->
+  <rect x="360" y="68" width="180" height="52" rx="6" fill="url(#grafanaGrad)" stroke="#16a34a" stroke-width="1.5"/>
+  <rect x="360" y="68" width="180" height="4" rx="3" fill="#22c55e" opacity="0.9"/>
+  <text x="450" y="90" text-anchor="middle" fill="#86efac" font-size="11" font-weight="600" letter-spacing="1">GRAFANA</text>
+  <text x="450" y="108" text-anchor="middle" fill="#4ade80" font-size="9" opacity="0.8">Relying Party (RP)</text>
+
+  <!-- Keycloak Actor -->
+  <rect x="690" y="68" width="180" height="52" rx="6" fill="url(#keycloakGrad)" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="690" y="68" width="180" height="4" rx="3" fill="#ef4444" opacity="0.9"/>
+  <text x="780" y="90" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600" letter-spacing="1">KEYCLOAK</text>
+  <text x="780" y="108" text-anchor="middle" fill="#f87171" font-size="9" opacity="0.8">Identity Provider (IdP)</text>
+
+  <!-- Lifelines -->
+  <line x1="120" y1="120" x2="120" y2="755" stroke="#1d4ed8" stroke-width="1" stroke-dasharray="6,4" opacity="0.4"/>
+  <line x1="450" y1="120" x2="450" y2="755" stroke="#16a34a" stroke-width="1" stroke-dasharray="6,4" opacity="0.4"/>
+  <line x1="780" y1="120" x2="780" y2="755" stroke="#dc2626" stroke-width="1" stroke-dasharray="6,4" opacity="0.4"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Step labels zone background -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- ── STEP 1 ── -->
+  <rect x="0" y="130" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <!-- Step badge -->
+  <rect x="8" y="136" width="18" height="18" rx="3" fill="#2dba82" opacity="0.85"/>
+  <text x="17" y="149" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">1</text>
+  <!-- Arrow: Browser → Grafana -->
+  <line x1="120" y1="148" x2="438" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="280" y="143" text-anchor="middle" fill="#93c5fd" font-size="9">GET /  (user navigates to Grafana)</text>
+
+  <!-- ── STEP 2 ── -->
+  <rect x="0" y="175" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="181" width="18" height="18" rx="3" fill="#f0883e" opacity="0.85"/>
+  <text x="17" y="194" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">2</text>
+  <!-- Arrow: Grafana → Browser (redirect) -->
+  <line x1="462" y1="193" x2="132" y2="193" stroke="#f0883e" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <text x="297" y="188" text-anchor="middle" fill="#fdba74" font-size="9">302 Redirect → auth_url + client_id + state</text>
+  <!-- sub label -->
+  <text x="297" y="204" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">front-channel · browser follows redirect</text>
+
+  <!-- ── STEP 3 ── -->
+  <rect x="0" y="220" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="226" width="18" height="18" rx="3" fill="#2dba82" opacity="0.85"/>
+  <text x="17" y="239" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">3</text>
+  <!-- Arrow: Browser → Keycloak -->
+  <line x1="120" y1="238" x2="768" y2="238" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="444" y="233" text-anchor="middle" fill="#93c5fd" font-size="9">GET /auth/realms/mirecloud/protocol/openid-connect/auth</text>
+  <text x="444" y="249" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">keycloak.mirecloud.com  ← public DNS</text>
+
+  <!-- ── STEP 4 ── -->
+  <rect x="0" y="265" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="271" width="18" height="18" rx="3" fill="#f0883e" opacity="0.85"/>
+  <text x="17" y="284" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">4</text>
+  <!-- Arrow: Keycloak → Browser -->
+  <line x1="780" y1="283" x2="132" y2="283" stroke="#f0883e" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <text x="456" y="278" text-anchor="middle" fill="#fdba74" font-size="9">200 OK — Login form rendered in browser</text>
+
+  <!-- ── STEP 5 ── -->
+  <rect x="0" y="310" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="316" width="18" height="18" rx="3" fill="#2dba82" opacity="0.85"/>
+  <text x="17" y="329" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">5</text>
+  <!-- Arrow: Browser → Keycloak -->
+  <line x1="120" y1="328" x2="768" y2="328" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="444" y="323" text-anchor="middle" fill="#93c5fd" font-size="9">POST credentials (username + password)</text>
+  <text x="444" y="339" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">user submits credentials · never seen by Grafana</text>
+
+  <!-- ── STEP 6 ── -->
+  <rect x="0" y="355" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="361" width="18" height="18" rx="3" fill="#f0883e" opacity="0.85"/>
+  <text x="17" y="374" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">6</text>
+  <!-- Arrow: Keycloak → Browser -->
+  <line x1="780" y1="373" x2="132" y2="373" stroke="#f0883e" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <text x="456" y="368" text-anchor="middle" fill="#fdba74" font-size="9">302 Redirect → redirect_uri?code=AUTH_CODE&amp;state=…</text>
+  <text x="456" y="384" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">short-lived authorization code · single use</text>
+
+  <!-- ── STEP 7 ── -->
+  <rect x="0" y="400" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="406" width="18" height="18" rx="3" fill="#2dba82" opacity="0.85"/>
+  <text x="17" y="419" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">7</text>
+  <!-- Arrow: Browser → Grafana -->
+  <line x1="120" y1="418" x2="438" y2="418" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="280" y="413" text-anchor="middle" fill="#93c5fd" font-size="9">GET /login/generic_oauth?code=AUTH_CODE</text>
+  <text x="280" y="429" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">grafana.mirecloud.com/login/generic_oauth</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- BACK-CHANNEL separator -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="300" y="448" width="580" height="22" rx="4" fill="#1f2937"/>
+  <rect x="300" y="448" width="4" height="22" rx="2" fill="#f0883e"/>
+  <text x="590" y="463" text-anchor="middle" fill="#f0883e" font-size="9" letter-spacing="2" font-weight="600">BACK-CHANNEL · Pod-to-Pod · No Browser Involved</text>
+
+  <!-- ── STEP 8 ── -->
+  <rect x="0" y="478" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="484" width="18" height="18" rx="3" fill="#2dba82" opacity="0.85"/>
+  <text x="17" y="497" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">8</text>
+  <!-- Arrow: Grafana → Keycloak (back-channel) -->
+  <line x1="462" y1="493" x2="768" y2="493" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+  <text x="615" y="488" text-anchor="middle" fill="#4ade80" font-size="9">POST /token  code + client_id + client_secret</text>
+  <text x="615" y="504" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">keycloak-keycloakx-http.keycloak.svc.cluster.local:80</text>
+
+  <!-- ── STEP 9 ── -->
+  <rect x="0" y="523" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="529" width="18" height="18" rx="3" fill="#f0883e" opacity="0.85"/>
+  <text x="17" y="542" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">9</text>
+  <!-- Arrow: Keycloak → Grafana (back-channel) -->
+  <line x1="780" y1="538" x2="474" y2="538" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+  <text x="627" y="533" text-anchor="middle" fill="#4ade80" font-size="9">{ access_token, id_token, refresh_token }</text>
+  <text x="627" y="549" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">JWT — contains sub, email, realm_access.roles</text>
+
+  <!-- ── STEP 10 ── -->
+  <rect x="0" y="568" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="574" width="18" height="18" rx="3" fill="#2dba82" opacity="0.85"/>
+  <text x="17" y="587" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">10</text>
+  <!-- Arrow: Grafana → Keycloak /userinfo (back-channel) -->
+  <line x1="462" y1="583" x2="768" y2="583" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+  <text x="615" y="578" text-anchor="middle" fill="#4ade80" font-size="9">GET /userinfo  Authorization: Bearer access_token</text>
+  <text x="615" y="594" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">keycloak-keycloakx-http.keycloak.svc.cluster.local:80</text>
+
+  <!-- ── STEP 11 ── -->
+  <rect x="0" y="613" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="619" width="18" height="18" rx="3" fill="#f0883e" opacity="0.85"/>
+  <text x="17" y="632" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">11</text>
+  <!-- Arrow: Keycloak → Grafana /userinfo response -->
+  <line x1="780" y1="628" x2="474" y2="628" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+  <text x="627" y="623" text-anchor="middle" fill="#4ade80" font-size="9">{ sub, email, realm_access: { roles: ["admin"] } }</text>
+  <text x="627" y="639" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">role_attribute_path → "Admin" or "Viewer"</text>
+
+  <!-- ── STEP 12 ── -->
+  <rect x="0" y="658" width="900" height="36" fill="#ffffff" fill-opacity="0.02"/>
+  <rect x="8" y="664" width="18" height="18" rx="3" fill="#f0883e" opacity="0.85"/>
+  <text x="17" y="677" text-anchor="middle" fill="#0d1117" font-size="9" font-weight="700">12</text>
+  <!-- Arrow: Grafana → Browser (session) -->
+  <line x1="462" y1="673" x2="132" y2="673" stroke="#f0883e" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <text x="297" y="668" text-anchor="middle" fill="#fdba74" font-size="9">Set-Cookie: grafana_session  →  Dashboard</text>
+  <text x="297" y="684" text-anchor="middle" fill="#6e7681" font-size="8" font-style="italic">session established · no Grafana password used</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Legend -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="20" y="718" width="860" height="50" rx="6" fill="#1f2937" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Legend items -->
+  <line x1="40" y1="743" x2="80" y2="743" stroke="#58a6ff" stroke-width="1.5"/>
+  <polygon points="77,740 83,743 77,746" fill="#58a6ff"/>
+  <text x="90" y="747" fill="#93c5fd" font-size="9">Browser request</text>
+
+  <line x1="200" y1="743" x2="240" y2="743" stroke="#f0883e" stroke-width="1.5"/>
+  <polygon points="237,740 243,743 237,746" fill="#f0883e"/>
+  <text x="250" y="747" fill="#fdba74" font-size="9">Server response / redirect</text>
+
+  <line x1="420" y1="743" x2="460" y2="743" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3"/>
+  <polygon points="457,740 463,743 457,746" fill="#2dba82"/>
+  <text x="470" y="747" fill="#4ade80" font-size="9">Back-channel (pod-to-pod, internal DNS)</text>
+
+  <rect x="660" y="735" width="14" height="14" rx="2" fill="#2dba82" opacity="0.85"/>
+  <text x="682" y="747" fill="#e6edf3" font-size="9">Front-channel step</text>
+
+  <rect x="770" y="735" width="14" height="14" rx="2" fill="#f0883e" opacity="0.85"/>
+  <text x="792" y="747" fill="#e6edf3" font-size="9">Back-channel step</text>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="768" width="900" height="12" fill="#0d1117"/>
+  <text x="450" y="778" text-anchor="middle" fill="#2dba82" font-size="8" opacity="0.6" letter-spacing="2">MIRECLOUD · github.com/mirecloud/home_lab</text>
+</svg>

@@ -1,0 +1,309 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" width="960" height="620" font-family="'JetBrains Mono', 'Fira Code', 'Courier New', monospace">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="vaultGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a1f0d"/>
+      <stop offset="100%" style="stop-color:#1a1308"/>
+    </linearGradient>
+    <linearGradient id="esoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d2a2a"/>
+      <stop offset="100%" style="stop-color:#071a1a"/>
+    </linearGradient>
+    <linearGradient id="kcGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a0d0d"/>
+      <stop offset="100%" style="stop-color:#1a0707"/>
+    </linearGradient>
+    <linearGradient id="grafGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d2a14"/>
+      <stop offset="100%" style="stop-color:#071a0d"/>
+    </linearGradient>
+    <linearGradient id="gwGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0f0f1e"/>
+    </linearGradient>
+    <linearGradient id="pgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1a2a"/>
+      <stop offset="100%" style="stop-color:#07111a"/>
+    </linearGradient>
+    <filter id="glow2">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="boxGlow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="aGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2dba82"/>
+    </marker>
+    <marker id="aOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f0883e"/>
+    </marker>
+    <marker id="aBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#58a6ff"/>
+    </marker>
+    <marker id="aRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f85149"/>
+    </marker>
+    <marker id="aGold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#e3b341"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="620" fill="url(#bg2)"/>
+
+  <!-- Grid dots texture -->
+  <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="1" r="0.8" fill="#ffffff" fill-opacity="0.04"/>
+  </pattern>
+  <rect width="960" height="620" fill="url(#dots)"/>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="960" height="48" fill="#161b22"/>
+  <rect x="0" y="46" width="960" height="2" fill="#2dba82" opacity="0.7" filter="url(#glow2)"/>
+  <circle cx="20" cy="24" r="5" fill="#ff5f56"/>
+  <circle cx="36" cy="24" r="5" fill="#ffbd2e"/>
+  <circle cx="52" cy="24" r="5" fill="#27c93f"/>
+  <text x="480" y="18" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600" letter-spacing="3">MIRECLOUD — KEYCLOAK + GRAFANA OIDC STACK</text>
+  <text x="480" y="36" text-anchor="middle" fill="#2dba82" font-size="9" letter-spacing="2">GitOps · Vault · External Secrets · Cilium Gateway API</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- EXTERNAL ZONE -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <rect x="20" y="66" width="140" height="90" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="90" y="82" text-anchor="middle" fill="#6e7681" font-size="8" letter-spacing="2">EXTERNAL</text>
+
+  <!-- Browser box -->
+  <rect x="32" y="88" width="116" height="58" rx="6" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="1.5"/>
+  <rect x="32" y="88" width="116" height="5" rx="3" fill="#3b82f6"/>
+  <!-- browser icon -->
+  <rect x="44" y="102" width="30" height="22" rx="3" fill="none" stroke="#60a5fa" stroke-width="1.2"/>
+  <line x1="44" y1="108" x2="74" y2="108" stroke="#60a5fa" stroke-width="1"/>
+  <circle cx="47" cy="105" r="1.5" fill="#f87171"/>
+  <circle cx="53" cy="105" r="1.5" fill="#fbbf24"/>
+  <circle cx="59" cy="105" r="1.5" fill="#34d399"/>
+  <text x="100" y="112" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">User</text>
+  <text x="100" y="126" text-anchor="middle" fill="#60a5fa" font-size="8">Browser</text>
+  <text x="100" y="138" text-anchor="middle" fill="#6e7681" font-size="7">HTTPS only</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- KUBERNETES CLUSTER ZONE -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <rect x="176" y="66" width="764" height="496" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+  <text x="558" y="82" text-anchor="middle" fill="#30363d" font-size="9" letter-spacing="3">KUBERNETES CLUSTER · home-lab · bare metal</text>
+
+  <!-- ── GIT / ARGOCD ── -->
+  <rect x="190" y="90" width="180" height="68" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="280" y="106" text-anchor="middle" fill="#6e7681" font-size="7" letter-spacing="2">SOURCE OF TRUTH</text>
+  <!-- Git icon repr -->
+  <rect x="202" y="112" width="60" height="36" rx="4" fill="#1f2937" stroke="#58a6ff" stroke-width="1"/>
+  <text x="232" y="127" text-anchor="middle" fill="#58a6ff" font-size="8" font-weight="700">Git</text>
+  <text x="232" y="140" text-anchor="middle" fill="#6e7681" font-size="7">no secrets</text>
+  <!-- ArgoCD icon repr -->
+  <rect x="278" y="112" width="60" height="36" rx="4" fill="#1f2937" stroke="#f0883e" stroke-width="1"/>
+  <text x="308" y="127" text-anchor="middle" fill="#f0883e" font-size="8" font-weight="700">ArgoCD</text>
+  <text x="308" y="140" text-anchor="middle" fill="#6e7681" font-size="7">sync + deploy</text>
+
+  <!-- ── VAULT ── -->
+  <rect x="190" y="178" width="180" height="90" rx="8" fill="url(#vaultGrad)" stroke="#e3b341" stroke-width="1.5" filter="url(#boxGlow)"/>
+  <rect x="190" y="178" width="180" height="5" rx="4" fill="#e3b341"/>
+  <text x="280" y="196" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700" letter-spacing="1">VAULT</text>
+  <text x="280" y="210" text-anchor="middle" fill="#e3b341" font-size="8">Secret Store · KV v2</text>
+  <!-- Secret paths -->
+  <rect x="202" y="218" width="156" height="14" rx="3" fill="#2a1f0d"/>
+  <text x="280" y="229" text-anchor="middle" fill="#fcd34d" font-size="8" font-family="monospace">secret/keycloak/admin  •  secret/keycloak/db</text>
+  <rect x="202" y="235" width="156" height="14" rx="3" fill="#2a1f0d"/>
+  <text x="280" y="246" text-anchor="middle" fill="#fcd34d" font-size="8" font-family="monospace">secret/grafana/sso  •  secret/mirecloud/ca</text>
+  <text x="280" y="261" text-anchor="middle" fill="#6e7681" font-size="7" font-style="italic">zero secrets in Git</text>
+
+  <!-- ── EXTERNAL SECRETS OPERATOR ── -->
+  <rect x="190" y="288" width="180" height="70" rx="8" fill="url(#esoGrad)" stroke="#06b6d4" stroke-width="1.5"/>
+  <rect x="190" y="288" width="180" height="5" rx="4" fill="#06b6d4"/>
+  <text x="280" y="306" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="700">ESO</text>
+  <text x="280" y="319" text-anchor="middle" fill="#22d3ee" font-size="8">External Secrets Operator</text>
+  <text x="280" y="333" text-anchor="middle" fill="#6e7681" font-size="8">ClusterSecretStore: vault-backend</text>
+  <text x="280" y="347" text-anchor="middle" fill="#6e7681" font-size="7">refreshInterval: 1m</text>
+
+  <!-- ── CERT-MANAGER ── -->
+  <rect x="190" y="378" width="180" height="70" rx="8" fill="#1a1a2e" stroke="#a78bfa" stroke-width="1.5"/>
+  <rect x="190" y="378" width="180" height="5" rx="4" fill="#a78bfa"/>
+  <text x="280" y="396" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="700">cert-manager</text>
+  <text x="280" y="409" text-anchor="middle" fill="#a78bfa" font-size="8">ClusterIssuer: mirecloud-ca-issuer</text>
+  <text x="280" y="423" text-anchor="middle" fill="#6e7681" font-size="8">Issues + renews TLS certs</text>
+  <text x="280" y="437" text-anchor="middle" fill="#6e7681" font-size="7">CA key from Vault via ESO</text>
+
+  <!-- ── CILIUM GATEWAY ── -->
+  <rect x="415" y="90" width="200" height="80" rx="8" fill="url(#gwGrad)" stroke="#818cf8" stroke-width="1.5"/>
+  <rect x="415" y="90" width="200" height="5" rx="4" fill="#818cf8"/>
+  <text x="515" y="109" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="700">Cilium Gateway API</text>
+  <text x="515" y="123" text-anchor="middle" fill="#818cf8" font-size="8">gatewayClassName: cilium</text>
+  <!-- IPs -->
+  <rect x="427" y="130" width="88" height="28" rx="4" fill="#1f2937"/>
+  <text x="471" y="143" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">192.168.2.204</text>
+  <text x="471" y="153" text-anchor="middle" fill="#6e7681" font-size="7">Keycloak GW</text>
+  <rect x="527" y="130" width="76" height="28" rx="4" fill="#1f2937"/>
+  <text x="565" y="143" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">192.168.2.xxx</text>
+  <text x="565" y="153" text-anchor="middle" fill="#6e7681" font-size="7">Grafana GW</text>
+
+  <!-- ── KEYCLOAK ── -->
+  <rect x="415" y="196" width="200" height="132" rx="8" fill="url(#kcGrad)" stroke="#f85149" stroke-width="2" filter="url(#boxGlow)"/>
+  <rect x="415" y="196" width="200" height="5" rx="4" fill="#f85149"/>
+  <text x="515" y="215" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700" letter-spacing="1">Keycloak</text>
+  <text x="515" y="228" text-anchor="middle" fill="#f87171" font-size="8">Identity Provider · realm: mirecloud</text>
+
+  <!-- Pod boxes -->
+  <rect x="427" y="236" width="80" height="40" rx="5" fill="#2a0d0d" stroke="#f85149" stroke-width="1"/>
+  <text x="467" y="252" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="600">keycloakx-0</text>
+  <rect x="430" y="257" width="74" height="10" rx="2" fill="#1a0707"/>
+  <text x="467" y="266" text-anchor="middle" fill="#4ade80" font-size="7">● Running</text>
+
+  <rect x="523" y="236" width="80" height="40" rx="5" fill="#2a0d0d" stroke="#f85149" stroke-width="1"/>
+  <text x="563" y="252" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="600">keycloakx-1</text>
+  <rect x="526" y="257" width="74" height="10" rx="2" fill="#1a0707"/>
+  <text x="563" y="266" text-anchor="middle" fill="#4ade80" font-size="7">● Running</text>
+
+  <!-- Infinispan link -->
+  <line x1="507" y1="256" x2="523" y2="256" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="515" y="252" text-anchor="middle" fill="#f0883e" font-size="7">◄►</text>
+  <text x="515" y="290" text-anchor="middle" fill="#6e7681" font-size="7" font-style="italic">Infinispan session cluster</text>
+
+  <!-- Keycloak config refs -->
+  <text x="427" y="310" fill="#6e7681" font-size="7">KEYCLOAK_ADMIN_PASSWORD ← keycloak-admin-password</text>
+  <text x="427" y="322" fill="#6e7681" font-size="7">DB password              ← byo-db-creds</text>
+
+  <!-- ── POSTGRESQL ── -->
+  <rect x="660" y="196" width="160" height="90" rx="8" fill="url(#pgGrad)" stroke="#0ea5e9" stroke-width="1.5"/>
+  <rect x="660" y="196" width="160" height="5" rx="4" fill="#0ea5e9"/>
+  <text x="740" y="215" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">PostgreSQL</text>
+  <text x="740" y="228" text-anchor="middle" fill="#0ea5e9" font-size="8">namespace: postgres</text>
+  <rect x="672" y="236" width="136" height="24" rx="4" fill="#0d1a2a"/>
+  <text x="740" y="247" text-anchor="middle" fill="#38bdf8" font-size="8" font-family="monospace">postgres-0  ● Running</text>
+  <text x="740" y="259" text-anchor="middle" fill="#6e7681" font-size="7" font-family="monospace">postgres.postgres.svc:5432</text>
+  <text x="740" y="277" text-anchor="middle" fill="#6e7681" font-size="7">StatefulSet · 79m</text>
+
+  <!-- ── GRAFANA ── -->
+  <rect x="415" y="368" width="200" height="120" rx="8" fill="url(#grafGrad)" stroke="#22c55e" stroke-width="2" filter="url(#boxGlow)"/>
+  <rect x="415" y="368" width="200" height="5" rx="4" fill="#22c55e"/>
+  <text x="515" y="387" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700" letter-spacing="1">Grafana</text>
+  <text x="515" y="400" text-anchor="middle" fill="#4ade80" font-size="8">Relying Party · OIDC</text>
+
+  <rect x="427" y="408" width="176" height="14" rx="3" fill="#0d2a14"/>
+  <text x="515" y="419" text-anchor="middle" fill="#86efac" font-size="8" font-family="monospace">client_secret ← $__env{client_secret}</text>
+
+  <rect x="427" y="425" width="176" height="22" rx="3" fill="#071a0d"/>
+  <text x="515" y="436" text-anchor="middle" fill="#6e7681" font-size="7">auth_url → keycloak.mirecloud.com (public)</text>
+  <text x="515" y="446" text-anchor="middle" fill="#6e7681" font-size="7">token_url → keycloakx-http.keycloak.svc (internal)</text>
+
+  <rect x="427" y="450" width="176" height="14" rx="3" fill="#0d2a14"/>
+  <text x="515" y="461" text-anchor="middle" fill="#6e7681" font-size="7">role_attribute_path: realm_access.roles → Admin|Viewer</text>
+
+  <text x="515" y="481" text-anchor="middle" fill="#4ade80" font-size="8">envFromSecret: grafana-keycloak-secret</text>
+
+  <!-- ── ARGOCD label on Git arrow zone ── -->
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ARROWS -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+
+  <!-- 1. User → Gateway (HTTPS) -->
+  <line x1="160" y1="118" x2="413" y2="118" stroke="#818cf8" stroke-width="2" marker-end="url(#aBlue)"/>
+  <rect x="215" y="108" width="130" height="14" rx="3" fill="#0d1117"/>
+  <text x="280" y="119" text-anchor="middle" fill="#a5b4fc" font-size="8" font-weight="600">HTTPS · 192.168.2.204</text>
+
+  <!-- 2. Vault → ESO (secret pull) -->
+  <line x1="280" y1="268" x2="280" y2="286" stroke="#e3b341" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#aGold)"/>
+  <text x="320" y="279" fill="#e3b341" font-size="8">kv get</text>
+
+  <!-- 3. ESO → Keycloak namespace (secrets) -->
+  <path d="M 370 323 Q 392 323 392 265 Q 392 228 413 228" stroke="#06b6d4" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#aBlue)"/>
+  <text x="394" y="290" fill="#22d3ee" font-size="8" text-anchor="middle">K8s</text>
+  <text x="394" y="301" fill="#22d3ee" font-size="8" text-anchor="middle">Secrets</text>
+
+  <!-- 4. ESO → Grafana namespace (client secret) -->
+  <path d="M 370 343 Q 390 343 390 430 Q 390 440 413 440" stroke="#06b6d4" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#aBlue)"/>
+
+  <!-- 5. cert-manager → Keycloak TLS cert -->
+  <path d="M 370 413 Q 400 413 400 175 Q 400 158 413 155" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#aBlue)"/>
+
+  <!-- 6. Gateway → Keycloak (HTTP after TLS termination) -->
+  <line x1="515" y1="170" x2="515" y2="194" stroke="#818cf8" stroke-width="1.5" marker-end="url(#aBlue)"/>
+  <text x="540" y="185" fill="#818cf8" font-size="7">HTTP:80</text>
+
+  <!-- 7. Keycloak → PostgreSQL (DB connection) -->
+  <line x1="615" y1="258" x2="658" y2="258" stroke="#f85149" stroke-width="1.5" marker-end="url(#aRed)"/>
+  <text x="636" y="251" text-anchor="middle" fill="#f85149" font-size="7">5432</text>
+
+  <!-- 8. Gateway → Grafana (routed after auth redirect back) -->
+  <line x1="515" y1="388" x2="515" y2="388"/>
+  <path d="M 615 130 Q 640 130 640 408 Q 640 420 617 420" stroke="#818cf8" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#aBlue)"/>
+
+  <!-- 9. Grafana ↔ Keycloak back-channel -->
+  <path d="M 515 366 Q 515 355 515 346 Q 515 336 515 330" stroke="#2dba82" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#aGreen)"/>
+  <rect x="520" y="344" width="88" height="14" rx="3" fill="#0d1117"/>
+  <text x="564" y="355" fill="#2dba82" font-size="7">back-channel OIDC</text>
+  <text x="564" y="365" fill="#6e7681" font-size="7">token + userinfo</text>
+
+  <!-- ArgoCD sync arrows -->
+  <line x1="338" y1="124" x2="413" y2="124" stroke="#f0883e" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#aOrange)"/>
+  <text x="376" y="119" text-anchor="middle" fill="#f0883e" font-size="7">sync</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- LEGEND -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <rect x="186" y="510" width="754" height="94" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="563" y="526" text-anchor="middle" fill="#6e7681" font-size="8" letter-spacing="2">LEGEND</text>
+
+  <!-- Row 1 -->
+  <line x1="210" y1="541" x2="246" y2="541" stroke="#818cf8" stroke-width="2"/>
+  <polygon points="243,538 249,541 243,544" fill="#818cf8"/>
+  <text x="255" y="545" fill="#a5b4fc" font-size="9">HTTPS / TLS traffic</text>
+
+  <line x1="380" y1="541" x2="416" y2="541" stroke="#f85149" stroke-width="1.5"/>
+  <polygon points="413,538 419,541 413,544" fill="#f85149"/>
+  <text x="425" y="545" fill="#fca5a5" font-size="9">Database connection</text>
+
+  <line x1="560" y1="541" x2="596" y2="541" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3"/>
+  <polygon points="593,538 599,541 593,544" fill="#2dba82"/>
+  <text x="605" y="545" fill="#4ade80" font-size="9">Back-channel OIDC (internal DNS)</text>
+
+  <!-- Row 2 -->
+  <line x1="210" y1="567" x2="246" y2="567" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="243,564 249,567 243,570" fill="#06b6d4"/>
+  <text x="255" y="571" fill="#67e8f9" font-size="9">Secret injection (ESO)</text>
+
+  <line x1="380" y1="567" x2="416" y2="567" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="413,564 419,567 413,570" fill="#a78bfa"/>
+  <text x="425" y="571" fill="#c4b5fd" font-size="9">TLS certificate (cert-manager)</text>
+
+  <line x1="560" y1="567" x2="596" y2="567" stroke="#e3b341" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="593,564 599,567 593,570" fill="#e3b341"/>
+  <text x="605" y="571" fill="#fde68a" font-size="9">Vault secret pull</text>
+
+  <!-- Row 3 - namespace badges -->
+  <rect x="210" y="580" width="70" height="14" rx="3" fill="#2a0d0d" stroke="#f85149" stroke-width="1"/>
+  <text x="245" y="591" text-anchor="middle" fill="#fca5a5" font-size="8">ns: keycloak</text>
+  <rect x="290" y="580" width="70" height="14" rx="3" fill="#0d2a14" stroke="#22c55e" stroke-width="1"/>
+  <text x="325" y="591" text-anchor="middle" fill="#86efac" font-size="8">ns: monitoring</text>
+  <rect x="370" y="580" width="60" height="14" rx="3" fill="#0d1a2a" stroke="#0ea5e9" stroke-width="1"/>
+  <text x="400" y="591" text-anchor="middle" fill="#7dd3fc" font-size="8">ns: postgres</text>
+  <rect x="440" y="580" width="50" height="14" rx="3" fill="#2a1f0d" stroke="#e3b341" stroke-width="1"/>
+  <text x="465" y="591" text-anchor="middle" fill="#fde68a" font-size="8">ns: vault</text>
+  <rect x="500" y="580" width="80" height="14" rx="3" fill="#1a1a2e" stroke="#a78bfa" stroke-width="1"/>
+  <text x="540" y="591" text-anchor="middle" fill="#c4b5fd" font-size="8">ns: cert-manager</text>
+  <rect x="590" y="580" width="80" height="14" rx="3" fill="#0d2a2a" stroke="#06b6d4" stroke-width="1"/>
+  <text x="630" y="591" text-anchor="middle" fill="#67e8f9" font-size="8">ns: external-secrets</text>
+
+  <!-- Bottom -->
+  <rect x="0" y="610" width="960" height="10" fill="#0d1117"/>
+  <text x="480" y="618" text-anchor="middle" fill="#2dba82" font-size="7" opacity="0.5" letter-spacing="2">MIRECLOUD · github.com/mirecloud/home_lab</text>
+</svg>
