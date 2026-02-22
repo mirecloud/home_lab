@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExternalDNS sur Kubernetes Homelab — BIND via RFC2136 | MireCloud</title>
+  <meta name="description" content="Comment automatiser la gestion DNS dans un homelab Kubernetes avec ExternalDNS, BIND, RFC2136, TSIG et Cilium Gateway API.">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --blue: #58a6ff;
+      --green: #3fb950;
+      --yellow: #e3b341;
+      --orange: #f78c00;
+      --purple: #a371f7;
+      --red: #f85149;
+      --code-bg: #161b22;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      padding: 0;
+    }
+
+    /* Header */
+    .hero {
+      background: linear-gradient(135deg, #0d1117 0%, #1c2333 50%, #0d1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 20px 40px;
+      text-align: center;
+    }
+
+    .hero .tag {
+      display: inline-block;
+      background: var(--orange);
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(24px, 4vw, 42px);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text);
+      max-width: 800px;
+      margin: 0 auto 16px;
+    }
+
+    .hero h1 span { color: var(--orange); }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+
+    .hero .meta {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hero .meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* Stack badges */
+    .stack-bar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .badge {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* Main layout */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Sections */
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 56px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 26px;
+      background: var(--orange);
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--blue);
+      margin: 32px 0 12px;
+    }
+
+    p {
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Intro callout */
+    .intro-box {
+      background: linear-gradient(135deg, #1c2333, #161b22);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+
+    .intro-box p { margin: 0; color: var(--text); font-size: 17px; line-height: 1.8; }
+
+    /* Architecture diagram */
+    .arch-diagram {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      margin: 24px 0;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .arch-diagram .cluster { color: var(--blue); }
+    .arch-diagram .component { color: var(--green); }
+    .arch-diagram .arrow { color: var(--orange); }
+    .arch-diagram .server { color: var(--yellow); }
+    .arch-diagram .label { color: var(--muted); }
+
+    /* Steps */
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px 10px 0 0;
+      padding: 16px 20px;
+      margin-top: 40px;
+      border-bottom: none;
+    }
+
+    .step-number {
+      background: var(--orange);
+      color: #000;
+      font-weight: 800;
+      font-size: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-body {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 20px 24px;
+    }
+
+    .step-body p { margin-bottom: 12px; }
+
+    /* Code blocks */
+    .code-wrap {
+      margin: 16px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-label {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      font-family: 'SF Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .code-label::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    p code, li code {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--orange);
+    }
+
+    /* Syntax highlights */
+    .kw { color: #ff7b72; }
+    .str { color: #a5d6ff; }
+    .cm { color: #8b949e; font-style: italic; }
+    .key { color: var(--blue); }
+    .val { color: #79c0ff; }
+    .num { color: var(--green); }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--bg3);
+      color: var(--text);
+      font-weight: 600;
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    td code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; color: var(--orange); font-size: 12px; }
+
+    tr:nth-child(even) td { background: #0d1117; }
+
+    /* Flow box */
+    .flow-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin: 24px 0;
+      font-family: 'SF Mono', monospace;
+      font-size: 13px;
+      line-height: 2;
+    }
+
+    .flow-box .step-line { display: flex; gap: 12px; }
+    .flow-box .step-line .num { color: var(--orange); font-weight: 700; min-width: 20px; }
+    .flow-box .step-line .txt { color: var(--text); }
+    .flow-box .step-line .txt .hl { color: var(--green); font-weight: 600; }
+    .flow-box .duration { color: var(--green); font-weight: 700; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+
+    /* Result box */
+    .result-box {
+      background: #0f2a1a;
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+
+    .result-box .result-title {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-box pre { background: transparent; padding: 0; }
+    .result-box code { color: #e6edf3; }
+    .result-box .highlight { color: var(--green); font-weight: 600; }
+
+    /* Security table */
+    .security-table td:first-child { color: var(--text); font-weight: 600; }
+    .security-table td:last-child { color: var(--green); }
+
+    /* Conclusion */
+    .conclusion {
+      background: linear-gradient(135deg, #1c2333, #161b22);
+      border: 1px solid var(--orange);
+      border-radius: 12px;
+      padding: 36px;
+      margin: 48px 0 0;
+      text-align: center;
+    }
+
+    .conclusion .formula {
+      font-family: 'SF Mono', monospace;
+      font-size: 15px;
+      color: var(--orange);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin: 20px 0;
+      display: inline-block;
+    }
+
+    .conclusion p { max-width: 600px; margin: 12px auto; }
+
+    /* Footer */
+    .footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer a { color: var(--blue); }
+
+    /* Warning */
+    .warn-box {
+      background: #2d1f00;
+      border: 1px solid var(--yellow);
+      border-left: 4px solid var(--yellow);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      color: var(--yellow);
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 28px 16px 60px; }
+      h2 { font-size: 20px; }
+      .flow-box { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="tag">MireCloud Home Lab · DevOps</div>
+  <h1>ExternalDNS sur Kubernetes<br><span>Sync automatique avec BIND via RFC2136</span></h1>
+  <p class="subtitle">Comment automatiser entièrement la gestion DNS dans un homelab Kubernetes avec Cilium, BIND, et HashiCorp Vault.</p>
+  <div class="meta">
+    <span>📅 22 février 2026</span>
+    <span>⏱ ~10 min de lecture</span>
+    <span>🔧 ExternalDNS v0.20.0</span>
+    <span>☸ Kubernetes v1.34</span>
+  </div>
+</div>
+
+<!-- STACK BADGES -->
+<div class="stack-bar">
+  <span class="badge">Kubernetes v1.34</span>
+  <span class="badge">ExternalDNS v0.20.0</span>
+  <span class="badge">Cilium Gateway API</span>
+  <span class="badge">BIND (RFC2136)</span>
+  <span class="badge">TSIG / HMAC-SHA256</span>
+  <span class="badge">HashiCorp Vault</span>
+  <span class="badge">External Secrets Operator</span>
+  <span class="badge">ArgoCD (GitOps)</span>
+  <span class="badge">cert-manager</span>
+</div>
+
+<!-- ARTICLE -->
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="intro-box">
+    <p>Quand tu gères un homelab Kubernetes avec plusieurs services exposés — Grafana, Keycloak, ArgoCD, PgAdmin — tu te retrouves vite à maintenir <strong>manuellement</strong> des entrées DNS dans BIND. C'est répétitif, source d'erreurs, et ça ne scale pas. La solution : <strong>ExternalDNS</strong>. Ce controller surveille tes Services, Ingress et HTTPRoutes en temps réel, et met à jour automatiquement BIND dès qu'un service est exposé. Fini les entrées oubliées.</p>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <h2>Architecture du lab</h2>
+
+  <div class="arch-diagram">
+<span class="cluster">┌─────────────────────────────────────────────────────────┐</span>
+<span class="cluster">│                  Kubernetes Cluster                     │</span>
+<span class="cluster">│                                                         │</span>
+<span class="cluster">│  </span><span class="component">Cilium Gateway API</span>                                       <span class="cluster">│</span>
+<span class="cluster">│  </span><span class="label">(grafana, keycloak, pgadmin, argocd...)</span>                  <span class="cluster">│</span>
+<span class="cluster">│           │                                             │</span>
+<span class="cluster">│           ▼                                             │</span>
+<span class="cluster">│  </span><span class="component">ExternalDNS v0.20.0</span><span class="label">  (namespace: external-dns)</span>          <span class="cluster">│</span>
+<span class="cluster">│  </span><span class="label">sources: service · ingress · gateway-httproute</span>           <span class="cluster">│</span>
+<span class="cluster">│           │                                             │</span>
+<span class="cluster">│           │  </span><span class="arrow">RFC2136 Dynamic DNS Update</span>                   <span class="cluster">│</span>
+<span class="cluster">│           │  </span><span class="arrow">TSIG / HMAC-SHA256</span>                           <span class="cluster">│</span>
+<span class="cluster">└───────────┼─────────────────────────────────────────────┘</span>
+            <span class="arrow">│</span>
+            <span class="arrow">▼</span>
+  <span class="server">┌─────────────────────┐</span>
+  <span class="server">│  BIND (node-3)      │</span>
+  <span class="server">│  192.168.2.74:53    │</span>
+  <span class="server">│  zone: mirecloud.com│</span>
+  <span class="server">└─────────────────────┘</span>
+  </div>
+
+  <table>
+    <thead><tr><th>Node</th><th>IP</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td><code>node-4</code></td><td><code>192.168.2.75</code></td><td>Control Plane + NFS</td></tr>
+      <tr><td><code>node-2</code></td><td><code>192.168.2.46</code></td><td>Worker — Monitoring</td></tr>
+      <tr><td><code>node-3</code></td><td><code>192.168.2.74</code></td><td>Worker — <strong>BIND DNS</strong></td></tr>
+    </tbody>
+  </table>
+
+  <!-- STEP 1 -->
+  <div class="step-header">
+    <div class="step-number">1</div>
+    <div class="step-title">Configurer BIND pour les Dynamic DNS Updates</div>
+  </div>
+  <div class="step-body">
+    <p>Sur <code>node-3</code>, BIND doit accepter les mises à jour dynamiques signées avec une clé TSIG.</p>
+    <h3>Générer la clé TSIG</h3>
+    <div class="code-wrap">
+      <div class="code-label">bash</div>
+      <pre><code>tsig-keygen -a hmac-sha256 externaldns-key</code></pre>
+    </div>
+    <p>Résultat :</p>
+    <div class="code-wrap">
+      <div class="code-label">output</div>
+      <pre><code>key "externaldns-key" {
+    algorithm hmac-sha256;
+    secret "VotreCleBase64IciTresLongue==";
+};</code></pre>
+    </div>
+    <h3>Configurer named.conf</h3>
+    <div class="code-wrap">
+      <div class="code-label">named.conf</div>
+      <pre><code><span class="cm">// Déclaration de la clé TSIG</span>
+<span class="kw">key</span> <span class="str">"externaldns-key"</span> {
+    algorithm hmac-sha256;
+    secret <span class="str">"VotreCleBase64IciTresLongue=="</span>;
+};
+
+<span class="kw">zone</span> <span class="str">"mirecloud.com"</span> {
+    type master;
+    file <span class="str">"/var/lib/bind/db.mirecloud.com"</span>;
+    <span class="cm">// Autoriser les updates uniquement avec la clé TSIG</span>
+    allow-update { key <span class="str">"externaldns-key"</span>; };
+};</code></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-label">bash</div>
+      <pre><code>systemctl reload named</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-header">
+    <div class="step-number">2</div>
+    <div class="step-title">Stocker la clé TSIG dans HashiCorp Vault</div>
+  </div>
+  <div class="step-body">
+    <div class="warn-box">⚠ La clé TSIG ne doit <strong>jamais</strong> se retrouver dans Git. On la stocke dans Vault.</div>
+    <div class="code-wrap">
+      <div class="code-label">bash</div>
+      <pre><code>vault kv put secret/dns/rfc2136 \
+  tsig-secret="VotreCleBase64IciTresLongue=="</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-header">
+    <div class="step-number">3</div>
+    <div class="step-title">Injecter la clé via External Secrets Operator</div>
+  </div>
+  <div class="step-body">
+    <p>ESO crée automatiquement le Secret Kubernetes depuis Vault. Zero secret dans Git, refresh toutes les minutes.</p>
+    <div class="code-wrap">
+      <div class="code-label">infrastructure/external-dns/templates/external-secret.yaml</div>
+      <pre><code><span class="key">apiVersion</span>: <span class="val">external-secrets.io/v1beta1</span>
+<span class="key">kind</span>: <span class="val">ExternalSecret</span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="val">external-dns-bind-secret</span>
+  <span class="key">namespace</span>: <span class="val">external-dns</span>
+<span class="key">spec</span>:
+  <span class="key">refreshInterval</span>: <span class="val">1m</span>
+  <span class="key">secretStoreRef</span>:
+    <span class="key">name</span>: <span class="val">vault-backend</span>
+    <span class="key">kind</span>: <span class="val">ClusterSecretStore</span>
+  <span class="key">target</span>:
+    <span class="key">name</span>: <span class="val">rfc2136-tsig-secret</span>   <span class="cm"># Secret K8s créé automatiquement</span>
+    <span class="key">creationPolicy</span>: <span class="val">Owner</span>
+  <span class="key">data</span>:
+    - <span class="key">secretKey</span>: <span class="val">tsig-secret</span>
+      <span class="key">remoteRef</span>:
+        <span class="key">key</span>: <span class="val">secret/dns/rfc2136</span>
+        <span class="key">property</span>: <span class="val">tsig-secret</span></code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-header">
+    <div class="step-number">4</div>
+    <div class="step-title">Déployer ExternalDNS via Helm</div>
+  </div>
+  <div class="step-body">
+    <div class="code-wrap">
+      <div class="code-label">infrastructure/external-dns/Chart.yaml</div>
+      <pre><code><span class="key">apiVersion</span>: <span class="val">v2</span>
+<span class="key">name</span>: <span class="val">external-dns</span>
+<span class="key">version</span>: <span class="val">1.0.0</span>
+<span class="key">dependencies</span>:
+  - <span class="key">name</span>: <span class="val">external-dns</span>
+    <span class="key">version</span>: <span class="val">1.20.0</span>
+    <span class="key">repository</span>: <span class="val">https://kubernetes-sigs.github.io/external-dns/</span></code></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-label">infrastructure/external-dns/values.yaml</div>
+      <pre><code><span class="key">external-dns</span>:
+  <span class="key">logLevel</span>: <span class="val">info</span>
+  <span class="key">interval</span>: <span class="val">1m</span>
+
+  <span class="key">sources</span>:
+    - <span class="val">service</span>
+    - <span class="val">ingress</span>
+    - <span class="val">gateway-httproute</span>        <span class="cm"># Support Cilium Gateway API</span>
+
+  <span class="key">policy</span>: <span class="val">sync</span>                 <span class="cm"># Crée ET supprime les entrées DNS</span>
+  <span class="key">registry</span>: <span class="val">txt</span>               <span class="cm"># Tracking via enregistrements TXT</span>
+  <span class="key">domainFilters</span>:
+    - <span class="val">mirecloud.com</span>
+
+  <span class="key">provider</span>: <span class="val">rfc2136</span>
+
+  <span class="key">extraArgs</span>:
+    - --rfc2136-host=<span class="num">192.168.2.74</span>
+    - --rfc2136-port=<span class="num">53</span>
+    - --rfc2136-zone=<span class="val">mirecloud.com</span>
+    - --rfc2136-tsig-keyname=<span class="val">externaldns-key</span>
+    - --rfc2136-tsig-axfr
+    - --rfc2136-tsig-secret-alg=<span class="val">hmac-sha256</span>
+
+  <span class="key">env</span>:
+    - <span class="key">name</span>: <span class="val">EXTERNAL_DNS_RFC2136_TSIG_SECRET</span>
+      <span class="key">valueFrom</span>:
+        <span class="key">secretKeyRef</span>:
+          <span class="key">name</span>: <span class="val">rfc2136-tsig-secret</span>   <span class="cm"># Créé par ESO depuis Vault</span>
+          <span class="key">key</span>: <span class="val">tsig-secret</span>
+
+  <span class="key">securityContext</span>:
+    <span class="key">runAsNonRoot</span>: <span class="num">true</span>
+    <span class="key">runAsUser</span>: <span class="num">65532</span>
+    <span class="key">readOnlyRootFilesystem</span>: <span class="num">true</span>
+    <span class="key">allowPrivilegeEscalation</span>: <span class="num">false</span>
+    <span class="key">capabilities</span>:
+      <span class="key">drop</span>: [<span class="str">"ALL"</span>]</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-header">
+    <div class="step-number">5</div>
+    <div class="step-title">Application ArgoCD — GitOps</div>
+  </div>
+  <div class="step-body">
+    <p>Un simple <code>git push</code> et ArgoCD déploie ExternalDNS automatiquement. Pas de <code>helm install</code> à la main.</p>
+    <div class="code-wrap">
+      <div class="code-label">clusters/home-lab/external-dns-app.yaml</div>
+      <pre><code><span class="key">apiVersion</span>: <span class="val">argoproj.io/v1alpha1</span>
+<span class="key">kind</span>: <span class="val">Application</span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="val">external-dns</span>
+  <span class="key">namespace</span>: <span class="val">argocd</span>
+<span class="key">spec</span>:
+  <span class="key">project</span>: <span class="val">default</span>
+  <span class="key">source</span>:
+    <span class="key">repoURL</span>: <span class="str">"git@github.com:mirecloud/home_lab.git"</span>
+    <span class="key">targetRevision</span>: <span class="val">HEAD</span>
+    <span class="key">path</span>: <span class="val">infrastructure/external-dns</span>
+  <span class="key">destination</span>:
+    <span class="key">server</span>: <span class="val">https://kubernetes.default.svc</span>
+    <span class="key">namespace</span>: <span class="val">external-dns</span>
+  <span class="key">syncPolicy</span>:
+    <span class="key">automated</span>:
+      <span class="key">prune</span>: <span class="num">true</span>
+      <span class="key">selfHeal</span>: <span class="num">true</span>
+    <span class="key">syncOptions</span>:
+      - <span class="val">CreateNamespace=true</span></code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step-header">
+    <div class="step-number">6</div>
+    <div class="step-title">Test en conditions réelles — Certificate + Gateway + HTTPRoute</div>
+  </div>
+  <div class="step-body">
+    <p>Manifeste de test complet pour valider la chaîne entière : cert-manager génère le TLS, Cilium expose le service, ExternalDNS met à jour BIND.</p>
+    <div class="code-wrap">
+      <div class="code-label">test-route-external-dns.yaml</div>
+      <pre><code><span class="cm"># 1. Certificat TLS via cert-manager</span>
+<span class="key">apiVersion</span>: <span class="val">cert-manager.io/v1</span>
+<span class="key">kind</span>: <span class="val">Certificate</span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="val">testexternal-tls-cert</span>
+  <span class="key">namespace</span>: <span class="val">default</span>
+<span class="key">spec</span>:
+  <span class="key">secretName</span>: <span class="val">externaldns-tls-secret</span>
+  <span class="key">issuerRef</span>:
+    <span class="key">name</span>: <span class="val">mirecloud-ca-issuer</span>
+    <span class="key">kind</span>: <span class="val">ClusterIssuer</span>
+  <span class="key">commonName</span>: <span class="val">testexternal.mirecloud.com</span>
+  <span class="key">dnsNames</span>:
+    - <span class="val">testexternal.mirecloud.com</span>
+---
+<span class="cm"># 2. Cilium Gateway (point d'entrée L4)</span>
+<span class="key">apiVersion</span>: <span class="val">gateway.networking.k8s.io/v1</span>
+<span class="key">kind</span>: <span class="val">Gateway</span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="val">externaldns-gateway</span>
+  <span class="key">namespace</span>: <span class="val">default</span>
+<span class="key">spec</span>:
+  <span class="key">gatewayClassName</span>: <span class="val">cilium</span>
+  <span class="key">listeners</span>:
+    - <span class="key">name</span>: <span class="val">http</span>
+      <span class="key">protocol</span>: <span class="val">HTTP</span>
+      <span class="key">port</span>: <span class="num">80</span>
+      <span class="key">allowedRoutes</span>:
+        <span class="key">namespaces</span>:
+          <span class="key">from</span>: <span class="val">Same</span>
+    - <span class="key">name</span>: <span class="val">https</span>
+      <span class="key">protocol</span>: <span class="val">HTTPS</span>
+      <span class="key">port</span>: <span class="num">443</span>
+      <span class="key">tls</span>:
+        <span class="key">mode</span>: <span class="val">Terminate</span>
+        <span class="key">certificateRefs</span>:
+          - <span class="key">kind</span>: <span class="val">Secret</span>
+            <span class="key">name</span>: <span class="val">externaldns-tls-secret</span>
+      <span class="key">allowedRoutes</span>:
+        <span class="key">namespaces</span>:
+          <span class="key">from</span>: <span class="val">Same</span>
+---
+<span class="cm"># 3. HTTPRoute (routing L7)</span>
+<span class="key">apiVersion</span>: <span class="val">gateway.networking.k8s.io/v1</span>
+<span class="key">kind</span>: <span class="val">HTTPRoute</span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="val">externaldns-route</span>
+  <span class="key">namespace</span>: <span class="val">default</span>
+<span class="key">spec</span>:
+  <span class="key">parentRefs</span>:
+    - <span class="key">name</span>: <span class="val">externaldns-gateway</span>
+  <span class="key">hostnames</span>:
+    - <span class="str">"testexternal.mirecloud.com"</span>
+  <span class="key">rules</span>:
+    - <span class="key">matches</span>:
+        - <span class="key">path</span>:
+            <span class="key">type</span>: <span class="val">PathPrefix</span>
+            <span class="key">value</span>: <span class="str">/</span>
+      <span class="key">backendRefs</span>:
+        - <span class="key">name</span>: <span class="val">kubernetes</span>
+          <span class="key">port</span>: <span class="num">443</span></code></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-label">bash</div>
+      <pre><code>kubectl apply -f test-route-external-dns.yaml</code></pre>
+    </div>
+
+    <h3>Résultat — Zone BIND mise à jour automatiquement</h3>
+    <p>En moins d'une minute, <code>/var/lib/bind/db.mirecloud.com</code> sur <code>node-3</code> :</p>
+
+    <div class="result-box">
+      <div class="result-title">✓ Zone mirecloud.com — mise à jour automatique</div>
+      <pre><code>$ORIGIN mirecloud.com.
+argocd          A   192.168.2.201
+grafana         A   192.168.2.205
+keycloak        A   192.168.2.204
+pgadmin         A   192.168.2.202
+<span class="highlight">testexternal    A   192.168.2.206   ← ajouté automatiquement en &lt; 1 min</span>
+
+<span style="color:#8b949e;">; Enregistrement TXT de tracking (ownership ExternalDNS)</span>
+a-testexternal  TXT "heritage=external-dns,external-dns/owner=default,
+                     external-dns/resource=httproute/default/externaldns-route"</code></pre>
+    </div>
+
+    <h3>Logs ExternalDNS</h3>
+    <div class="code-wrap">
+      <div class="code-label">kubectl logs -n external-dns deployment/external-dns -f</div>
+      <pre><code>time="2026-02-22T18:53:32Z" level=info msg="All records are already up to date"
+time="2026-02-22T18:54:34Z" level=info msg="All records are already up to date"</code></pre>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <h2>Le flow complet — de git push au DNS</h2>
+
+  <div class="flow-box">
+    <div class="step-line"><span class="num">1.</span><span class="txt"><span class="hl">git push</span> → ArgoCD détecte le changement dans le repo</span></div>
+    <div class="step-line"><span class="num">2.</span><span class="txt">ArgoCD applique Gateway + HTTPRoute dans le cluster</span></div>
+    <div class="step-line"><span class="num">3.</span><span class="txt"><span class="hl">Cilium Gateway API</span> assigne une IP externe (192.168.2.206)</span></div>
+    <div class="step-line"><span class="num">4.</span><span class="txt">ExternalDNS détecte le HTTPRoute (<code>source: gateway-httproute</code>)</span></div>
+    <div class="step-line"><span class="num">5.</span><span class="txt">ExternalDNS envoie <span class="hl">RFC2136 Dynamic Update</span> signé TSIG → BIND</span></div>
+    <div class="step-line"><span class="num">6.</span><span class="txt">BIND crée l'enregistrement <span class="hl">A</span> dans la zone mirecloud.com</span></div>
+    <div class="step-line"><span class="num">7.</span><span class="txt">BIND crée un enregistrement <span class="hl">TXT</span> de tracking pour ExternalDNS</span></div>
+    <div class="step-line"><span class="num">8.</span><span class="txt"><span class="hl">testexternal.mirecloud.com → 192.168.2.206 ✓</span></span></div>
+    <div class="duration">⚡ Durée totale : &lt; 60 secondes</div>
+  </div>
+
+  <p>Si tu supprimes le HTTPRoute, ExternalDNS supprime aussi l'entrée DNS. La politique <code>sync</code> garantit que le DNS reflète toujours l'état réel du cluster.</p>
+
+  <!-- SECURITY -->
+  <h2>Sécurité</h2>
+
+  <table class="security-table">
+    <thead><tr><th>Aspect</th><th>Implémentation</th></tr></thead>
+    <tbody>
+      <tr><td>Clé TSIG</td><td>Stockée dans HashiCorp Vault · jamais dans Git</td></tr>
+      <tr><td>Injection</td><td>External Secrets Operator → Secret K8s · refresh 1m</td></tr>
+      <tr><td>Algorithme</td><td>HMAC-SHA256</td></tr>
+      <tr><td>Container</td><td><code>runAsNonRoot</code> · <code>readOnlyRootFilesystem</code> · no capabilities</td></tr>
+      <tr><td>Scope DNS</td><td>Filtré sur <code>mirecloud.com</code> uniquement (<code>--domain-filter</code>)</td></tr>
+      <tr><td>Updates BIND</td><td>Autorisés uniquement avec la clé TSIG</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CONCLUSION -->
+  <div class="conclusion">
+    <h2 style="border:none; margin:0 0 16px; justify-content:center;">Conclusion</h2>
+    <div class="formula">ExternalDNS + BIND + RFC2136 + Vault + ArgoCD = DNS as Code</div>
+    <p>Plus jamais d'entrée DNS oubliée. Plus jamais de divergence entre ce qui tourne dans le cluster et ce qui est déclaré dans BIND.</p>
+    <p>Le DNS suit automatiquement l'état du cluster, dans les deux sens — création et suppression. C'est exactement ce genre d'automatisation qui fait la différence entre un homelab bricolé et une infrastructure qui ressemble à une vraie prod.</p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p><strong>MireCloud Home Lab</strong> · <a href="https://github.com/mirecloud/home_lab">github.com/mirecloud/home_lab</a></p>
+  <p style="margin-top:6px;">Kubernetes v1.34 · ExternalDNS v0.20.0 · Cilium · BIND · HashiCorp Vault · ArgoCD · Ubuntu 24.04</p>
+</div>
+
+</body>
+</html>
