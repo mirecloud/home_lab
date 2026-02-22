@@ -22,7 +22,7 @@ external-dns:
     - service
     - ingress
     - gateway-httproute
-    - gateway-tcproute
+
   domainFilters:
     - mirecloud.com
 
