@@ -28,3 +28,4 @@ extraArgs:
   - --gateway-label-filter=gateway.networking.k8s.io/gateway-name=mirecloud-gateway # Optionnel : pour cibler ta gateway précise
 
 policy: sync # Attention : "sync" permet à ExternalDNS de supprimer des entrées aussi. "upsert-only" est plus prudent au début.
+policy: upsert-only # Plus prudent : empêche la suppression accidentelle des enregistrements DNS.
