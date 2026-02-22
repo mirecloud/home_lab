@@ -18,6 +18,7 @@ pgadmin4:
   # On supprime (ou laisse vide) extraEnv pour ne pas créer de doublons
   extraEnv: []
 
+  # Ingress désactivé au profit de Gateway API (à configurer séparément via HTTPRoute)
   ingress:
     enabled: false
     # ingressClassName: nginx
