@@ -1,0 +1,30 @@
+provider: rfc2136
+
+env:
+  - name: EXTERNAL_DNS_RFC2136_TSIG_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: rfc2136-tsig-secret
+        key: tsig-secret
+
+rfc2136:
+  host: "192.168.2.74" # L'IP de ton BIND9
+  port: 53
+  zone: "mirecloud.com"
+  tsigKeyname: "externaldns-key"
+  tsigAxfr: true # Important pour qu'il puisse lire la zone
+
+# Sources : On lui dit d'écouter les Gateway API
+sources:
+  - service
+  - ingress
+  - gateway-httproute # <--- CRUCIAL pour Cilium Gateway API
+
+domainFilters:
+  - mirecloud.com
+
+# Important si tu utilises Gateway API
+extraArgs:
+  - --gateway-label-filter=gateway.networking.k8s.io/gateway-name=mirecloud-gateway # Optionnel : pour cibler ta gateway précise
+
+policy: sync # Attention : "sync" permet à ExternalDNS de supprimer des entrées aussi. "upsert-only" est plus prudent au début.

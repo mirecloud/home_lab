@@ -44,6 +44,8 @@ gitlab:
       minio:
         name: minio.mirecloud.com
       kas:
+        # KAS est inutile car tu utilises ArgoCD pour le GitOps
+        enabled: false
         name: kas.mirecloud.com
 
     # --- INGRESS (DÉPLACÉ ICI - C'EST LA CORRECTION) ---
@@ -118,7 +120,8 @@ gitlab:
         release: prometheus-stack
 
   gitlab-exporter:
-    enabled: true
+    # Processus lourd (Ruby). On le coupe pour économiser la RAM du Lab.
+    enabled: false
     metrics:
       enabled: true
     serviceMonitor:
