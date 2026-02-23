@@ -49,39 +49,8 @@ This infrastructure is documented in a technical blog series published on Medium
 
 ## 🏗️ Architecture
 
-```
-Internet
-    │ HTTPS
-    ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                    Kubernetes Cluster (bare metal)               │
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Cilium Gateway API  (eBPF, L2 announce)     │    │
-│  │   192.168.2.200–240 pool · node-4 only · eno1            │    │
-│  └──────────┬──────────────────────────────────────────────┘    │
-│             │                                                    │
-│  ┌──────────▼──────────┐    ┌─────────────────────────────┐    │
-│  │       ArgoCD         │◄───│  Git (github.com/mirecloud)  │    │
-│  │  selfHeal · prune    │    │  zero secrets · Helm wraps   │    │
-│  └──────────┬──────────┘    └─────────────────────────────┘    │
-│             │                                                    │
-│  ┌──────────▼──────────┐    ┌─────────────────────────────┐    │
-│  │   HashiCorp Vault    │───►│  External Secrets Operator   │    │
-│  │   KV v2 · HA Raft    │    │  ClusterSecretStore          │    │
-│  └─────────────────────┘    └──────────┬────────────────────┘   │
-│                                         │ K8s Secrets            │
-│  ┌──────────────────────────────────────▼──────────────────┐    │
-│  │  cert-manager  ·  Keycloak (×2)  ·  PostgreSQL          │    │
-│  │  Grafana · Prometheus · Loki · ExternalDNS · GitLab     │    │
-│  │  PgAdmin · n8n · MLflow · Reloader · Hubble/Tetragon    │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────────────┘
-         │ RFC2136 TSIG          │ NFS PVs
-         ▼                       ▼
-  BIND DNS (node-3)         node-4 (/mnt/k8s-volumes)
-  192.168.2.74:53
-```
+<img width="1428" height="796" alt="image" src="https://github.com/user-attachments/assets/44eca1ba-b86c-4be8-b02e-984f8735ed6d" />
+
 
 See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for the full visual diagram.
 
