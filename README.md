@@ -18,6 +18,7 @@
 ---
 
 ## Overview
+<img width="1257" height="825" alt="image" src="https://github.com/user-attachments/assets/95098546-7395-485b-826c-5bc4775889d6" />
 
 MireCloud is a multi-node Kubernetes homelab running on bare metal, built to production standards. Every service is deployed declaratively via ArgoCD from this repository. Credentials live in HashiCorp Vault — never in Git. TLS certificates are issued and renewed automatically. DNS entries are managed programmatically.
 
