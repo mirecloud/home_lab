@@ -7,7 +7,7 @@ keycloakx:
     - "--hostname-strict=false"
     - "--proxy-headers=xforwarded"
 
-  replicas: 2
+  replicas: 1
 
   # Ici, on fait référence aux secrets qui seront créés par ExternalSecrets
   extraEnv: |
