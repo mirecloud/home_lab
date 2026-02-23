@@ -1,0 +1,488 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 920" width="1400" height="920"
+     font-family="'JetBrains Mono','Fira Code','Courier New',monospace">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="hdrGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   style="stop-color:#0f1923"/>
+      <stop offset="50%"  style="stop-color:#1a2740"/>
+      <stop offset="100%" style="stop-color:#0f1923"/>
+    </linearGradient>
+    <linearGradient id="vaultGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   style="stop-color:#2a1f0d"/>
+      <stop offset="100%" style="stop-color:#1a1308"/>
+    </linearGradient>
+    <linearGradient id="kcGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   style="stop-color:#2a0d0d"/>
+      <stop offset="100%" style="stop-color:#1a0707"/>
+    </linearGradient>
+    <linearGradient id="obsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   style="stop-color:#0d2a14"/>
+      <stop offset="100%" style="stop-color:#071a0d"/>
+    </linearGradient>
+    <linearGradient id="infraGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   style="stop-color:#12182a"/>
+      <stop offset="100%" style="stop-color:#0d1520"/>
+    </linearGradient>
+    <linearGradient id="gwGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0f0f1e"/>
+    </linearGradient>
+    <!-- Glow filters -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Arrow markers -->
+    <marker id="aGreen"  markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#2dba82"/>
+    </marker>
+    <marker id="aBlue"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#58a6ff"/>
+    </marker>
+    <marker id="aOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#f0883e"/>
+    </marker>
+    <marker id="aGold"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#e3b341"/>
+    </marker>
+    <marker id="aCyan"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#06b6d4"/>
+    </marker>
+    <marker id="aPurp"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#a78bfa"/>
+    </marker>
+    <!-- Grid dot pattern -->
+    <pattern id="grid" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.7" fill="#ffffff" fill-opacity="0.035"/>
+    </pattern>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════ BG -->
+  <rect width="1400" height="920" fill="url(#bgGrad)"/>
+  <rect width="1400" height="920" fill="url(#grid)"/>
+
+  <!-- ═══════════════════════════════════════════════════════ HEADER -->
+  <rect x="0" y="0" width="1400" height="52" fill="url(#hdrGrad)"/>
+  <rect x="0" y="50" width="1400" height="2.5" fill="#2dba82" opacity="0.85" filter="url(#glow)"/>
+  <!-- terminal dots -->
+  <circle cx="22" cy="26" r="6" fill="#ff5f56"/>
+  <circle cx="40" cy="26" r="6" fill="#ffbd2e"/>
+  <circle cx="58" cy="26" r="6" fill="#27c93f"/>
+  <!-- title -->
+  <text x="700" y="19" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="700" letter-spacing="4">MIRECLOUD — HOME LAB · FULL STACK ARCHITECTURE</text>
+  <text x="700" y="38" text-anchor="middle" fill="#2dba82" font-size="9" letter-spacing="2">Kubernetes v1.34 · Cilium Gateway API · Vault · ESO · ArgoCD · Bare Metal · mirecloud.com</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ROW 1: EXTERNAL + INGRESS LAYER  (y 62-195) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="10" y="62" width="1380" height="133" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1.2"/>
+  <text x="700" y="77" text-anchor="middle" fill="#30363d" font-size="8" letter-spacing="3">EXTERNAL ACCESS &amp; INGRESS</text>
+
+  <!-- User Browser -->
+  <rect x="22" y="84" width="150" height="100" rx="6" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="1.5"/>
+  <rect x="22" y="84" width="150" height="5"   rx="3" fill="#3b82f6"/>
+  <text x="97" y="110" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="700">USER</text>
+  <text x="97" y="127" text-anchor="middle" fill="#60a5fa" font-size="9">Browser / Client</text>
+  <text x="97" y="143" text-anchor="middle" fill="#6e7681" font-size="8">HTTPS only</text>
+  <text x="97" y="157" text-anchor="middle" fill="#6e7681" font-size="7">*.mirecloud.com</text>
+  <text x="97" y="171" text-anchor="middle" fill="#30363d" font-size="7">192.168.x.x (LAN)</text>
+
+  <!-- Cilium Gateway API -->
+  <rect x="440" y="84" width="520" height="100" rx="8" fill="url(#gwGrad)" stroke="#818cf8" stroke-width="1.8" filter="url(#softGlow)"/>
+  <rect x="440" y="84" width="520" height="5"   rx="4" fill="#818cf8"/>
+  <text x="700" y="106" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700" letter-spacing="1">Cilium Gateway API</text>
+  <text x="700" y="121" text-anchor="middle" fill="#818cf8" font-size="8">gatewayClassName: cilium  ·  L2 Announcement  ·  IP Pool: 192.168.2.200–240</text>
+  <!-- Gateway IP boxes -->
+  <rect x="456" y="131" width="100" height="44" rx="4" fill="#1a1a38" stroke="#818cf8" stroke-width="1"/>
+  <text x="506" y="148" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">192.168.2.201</text>
+  <text x="506" y="161" text-anchor="middle" fill="#818cf8" font-size="7">argocd</text>
+  <text x="506" y="170" text-anchor="middle" fill="#818cf8" font-size="7">gw</text>
+
+  <rect x="568" y="131" width="100" height="44" rx="4" fill="#1a1a38" stroke="#818cf8" stroke-width="1"/>
+  <text x="618" y="148" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">192.168.2.202</text>
+  <text x="618" y="161" text-anchor="middle" fill="#818cf8" font-size="7">pgadmin</text>
+  <text x="618" y="170" text-anchor="middle" fill="#818cf8" font-size="7">gw</text>
+
+  <rect x="680" y="131" width="100" height="44" rx="4" fill="#1a1a38" stroke="#f85149" stroke-width="1"/>
+  <text x="730" y="148" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">192.168.2.204</text>
+  <text x="730" y="161" text-anchor="middle" fill="#f87171" font-size="7">keycloak</text>
+  <text x="730" y="170" text-anchor="middle" fill="#f87171" font-size="7">gw</text>
+
+  <rect x="792" y="131" width="100" height="44" rx="4" fill="#1a1a38" stroke="#22c55e" stroke-width="1"/>
+  <text x="842" y="148" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">192.168.2.205</text>
+  <text x="842" y="161" text-anchor="middle" fill="#4ade80" font-size="7">grafana</text>
+  <text x="842" y="170" text-anchor="middle" fill="#4ade80" font-size="7">gw</text>
+
+  <rect x="904" y="131" width="42" height="44" rx="4" fill="#1a1a38" stroke="#818cf8" stroke-width="1"/>
+  <text x="925" y="155" text-anchor="middle" fill="#6e7681" font-size="8">…</text>
+
+  <!-- BIND DNS + ExternalDNS -->
+  <rect x="990" y="84" width="390" height="100" rx="8" fill="#111a11" stroke="#3fb950" stroke-width="1.5"/>
+  <rect x="990" y="84" width="390" height="5"   rx="4" fill="#3fb950"/>
+  <text x="1185" y="107" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">DNS Automation</text>
+
+  <rect x="1005" y="117" width="165" height="56" rx="5" fill="#0d2212" stroke="#3fb950" stroke-width="1"/>
+  <text x="1088" y="136" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">ExternalDNS v0.20</text>
+  <text x="1088" y="150" text-anchor="middle" fill="#6e7681" font-size="8">sources: svc · ingress · httproute</text>
+  <text x="1088" y="162" text-anchor="middle" fill="#6e7681" font-size="7">RFC2136 TSIG/HMAC-SHA256</text>
+
+  <rect x="1200" y="117" width="165" height="56" rx="5" fill="#0d2212" stroke="#e3b341" stroke-width="1"/>
+  <text x="1283" y="136" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="700">BIND (node-3)</text>
+  <text x="1283" y="150" text-anchor="middle" fill="#6e7681" font-size="8">192.168.2.74:53</text>
+  <text x="1283" y="162" text-anchor="middle" fill="#6e7681" font-size="7">zone: mirecloud.com</text>
+
+  <!-- Arrows row 1 -->
+  <line x1="172" y1="134" x2="438" y2="134" stroke="#818cf8" stroke-width="1.8" marker-end="url(#aBlue)"/>
+  <text x="305" y="129" text-anchor="middle" fill="#a5b4fc" font-size="8">HTTPS</text>
+
+  <line x1="962" y1="145" x2="988" y2="145" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#aGreen)"/>
+
+  <line x1="1170" y1="145" x2="1198" y2="145" stroke="#e3b341" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#aGold)"/>
+  <text x="1184" y="140" text-anchor="middle" fill="#e3b341" font-size="7">RFC2136</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ROW 2: GITOPS + SECRETS PIPELINE  (y 205-350) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="10" y="205" width="1380" height="145" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1.2"/>
+  <text x="700" y="220" text-anchor="middle" fill="#30363d" font-size="8" letter-spacing="3">GITOPS &amp; SECRET PIPELINE</text>
+
+  <!-- Git Repo -->
+  <rect x="22" y="228" width="148" height="110" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="96" y="247" text-anchor="middle" fill="#6e7681" font-size="8" letter-spacing="2">SOURCE OF TRUTH</text>
+  <rect x="36"  y="254" width="60" height="38" rx="4" fill="#1f2937" stroke="#58a6ff" stroke-width="1"/>
+  <text x="66" y="271" text-anchor="middle" fill="#58a6ff" font-size="9" font-weight="700">Git</text>
+  <text x="66" y="283" text-anchor="middle" fill="#6e7681" font-size="7">no secrets</text>
+  <rect x="102" y="254" width="58" height="38" rx="4" fill="#1f2937" stroke="#f0883e" stroke-width="1"/>
+  <text x="131" y="271" text-anchor="middle" fill="#f0883e" font-size="9" font-weight="700">ArgoCD</text>
+  <text x="131" y="283" text-anchor="middle" fill="#6e7681" font-size="7">sync+deploy</text>
+  <text x="96" y="312" text-anchor="middle" fill="#6e7681" font-size="7">github.com/mirecloud/</text>
+  <text x="96" y="323" text-anchor="middle" fill="#6e7681" font-size="7">home_lab</text>
+
+  <!-- Vault -->
+  <rect x="222" y="228" width="268" height="110" rx="8" fill="url(#vaultGrad)" stroke="#e3b341" stroke-width="1.8" filter="url(#softGlow)"/>
+  <rect x="222" y="228" width="268" height="5"   rx="4" fill="#e3b341"/>
+  <text x="356" y="249" text-anchor="middle" fill="#fde68a" font-size="12" font-weight="700" letter-spacing="1">HashiCorp Vault</text>
+  <text x="356" y="263" text-anchor="middle" fill="#e3b341" font-size="8">HA Raft · KV v2 · ns: vault</text>
+  <!-- secret paths -->
+  <rect x="232" y="271" width="124" height="12" rx="3" fill="#2a1f0d"/>
+  <text x="294" y="281" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">secret/keycloak/admin|db</text>
+  <rect x="362" y="271" width="120" height="12" rx="3" fill="#2a1f0d"/>
+  <text x="422" y="281" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">secret/grafana/sso</text>
+  <rect x="232" y="287" width="124" height="12" rx="3" fill="#2a1f0d"/>
+  <text x="294" y="297" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">secret/gitlab/oidc|db</text>
+  <rect x="362" y="287" width="120" height="12" rx="3" fill="#2a1f0d"/>
+  <text x="422" y="297" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">secret/dns/rfc2136</text>
+  <rect x="232" y="303" width="250" height="12" rx="3" fill="#2a1f0d"/>
+  <text x="357" y="313" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">mirecloud/ca  ·  secret/pgadmin/admin  ·  secret/n8n/db</text>
+  <text x="356" y="331" text-anchor="middle" fill="#6e7681" font-size="7" font-style="italic">zero secrets in Git · single source of truth</text>
+
+  <!-- ESO -->
+  <rect x="502" y="228" width="240" height="110" rx="8" fill="#071a1a" stroke="#06b6d4" stroke-width="1.8"/>
+  <rect x="502" y="228" width="240" height="5"   rx="4" fill="#06b6d4"/>
+  <text x="622" y="248" text-anchor="middle" fill="#67e8f9" font-size="11" font-weight="700">External Secrets Operator</text>
+  <text x="622" y="262" text-anchor="middle" fill="#22d3ee" font-size="8">ns: external-secrets · v1.2.0</text>
+  <rect x="514" y="271" width="216" height="14" rx="3" fill="#0d2a2a"/>
+  <text x="622" y="282" text-anchor="middle" fill="#67e8f9" font-size="8" font-family="monospace">ClusterSecretStore: vault-backend</text>
+  <text x="622" y="299" text-anchor="middle" fill="#6e7681" font-size="8">Kubernetes auth · ServiceAccount JWT</text>
+  <text x="622" y="314" text-anchor="middle" fill="#6e7681" font-size="7">refreshInterval: 1m · creationPolicy: Owner</text>
+  <text x="622" y="329" text-anchor="middle" fill="#22d3ee" font-size="7">Materializes K8s Secrets from Vault paths</text>
+
+  <!-- cert-manager -->
+  <rect x="754" y="228" width="240" height="110" rx="8" fill="#1a1a2e" stroke="#a78bfa" stroke-width="1.8"/>
+  <rect x="754" y="228" width="240" height="5"   rx="4" fill="#a78bfa"/>
+  <text x="874" y="248" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="700">cert-manager</text>
+  <text x="874" y="262" text-anchor="middle" fill="#a78bfa" font-size="8">ns: cert-manager · v1.16.2</text>
+  <rect x="766" y="271" width="216" height="14" rx="3" fill="#12122e"/>
+  <text x="874" y="282" text-anchor="middle" fill="#c4b5fd" font-size="8" font-family="monospace">ClusterIssuer: mirecloud-ca-issuer</text>
+  <text x="874" y="299" text-anchor="middle" fill="#6e7681" font-size="8">Internal CA · TLS auto-issue &amp; renew</text>
+  <text x="874" y="314" text-anchor="middle" fill="#6e7681" font-size="7">CA key injected via ESO from Vault</text>
+  <text x="874" y="329" text-anchor="middle" fill="#a78bfa" font-size="7">Certificates for: all gateway routes</text>
+
+  <!-- Reloader -->
+  <rect x="1006" y="228" width="180" height="52" rx="6" fill="#161b22" stroke="#f0883e" stroke-width="1.2"/>
+  <text x="1096" y="248" text-anchor="middle" fill="#fdba74" font-size="10" font-weight="700">Stakater Reloader</text>
+  <text x="1096" y="263" text-anchor="middle" fill="#6e7681" font-size="8">watchGlobally: true</text>
+  <text x="1096" y="275" text-anchor="middle" fill="#6e7681" font-size="7">Hot-reload on secret rotation</text>
+
+  <!-- OpenLDAP -->
+  <rect x="1200" y="228" width="180" height="52" rx="6" fill="#161b22" stroke="#e3b341" stroke-width="1.2"/>
+  <text x="1290" y="248" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="700">OpenLDAP</text>
+  <text x="1290" y="263" text-anchor="middle" fill="#6e7681" font-size="8">node-3 · dc=mirecloud,dc=com</text>
+  <text x="1290" y="275" text-anchor="middle" fill="#6e7681" font-size="7">Users · Groups · future Keycloak fed.</text>
+
+  <!-- Arrows row 2 -->
+  <line x1="170" y1="283" x2="220" y2="283" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#aOrange)"/>
+  <text x="195" y="278" text-anchor="middle" fill="#f0883e" font-size="7">sync</text>
+
+  <line x1="490" y1="283" x2="500" y2="283" stroke="#e3b341" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#aGold)"/>
+
+  <line x1="742" y1="283" x2="752" y2="283" stroke="#06b6d4" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#aCyan)"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ROW 3: IDENTITY + APPLICATIONS  (y 360-530) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="10" y="360" width="1380" height="170" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1.2"/>
+  <text x="700" y="375" text-anchor="middle" fill="#30363d" font-size="8" letter-spacing="3">IDENTITY &amp; APPLICATION LAYER</text>
+
+  <!-- Keycloak -->
+  <rect x="22" y="384" width="340" height="135" rx="8" fill="url(#kcGrad)" stroke="#f85149" stroke-width="2" filter="url(#softGlow)"/>
+  <rect x="22" y="384" width="340" height="5"   rx="4" fill="#f85149"/>
+  <text x="192" y="404" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="700" letter-spacing="1">Keycloak</text>
+  <text x="192" y="418" text-anchor="middle" fill="#f87171" font-size="8">Identity Provider (IdP) · realm: mirecloud · ns: keycloak</text>
+  <!-- pods -->
+  <rect x="34"  y="426" width="120" height="36" rx="4" fill="#2a0d0d" stroke="#f85149" stroke-width="1"/>
+  <text x="94"  y="441" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="600">keycloakx-0</text>
+  <text x="94"  y="455" text-anchor="middle" fill="#4ade80" font-size="7">● Running</text>
+  <rect x="164" y="426" width="120" height="36" rx="4" fill="#2a0d0d" stroke="#f85149" stroke-width="1"/>
+  <text x="224" y="441" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="600">keycloakx-1</text>
+  <text x="224" y="455" text-anchor="middle" fill="#4ade80" font-size="7">● Running</text>
+  <line x1="154" y1="444" x2="162" y2="444" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="2,2"/>
+  <text x="158" y="440" text-anchor="middle" fill="#f0883e" font-size="7">◄►</text>
+  <text x="192" y="474" text-anchor="middle" fill="#6e7681" font-size="7" font-style="italic">Infinispan distributed session cluster</text>
+  <text x="192" y="487" text-anchor="middle" fill="#6e7681" font-size="7">OIDC · SAML2 · MFA · Role Mapping</text>
+  <rect x="34" y="495" width="318" height="14" rx="3" fill="#1a0707"/>
+  <text x="193" y="505" text-anchor="middle" fill="#6e7681" font-size="7">Credentials: admin-password ← ESO  ·  DB: byo-db-creds ← ESO  ·  IP: 192.168.2.204</text>
+
+  <!-- Applications block -->
+  <rect x="374" y="384" width="1016" height="135" rx="8" fill="#111418" stroke="#30363d" stroke-width="1.2"/>
+  <text x="882" y="400" text-anchor="middle" fill="#4e5562" font-size="8" letter-spacing="2">APPLICATIONS (all OIDC SSO via Keycloak)</text>
+
+  <!-- Grafana -->
+  <rect x="386" y="408" width="170" height="100" rx="6" fill="#071a0d" stroke="#22c55e" stroke-width="1.5"/>
+  <rect x="386" y="408" width="170" height="4" rx="3" fill="#22c55e"/>
+  <text x="471" y="428" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Grafana</text>
+  <text x="471" y="441" text-anchor="middle" fill="#4ade80" font-size="8">ns: monitoring · Relying Party</text>
+  <text x="471" y="456" text-anchor="middle" fill="#6e7681" font-size="7">OIDC back-channel token flow</text>
+  <text x="471" y="469" text-anchor="middle" fill="#6e7681" font-size="7">role_attr: realm_access.roles</text>
+  <text x="471" y="483" text-anchor="middle" fill="#6e7681" font-size="7">client_secret ← ESO → Vault</text>
+  <text x="471" y="497" text-anchor="middle" fill="#6e7681" font-size="7">IP: 192.168.2.205</text>
+
+  <!-- GitLab -->
+  <rect x="568" y="408" width="170" height="100" rx="6" fill="#1a0d1a" stroke="#a371f7" stroke-width="1.5"/>
+  <rect x="568" y="408" width="170" height="4" rx="3" fill="#a371f7"/>
+  <text x="653" y="428" text-anchor="middle" fill="#d8b4fe" font-size="11" font-weight="700">GitLab CE</text>
+  <text x="653" y="441" text-anchor="middle" fill="#a371f7" font-size="8">ns: gitlab · v9.7.0</text>
+  <text x="653" y="456" text-anchor="middle" fill="#6e7681" font-size="7">OmniAuth OIDC</text>
+  <text x="653" y="469" text-anchor="middle" fill="#6e7681" font-size="7">oidc-config ← ESO → Vault</text>
+  <text x="653" y="483" text-anchor="middle" fill="#6e7681" font-size="7">PostgreSQL backend</text>
+  <text x="653" y="497" text-anchor="middle" fill="#6e7681" font-size="7">custom CA injected</text>
+
+  <!-- PgAdmin -->
+  <rect x="750" y="408" width="158" height="100" rx="6" fill="#0d1a2a" stroke="#0ea5e9" stroke-width="1.5"/>
+  <rect x="750" y="408" width="158" height="4" rx="3" fill="#0ea5e9"/>
+  <text x="829" y="428" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">PgAdmin 4</text>
+  <text x="829" y="441" text-anchor="middle" fill="#0ea5e9" font-size="8">ns: pgadmin · v1.32.0</text>
+  <text x="829" y="456" text-anchor="middle" fill="#6e7681" font-size="7">PostgreSQL web UI</text>
+  <text x="829" y="469" text-anchor="middle" fill="#6e7681" font-size="7">admin-pass ← ESO → Vault</text>
+  <text x="829" y="483" text-anchor="middle" fill="#6e7681" font-size="7">IP: 192.168.2.202</text>
+  <text x="829" y="497" text-anchor="middle" fill="#6e7681" font-size="7">Gateway API exposed</text>
+
+  <!-- MLFlow -->
+  <rect x="920" y="408" width="150" height="100" rx="6" fill="#1a1208" stroke="#d97706" stroke-width="1.5"/>
+  <rect x="920" y="408" width="150" height="4" rx="3" fill="#d97706"/>
+  <text x="995" y="428" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">MLFlow</text>
+  <text x="995" y="441" text-anchor="middle" fill="#d97706" font-size="8">ns: mlflow</text>
+  <text x="995" y="456" text-anchor="middle" fill="#6e7681" font-size="7">ML experiment tracking</text>
+  <text x="995" y="469" text-anchor="middle" fill="#6e7681" font-size="7">PostgreSQL backend</text>
+  <text x="995" y="483" text-anchor="middle" fill="#6e7681" font-size="7">Basic Auth enabled</text>
+  <text x="995" y="497" text-anchor="middle" fill="#6e7681" font-size="7">NGINX ingress</text>
+
+  <!-- n8n -->
+  <rect x="1082" y="408" width="150" height="100" rx="6" fill="#120d1a" stroke="#ec4899" stroke-width="1.5"/>
+  <rect x="1082" y="408" width="150" height="4" rx="3" fill="#ec4899"/>
+  <text x="1157" y="428" text-anchor="middle" fill="#f9a8d4" font-size="11" font-weight="700">n8n</text>
+  <text x="1157" y="441" text-anchor="middle" fill="#ec4899" font-size="8">ns: n8n</text>
+  <text x="1157" y="456" text-anchor="middle" fill="#6e7681" font-size="7">Workflow automation</text>
+  <text x="1157" y="469" text-anchor="middle" fill="#6e7681" font-size="7">PostgreSQL + Redis</text>
+  <text x="1157" y="483" text-anchor="middle" fill="#6e7681" font-size="7">Queue + Worker mode</text>
+  <text x="1157" y="497" text-anchor="middle" fill="#6e7681" font-size="7">HTTPS webhook support</text>
+
+  <!-- ArgoCD box (small) -->
+  <rect x="1244" y="408" width="136" height="100" rx="6" fill="#1a120d" stroke="#f0883e" stroke-width="1.5"/>
+  <rect x="1244" y="408" width="136" height="4" rx="3" fill="#f0883e"/>
+  <text x="1312" y="428" text-anchor="middle" fill="#fdba74" font-size="11" font-weight="700">ArgoCD</text>
+  <text x="1312" y="441" text-anchor="middle" fill="#f0883e" font-size="8">ns: argocd</text>
+  <text x="1312" y="456" text-anchor="middle" fill="#6e7681" font-size="7">GitOps controller</text>
+  <text x="1312" y="469" text-anchor="middle" fill="#6e7681" font-size="7">selfHeal: true</text>
+  <text x="1312" y="483" text-anchor="middle" fill="#6e7681" font-size="7">prune: true</text>
+  <text x="1312" y="497" text-anchor="middle" fill="#6e7681" font-size="7">IP: 192.168.2.201</text>
+
+  <!-- OIDC arrow Keycloak → Apps -->
+  <path d="M 362 451 Q 380 451 384 451" stroke="#2dba82" stroke-width="1.8" fill="none" stroke-dasharray="5,3" marker-end="url(#aGreen)"/>
+  <text x="373" y="446" fill="#2dba82" font-size="7">OIDC</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ROW 4: DATA + OBSERVABILITY  (y 540-680) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="10" y="540" width="1380" height="140" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1.2"/>
+  <text x="700" y="555" text-anchor="middle" fill="#30363d" font-size="8" letter-spacing="3">DATA &amp; OBSERVABILITY</text>
+
+  <!-- PostgreSQL -->
+  <rect x="22" y="564" width="250" height="106" rx="8" fill="#0d1a2a" stroke="#0ea5e9" stroke-width="1.8"/>
+  <rect x="22" y="564" width="250" height="5"   rx="4" fill="#0ea5e9"/>
+  <text x="147" y="584" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">PostgreSQL</text>
+  <text x="147" y="597" text-anchor="middle" fill="#0ea5e9" font-size="8">ns: postgres · StatefulSet</text>
+  <rect x="34" y="605" width="226" height="14" rx="3" fill="#07111a"/>
+  <text x="147" y="615" text-anchor="middle" fill="#38bdf8" font-size="8" font-family="monospace">postgres.postgres.svc:5432</text>
+  <text x="147" y="632" text-anchor="middle" fill="#6e7681" font-size="7">Backends: Keycloak · GitLab · MLFlow · n8n</text>
+  <text x="147" y="645" text-anchor="middle" fill="#6e7681" font-size="7">Credentials managed via ESO + Vault</text>
+  <text x="147" y="658" text-anchor="middle" fill="#6e7681" font-size="7">CloudPirates Helm chart</text>
+
+  <!-- Prometheus Stack -->
+  <rect x="284" y="564" width="320" height="106" rx="8" fill="url(#obsGrad)" stroke="#22c55e" stroke-width="1.5"/>
+  <rect x="284" y="564" width="320" height="5"   rx="4" fill="#22c55e"/>
+  <text x="444" y="584" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">kube-prometheus-stack</text>
+  <text x="444" y="597" text-anchor="middle" fill="#4ade80" font-size="8">ns: monitoring · v80.4.2</text>
+  <rect x="296" y="605" width="138" height="28" rx="4" fill="#071a0d" stroke="#22c55e" stroke-width="1"/>
+  <text x="365" y="617" text-anchor="middle" fill="#4ade80" font-size="8" font-weight="600">Prometheus</text>
+  <text x="365" y="628" text-anchor="middle" fill="#6e7681" font-size="7">metrics scraping</text>
+  <rect x="448" y="605" width="144" height="28" rx="4" fill="#071a0d" stroke="#22c55e" stroke-width="1"/>
+  <text x="520" y="617" text-anchor="middle" fill="#4ade80" font-size="8" font-weight="600">Alertmanager</text>
+  <text x="520" y="628" text-anchor="middle" fill="#6e7681" font-size="7">alert routing</text>
+  <text x="444" y="647" text-anchor="middle" fill="#6e7681" font-size="7">ServiceMonitors: GitLab · Keycloak · Cilium · Nodes</text>
+  <text x="444" y="659" text-anchor="middle" fill="#6e7681" font-size="7">Grafana OIDC SSO · dashboards auto-provisioned</text>
+
+  <!-- Loki Stack -->
+  <rect x="616" y="564" width="280" height="106" rx="8" fill="#1a1208" stroke="#d97706" stroke-width="1.5"/>
+  <rect x="616" y="564" width="280" height="5"   rx="4" fill="#d97706"/>
+  <text x="756" y="584" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Loki Stack</text>
+  <text x="756" y="597" text-anchor="middle" fill="#d97706" font-size="8">ns: monitoring · SingleBinary mode</text>
+  <rect x="628" y="605" width="122" height="28" rx="4" fill="#120d04" stroke="#d97706" stroke-width="1"/>
+  <text x="689" y="617" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="600">Loki v3</text>
+  <text x="689" y="628" text-anchor="middle" fill="#6e7681" font-size="7">S3/MinIO backend</text>
+  <rect x="762" y="605" width="122" height="28" rx="4" fill="#120d04" stroke="#d97706" stroke-width="1"/>
+  <text x="823" y="617" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="600">Promtail</text>
+  <text x="823" y="628" text-anchor="middle" fill="#6e7681" font-size="7">log shipping DaemonSet</text>
+  <text x="756" y="647" text-anchor="middle" fill="#6e7681" font-size="7">Log sources: all pods · system · Hubble flows</text>
+  <text x="756" y="659" text-anchor="middle" fill="#6e7681" font-size="7">Queried via Grafana (Loki datasource)</text>
+
+  <!-- Hubble + Tetragon -->
+  <rect x="908" y="564" width="482" height="106" rx="8" fill="#0d1a2a" stroke="#818cf8" stroke-width="1.5"/>
+  <rect x="908" y="564" width="482" height="5"   rx="4" fill="#818cf8"/>
+  <text x="1149" y="584" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="700">Network &amp; Runtime Security</text>
+  <text x="1149" y="597" text-anchor="middle" fill="#818cf8" font-size="8">Cilium eBPF observability plane</text>
+  <rect x="920"  y="605" width="210" height="28" rx="4" fill="#0d1220" stroke="#818cf8" stroke-width="1"/>
+  <text x="1025" y="617" text-anchor="middle" fill="#a5b4fc" font-size="8" font-weight="600">Hubble</text>
+  <text x="1025" y="628" text-anchor="middle" fill="#6e7681" font-size="7">Flow logs → Loki · dashboards in Grafana</text>
+  <rect x="1142" y="605" width="236" height="28" rx="4" fill="#0d1220" stroke="#f0883e" stroke-width="1"/>
+  <text x="1260" y="617" text-anchor="middle" fill="#fdba74" font-size="8" font-weight="600">Tetragon</text>
+  <text x="1260" y="628" text-anchor="middle" fill="#6e7681" font-size="7">eBPF runtime sec · TracingPolicy (kill-curl)</text>
+  <text x="1149" y="647" text-anchor="middle" fill="#6e7681" font-size="7">CiliumNetworkPolicy: enforce namespaces (Loki, etc.)</text>
+  <text x="1149" y="659" text-anchor="middle" fill="#6e7681" font-size="7">CiliumL2AnnouncementPolicy · CiliumLoadBalancerIPPool</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ROW 5: INFRASTRUCTURE NODES  (y 690-810) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="10" y="690" width="1380" height="120" rx="8" fill="url(#infraGrad)" stroke="#21262d" stroke-width="1.2"/>
+  <text x="700" y="705" text-anchor="middle" fill="#30363d" font-size="8" letter-spacing="3">INFRASTRUCTURE — BARE METAL UBUNTU 24.04 · LAN 192.168.2.0/24</text>
+
+  <!-- Node boxes -->
+  <rect x="22"  y="714" width="320" height="86" rx="6" fill="#0d1220" stroke="#58a6ff" stroke-width="1.8"/>
+  <rect x="22"  y="714" width="320" height="4" rx="3" fill="#58a6ff"/>
+  <text x="182" y="731" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="700">node-4  ·  192.168.2.75</text>
+  <text x="182" y="745" text-anchor="middle" fill="#60a5fa" font-size="8">Control Plane</text>
+  <text x="182" y="759" text-anchor="middle" fill="#6e7681" font-size="7">etcd · kube-apiserver · kube-scheduler</text>
+  <text x="182" y="772" text-anchor="middle" fill="#6e7681" font-size="7">kube-controller-manager · NFS Server</text>
+  <text x="182" y="785" text-anchor="middle" fill="#6e7681" font-size="7">PersistentVolumes: /mnt/k8s-volumes</text>
+  <text x="182" y="795" text-anchor="middle" fill="#58a6ff" font-size="7">L2 Announcement: eno1 interface</text>
+
+  <rect x="354" y="714" width="320" height="86" rx="6" fill="#0d1220" stroke="#6e7681" stroke-width="1.5"/>
+  <rect x="354" y="714" width="320" height="4" rx="3" fill="#6e7681"/>
+  <text x="514" y="731" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="700">node-1  ·  192.168.2.29</text>
+  <text x="514" y="745" text-anchor="middle" fill="#8b949e" font-size="8">Worker — General Workloads</text>
+  <text x="514" y="759" text-anchor="middle" fill="#6e7681" font-size="7">Keycloak · PgAdmin · n8n · MLFlow</text>
+  <text x="514" y="772" text-anchor="middle" fill="#6e7681" font-size="7">GitLab (webservice · sidekiq · gitaly)</text>
+  <text x="514" y="785" text-anchor="middle" fill="#6e7681" font-size="7">ArgoCD · Vault · cert-manager · ESO</text>
+  <text x="514" y="795" text-anchor="middle" fill="#6e7681" font-size="7">ExternalDNS · Reloader</text>
+
+  <rect x="686" y="714" width="320" height="86" rx="6" fill="#0d1220" stroke="#22c55e" stroke-width="1.5"/>
+  <rect x="686" y="714" width="320" height="4" rx="3" fill="#22c55e"/>
+  <text x="846" y="731" text-anchor="middle" fill="#86efac" font-size="9" font-weight="700">node-2  ·  192.168.2.46</text>
+  <text x="846" y="745" text-anchor="middle" fill="#4ade80" font-size="8">Worker — Monitoring &amp; Observability</text>
+  <text x="846" y="759" text-anchor="middle" fill="#6e7681" font-size="7">Prometheus · Alertmanager · Grafana</text>
+  <text x="846" y="772" text-anchor="middle" fill="#6e7681" font-size="7">Loki · Promtail · Hubble Observer</text>
+  <text x="846" y="785" text-anchor="middle" fill="#6e7681" font-size="7">Tetragon · CiliumNetworkPolicies</text>
+  <text x="846" y="795" text-anchor="middle" fill="#6e7681" font-size="7">PostgreSQL</text>
+
+  <rect x="1018" y="714" width="372" height="86" rx="6" fill="#0d1220" stroke="#e3b341" stroke-width="1.5"/>
+  <rect x="1018" y="714" width="372" height="4" rx="3" fill="#e3b341"/>
+  <text x="1204" y="731" text-anchor="middle" fill="#fde68a" font-size="9" font-weight="700">node-3  ·  192.168.2.74</text>
+  <text x="1204" y="745" text-anchor="middle" fill="#e3b341" font-size="8">Worker — DNS &amp; Directory Services</text>
+  <text x="1204" y="759" text-anchor="middle" fill="#6e7681" font-size="7">BIND named · zone: mirecloud.com</text>
+  <text x="1204" y="772" text-anchor="middle" fill="#6e7681" font-size="7">OpenLDAP · dc=mirecloud,dc=com</text>
+  <text x="1204" y="785" text-anchor="middle" fill="#6e7681" font-size="7">MinIO (S3 backend for Loki)</text>
+  <text x="1204" y="795" text-anchor="middle" fill="#6e7681" font-size="7">TSIG key: externaldns-key · HMAC-SHA256</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LEGEND  (y 820-905) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="10" y="818" width="1380" height="90" rx="6" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <text x="700" y="833" text-anchor="middle" fill="#6e7681" font-size="8" letter-spacing="2">LEGEND</text>
+
+  <!-- Row 1 -->
+  <line x1="30"  y1="850" x2="72" y2="850" stroke="#818cf8" stroke-width="2"/>
+  <polygon points="69,847 75,850 69,853" fill="#818cf8"/>
+  <text x="80" y="854" fill="#a5b4fc" font-size="9">HTTPS / TLS (Cilium GW)</text>
+
+  <line x1="210" y1="850" x2="252" y2="850" stroke="#e3b341" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="249,847 255,850 249,853" fill="#e3b341"/>
+  <text x="260" y="854" fill="#fde68a" font-size="9">Vault secret pull</text>
+
+  <line x1="380" y1="850" x2="422" y2="850" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="419,847 425,850 419,853" fill="#06b6d4"/>
+  <text x="430" y="854" fill="#67e8f9" font-size="9">ESO secret injection</text>
+
+  <line x1="565" y1="850" x2="607" y2="850" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="604,847 610,850 604,853" fill="#a78bfa"/>
+  <text x="615" y="854" fill="#c4b5fd" font-size="9">TLS cert (cert-manager)</text>
+
+  <line x1="760" y1="850" x2="802" y2="850" stroke="#2dba82" stroke-width="2" stroke-dasharray="5,3"/>
+  <polygon points="799,847 805,850 799,853" fill="#2dba82"/>
+  <text x="810" y="854" fill="#4ade80" font-size="9">OIDC back-channel</text>
+
+  <line x1="940" y1="850" x2="982" y2="850" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="979,847 985,850 979,853" fill="#3fb950"/>
+  <text x="990" y="854" fill="#86efac" font-size="9">ExternalDNS → BIND RFC2136</text>
+
+  <line x1="1155" y1="850" x2="1197" y2="850" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <polygon points="1194,847 1200,850 1194,853" fill="#f0883e"/>
+  <text x="1205" y="854" fill="#fdba74" font-size="9">ArgoCD sync</text>
+
+  <!-- Row 2 — namespace badges -->
+  <rect x="30"   y="866" width="70" height="14" rx="3" fill="#2a0d0d" stroke="#f85149" stroke-width="1"/>
+  <text x="65"   y="877" text-anchor="middle" fill="#fca5a5" font-size="8">ns: keycloak</text>
+  <rect x="110"  y="866" width="80" height="14" rx="3" fill="#0d2a14" stroke="#22c55e" stroke-width="1"/>
+  <text x="150"  y="877" text-anchor="middle" fill="#86efac" font-size="8">ns: monitoring</text>
+  <rect x="200"  y="866" width="70" height="14" rx="3" fill="#0d1a2a" stroke="#0ea5e9" stroke-width="1"/>
+  <text x="235"  y="877" text-anchor="middle" fill="#7dd3fc" font-size="8">ns: postgres</text>
+  <rect x="280"  y="866" width="55" height="14" rx="3" fill="#2a1f0d" stroke="#e3b341" stroke-width="1"/>
+  <text x="308"  y="877" text-anchor="middle" fill="#fde68a" font-size="8">ns: vault</text>
+  <rect x="345"  y="866" width="95" height="14" rx="3" fill="#1a1a2e" stroke="#a78bfa" stroke-width="1"/>
+  <text x="393"  y="877" text-anchor="middle" fill="#c4b5fd" font-size="8">ns: cert-manager</text>
+  <rect x="450"  y="866" width="110" height="14" rx="3" fill="#0d2a2a" stroke="#06b6d4" stroke-width="1"/>
+  <text x="505"  y="877" text-anchor="middle" fill="#67e8f9" font-size="8">ns: external-secrets</text>
+  <rect x="570"  y="866" width="85" height="14" rx="3" fill="#1a120d" stroke="#f0883e" stroke-width="1"/>
+  <text x="613"  y="877" text-anchor="middle" fill="#fdba74" font-size="8">ns: argocd</text>
+  <rect x="665"  y="866" width="75" height="14" rx="3" fill="#0d2a14" stroke="#3fb950" stroke-width="1"/>
+  <text x="703"  y="877" text-anchor="middle" fill="#86efac" font-size="8">ns: external-dns</text>
+  <rect x="750"  y="866" width="60" height="14" rx="3" fill="#1a0d1a" stroke="#a371f7" stroke-width="1"/>
+  <text x="780"  y="877" text-anchor="middle" fill="#d8b4fe" font-size="8">ns: gitlab</text>
+  <rect x="820"  y="866" width="65" height="14" rx="3" fill="#120d1a" stroke="#ec4899" stroke-width="1"/>
+  <text x="853"  y="877" text-anchor="middle" fill="#f9a8d4" font-size="8">ns: n8n</text>
+  <rect x="895"  y="866" width="60" height="14" rx="3" fill="#1a1208" stroke="#d97706" stroke-width="1"/>
+  <text x="925"  y="877" text-anchor="middle" fill="#fbbf24" font-size="8">ns: mlflow</text>
+  <rect x="965"  y="866" width="65" height="14" rx="3" fill="#0d1a2a" stroke="#0ea5e9" stroke-width="1"/>
+  <text x="998"  y="877" text-anchor="middle" fill="#7dd3fc" font-size="8">ns: pgadmin</text>
+
+  <!-- bottom bar -->
+  <rect x="0" y="908" width="1400" height="12" fill="#0d1117"/>
+  <text x="700" y="917" text-anchor="middle" fill="#2dba82" font-size="7" opacity="0.5" letter-spacing="2">MIRECLOUD · github.com/mirecloud/home_lab · Emmanuel Catin · CKA (90%) | CKS in preparation</text>
+</svg>
