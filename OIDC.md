@@ -26,7 +26,7 @@ Voilà le guide complet, directement ici :
 
 ## 1. Architecture Overview
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/8bd9d73e-7298-4241-b754-43c6fcad8571" />
+<img width="2816" height="1536" alt="Gemini_Generated_Image_6aogu06aogu06aog" src="https://github.com/user-attachments/assets/c3517bc1-ddb6-4081-bfd3-c1894710a54d" />
 
 
 **Key principle:** The API server never handles passwords. It delegates identity
