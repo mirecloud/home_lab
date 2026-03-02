@@ -70,7 +70,41 @@ loki:
 ###############################################################################
 promtail:
   enabled: true
+
+  # 👇 1. On donne accès au dossier physique des logs d'audit à Promtail
+  extraVolumes:
+    - name: audit-logs
+      hostPath:
+        path: /var/log/kubernetes/audit
+  extraVolumeMounts:
+    - name: audit-logs
+      mountPath: /var/log/kubernetes/audit
+      readOnly: true
+
   config:
     clients:
       # 👇 LE VRAI NOM DU SERVICE EST "loki-stack-gateway"
       - url: http://loki-stack-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+
+    # 👇 2. On apprend à Promtail à scraper et décoder l'audit Kubernetes
+    snippets:
+      extraScrapeConfigs: |
+        - job_name: kubernetes-audit
+          static_configs:
+            - targets:
+                - localhost
+              labels:
+                job: kubernetes-audit
+                __path__: /var/log/kubernetes/audit/*.log
+          pipeline_stages:
+            - json:
+                expressions:
+                  audit_user: user.username
+                  audit_verb: verb
+                  audit_namespace: objectRef.namespace
+                  audit_resource: objectRef.resource
+            - labels:
+                audit_user:
+                audit_verb:
+                audit_namespace:
+                audit_resource:
