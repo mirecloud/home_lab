@@ -2,7 +2,7 @@ Voilà le guide complet, directement ici :
 
 ---
 
-```markdown
+ 
 # Kubernetes OIDC Authentication via Keycloak — Complete Production Guide
 
 > **Author:** Emmanuel Catin
@@ -26,33 +26,8 @@ Voilà le guide complet, directement ici :
 
 ## 1. Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        BARE-METAL CLUSTER                        │
-│                                                                   │
-│   ┌─────────────────┐          ┌──────────────────────────────┐ │
-│   │    Keycloak      │          │       Kubernetes             │ │
-│   │  (Identity       │  OIDC    │                              │ │
-│   │   Provider)      │◄────────►│  ┌────────────────────────┐ │ │
-│   │                  │  Trust   │  │     kube-apiserver     │ │ │
-│   │  Realm:          │          │  │  --oidc-issuer-url      │ │ │
-│   │  mirecloud       │          │  │  --oidc-client-id       │ │ │
-│   │                  │          │  │  --oidc-username-claim  │ │ │
-│   │  Client:         │          │  │  --oidc-groups-claim    │ │ │
-│   │  kubernetes      │          │  │  --oidc-ca-file         │ │ │
-│   │  (Public)        │          │  └────────────────────────┘ │ │
-│   └─────────────────┘          │                              │ │
-│           ▲                     │  ┌──────────┐ ┌──────────┐  │ │
-│           │ HTTPS/TLS           │  │  node-2  │ │  node-3  │  │ │
-│           │ (keycloak-ca.crt)   │  └──────────┘ └──────────┘  │ │
-│           │                     └──────────────────────────────┘ │
-│   ┌───────┴──────────┐                                           │
-│   │  kubectl +        │  192.168.2.75:6443                       │
-│   │  kubelogin        │──────────────────────────────────────►   │
-│   │  (node-4 / PC)    │                                           │
-│   └──────────────────┘                                           │
-└─────────────────────────────────────────────────────────────────┘
-```
+<img width="2816" height="1536" alt="Gemini_Generated_Image_6aogu06aogu06aog" src="https://github.com/user-attachments/assets/c3517bc1-ddb6-4081-bfd3-c1894710a54d" />
+
 
 **Key principle:** The API server never handles passwords. It delegates identity
 verification entirely to Keycloak via signed JWT tokens. RBAC then maps verified
