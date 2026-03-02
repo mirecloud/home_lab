@@ -1,69 +1,69 @@
 $mdContent = @"
-#  Guide Definitif : Authentification OIDC Kubernetes via Keycloak (Bare-Metal)
+# 🔐 The Definitive Guide: Kubernetes OIDC Authentication via Keycloak (Bare-Metal)
 
-Ce guide détaille la configuration de l'authentification OpenID Connect (OIDC) pour un cluster Kubernetes bare-metal (v1.34) utilisant Keycloak comme fournisseur d'identité (IdP) et `kubelogin` pour l'accès CLI.
+This guide details the configuration of OpenID Connect (OIDC) authentication for a bare-metal Kubernetes cluster (v1.34) using Keycloak as the Identity Provider (IdP) and `kubelogin` for CLI access.
 
-**Auteur :** Emmanuel Catin
-**Stack :** K8s v1.34, Keycloak (Quarkus), Cilium Gateway API, kubelogin.
+**Author:** Emmanuel Catin
+**Stack:** K8s v1.34, Keycloak (Quarkus), Cilium Gateway API, kubelogin.
 
 ---
 
-##  1. Configuration de Keycloak (L'Identity Provider)
+## 🏗️ 1. Keycloak Configuration (The Identity Provider)
 
-Pour que `kubectl` puisse s'authentifier sans exposer de secrets (Client Secret), le client Keycloak doit être configuré comme "Public".
+To allow `kubectl` to authenticate without exposing secrets (Client Secret), the Keycloak client must be configured as "Public".
 
-1. Créer ou sélectionner le Realm (ex: `mirecloud`).
-2. Créer un nouveau Client :
+1. Create or select the Realm (e.g., `mirecloud`).
+2. Create a new Client:
    - **Client type:** OpenID Connect
-   - **Client ID:** `kubernetes` *(doit correspondre EXACTEMENT au flag de l'API Server)*
-3. Dans **Capability config** :
-   - **Client authentication:** `Off` *(Crucial : empêche l'erreur `unauthorized_client` lors de l'échange de jeton par kubelogin)*.
-   - **Authentication flow:** Cocher "Standard flow" et "Direct access grants".
-4. Dans **Login settings** :
-   - **Valid redirect URIs:** Ajouter **uniquement** `http://localhost:8000` et `http://localhost:8000/`. (Entrer chaque URL séparément en appuyant sur Entrée. Keycloak n'accepte pas les espaces).
-5. Dans **Users** :
-   - Assurez-vous que l'utilisateur administrateur a une adresse e-mail configurée.
-   - **Important :** L'option **Email verified** doit être sur `On`. Sinon, l'API Server rejettera le jeton avec l'erreur `[invalid bearer token, oidc: email not verified]`.
+   - **Client ID:** `kubernetes` *(must EXACTLY match the API Server flag)*
+3. Under **Capability config**:
+   - **Client authentication:** `Off` *(Crucial: prevents the `unauthorized_client` error during token exchange by kubelogin)*.
+   - **Authentication flow:** Check "Standard flow" and "Direct access grants".
+4. Under **Login settings**:
+   - **Valid redirect URIs:** Add **only** `http://localhost:8000` and `http://localhost:8000/`. (Enter each URL separately by pressing Enter. Keycloak does not accept spaces).
+5. Under **Users**:
+   - Ensure the admin user has an email address configured.
+   - **Important:** The **Email verified** toggle must be set to `On`. Otherwise, the API Server will reject the token with the error `[invalid bearer token, oidc: email not verified]`.
 
 ---
 
-##  2. Configuration du `kube-apiserver` (Le Relying Party)
+## ⚙️ 2. `kube-apiserver` Configuration (The Relying Party)
 
-L'API Server doit être configuré pour faire confiance à Keycloak et extraire les bonnes informations (claims) du jeton JWT.
+The API Server must be configured to trust Keycloak and extract the correct information (claims) from the JWT token.
 
-Éditer le manifeste statique sur le Control Plane (`/etc/kubernetes/manifests/kube-apiserver.yaml`).
+Edit the static manifest on the Control Plane (`/etc/kubernetes/manifests/kube-apiserver.yaml`).
 
->  **Piège YAML Mortel :** Ne **JAMAIS** mettre de commentaires en ligne (`# commentaire`) à côté des arguments dans le bloc `command:`. Le parser Kubernetes inclura les espaces et le commentaire dans la valeur de la variable, causant des erreurs 401 silencieuses.
+> ⚠️ **Deadly YAML Pitfall:** **NEVER** use inline comments (`# comment`) next to arguments in the `command:` block. The Kubernetes parser will include the trailing spaces and the comment itself in the variable's value, causing silent 401 errors.
 
-**Ajouter les flags suivants proprement :**
+**Add the following flags cleanly:**
 
     - command:
       - kube-apiserver
-      # ... autres flags existants ...
+      # ... other existing flags ...
       - --oidc-issuer-url=https://keycloak.mirecloud.com/auth/realms/mirecloud
       - --oidc-client-id=kubernetes
       - --oidc-username-claim=email
       - --oidc-groups-claim=groups
       - --oidc-ca-file=/etc/kubernetes/pki/keycloak-ca.crt
 
-*Notes sur les flags :*
-* `--oidc-issuer-url` : L'URL exacte de découverte. **Attention au `/auth/`** si votre instance Keycloak l'utilise encore.
-* `--oidc-ca-file` : Le chemin vers le certificat de l'autorité de certification (CA) qui a signé le certificat TLS de Keycloak. S'il est manquant ou invalide, l'API Server rejettera la signature du jeton.
+*Notes on flags:*
+* `--oidc-issuer-url`: The exact discovery URL. **Pay attention to the `/auth/` path** if your Keycloak instance still uses it.
+* `--oidc-ca-file`: The path to the Certificate Authority (CA) certificate that signed Keycloak's TLS certificate. If missing or invalid, the API Server will reject the token's signature.
 
-*L'API Server redémarrera automatiquement à la sauvegarde du fichier (compter ~60 secondes).*
+*The API Server will automatically restart upon saving the file (takes ~60 seconds).*
 
 ---
 
-##  3. Configuration de `kubectl` avec `kubelogin`
+## 💻 3. `kubectl` Configuration with `kubelogin`
 
-Le plugin `kubelogin` (plugin `oidc-login` pour kubectl) gère le flux OAuth2 Authorization Code avec le navigateur.
+The `kubelogin` plugin (also known as `oidc-login` for kubectl) manages the OAuth2 Authorization Code flow with the browser.
 
-### Nettoyage préalable (en cas de tests antérieurs)
+### Initial Cleanup (in case of previous tests)
 kubectl oidc-login clean
-*(Note : sur un serveur sans interface graphique, une erreur dbus-launch apparaîtra ; elle est normale et inoffensive, le cache de fichiers est bien supprimé).*
+*(Note: on a headless server, a dbus-launch error will appear; this is normal and harmless, the file cache is successfully deleted).*
 
-### Définition de l'utilisateur OIDC
-Exécuter la commande suivante pour configurer le kubeconfig local :
+### Defining the OIDC User
+Run the following command to configure your local kubeconfig:
 
 kubectl config set-credentials oidc-user \
   --exec-api-version=client.authentication.k8s.io/v1beta1 \
@@ -74,42 +74,42 @@ kubectl config set-credentials oidc-user \
   --exec-arg=--oidc-client-id=kubernetes \
   --exec-arg=--insecure-skip-tls-verify
 
-### Application du contexte
+### Applying the Context
 kubectl config set-context oidc-context --cluster=kubernetes --user=oidc-user
 kubectl config use-context oidc-context
 
 ---
 
-##  4. L'Astuce du Serveur Headless (Tunnel SSH)
+## 🚇 4. The Headless Server Trick (SSH Tunnel)
 
-Lorsqu'on exécute `kubectl get nodes` depuis un serveur sans interface graphique (ex: `node-4`), `kubelogin` ne peut pas ouvrir de navigateur web pour le callback (`localhost:8000`).
+When running `kubectl get nodes` from a headless server (e.g., `node-4`), `kubelogin` cannot open a web browser for the callback (`localhost:8000`).
 
-**La solution : Le Tunnel SSH (Port Forwarding)**
+**The Solution: SSH Tunnel (Port Forwarding)**
 
-1. Ouvrir un terminal sur la machine cliente avec interface graphique (ex: PC Windows).
-2. Créer un tunnel bindant le port local au port du serveur :
+1. Open a terminal on the client machine with a GUI (e.g., your Windows PC).
+2. Create a tunnel binding the local port to the server's port:
    ssh -L 8000:localhost:8000 root@192.168.2.75
-3. Laisser ce terminal en arrière-plan.
-4. Sur le serveur K8s (`node-4`), lancer l'authentification :
+3. Leave this terminal running in the background.
+4. On the K8s server (`node-4`), trigger the authentication:
    kubectl get nodes
-5. Le serveur CLI affichera un lien manuel : `http://localhost:8000/?state=...`
-6. Copier ce lien et le coller dans le navigateur du PC Windows.
-7. S'authentifier sur Keycloak. Le navigateur affichera **"Authenticated"** et la commande `kubectl` sur le serveur se débloquera et affichera les nœuds !
+5. The CLI server will output a manual link: `http://localhost:8000/?state=...`
+6. Copy this link and paste it into the web browser on your Windows PC.
+7. Authenticate via Keycloak. The browser will display **"Authenticated"** and the `kubectl` command on the server will unblock and display your nodes!
 
 ---
 
-##  5. Résolution des problèmes (Troubleshooting)
+## 🩺 5. Troubleshooting
 
-| Symptôme / Erreur | Cause probable | Solution |
+| Symptom / Error | Probable Cause | Solution |
 | :--- | :--- | :--- |
-| lookup keycloak... no such host | Le nœud headless n'a pas accès au résolveur DNS interne. | Ajouter l'IP de l'Ingress/Gateway dans /etc/hosts sur le nœud. |
-| Resource not found sur l'URL issuer | Le chemin de l'Issuer est incorrect. | Vérifier l'URL .well-known/openid-configuration dans un navigateur et l'ajuster. |
-| A redirect URI is not a valid URI | Keycloak n'accepte pas les espaces dans la liste des Redirect URIs. | Entrer http://localhost:8000 et appuyer sur Entrée. |
-| unauthorized_client | Le client Keycloak exige un mot de passe (Client Secret). | Mettre **Client authentication** sur Off dans Keycloak. |
-| state does not match | Le cache local est corrompu par de multiples tentatives ou onglets ouverts. | Fermer les onglets du navigateur et exécuter kubectl oidc-login clean. |
-| 401 Unauthorized silencieux | L'API Server ne trouve pas le Client ID ou le CA keycloak-ca.crt est manquant. | Nettoyer le kube-apiserver.yaml des commentaires inline. Vérifier le fichier CA. |
-| email not verified | Le flag oidc-username-claim=email est strict et Keycloak indique que l'email n'est pas vérifié. | Passer le bouton "Email verified" sur On dans la fiche de l'utilisateur sur Keycloak. |
+| lookup keycloak... no such host | The headless node lacks access to the internal DNS resolver. | Add the Ingress/Gateway IP to /etc/hosts on the node. |
+| Resource not found on the issuer URL | The Issuer path is incorrect. | Check the .well-known/openid-configuration URL in a browser and adjust accordingly. |
+| A redirect URI is not a valid URI | Keycloak does not accept spaces in the Redirect URIs list. | Enter http://localhost:8000 and press Enter to create a distinct tag. |
+| unauthorized_client | The Keycloak client demands a password (Client Secret). | Set **Client authentication** to Off in Keycloak. |
+| state does not match | The local cache is corrupted by multiple attempts or background tabs. | Close all browser tabs and run kubectl oidc-login clean. |
+| Silent 401 Unauthorized | The API Server cannot parse the Client ID or the keycloak-ca.crt CA is missing. | Remove inline comments from kube-apiserver.yaml. Verify the CA file. |
+| email not verified | The --oidc-username-claim=email flag is strict and Keycloak reports the email is not verified. | Toggle the "Email verified" button to On in the user's profile within Keycloak. |
 "@
 
-Set-Content -Path "$env:USERPROFILE\Desktop\k8s-oidc-keycloak-guide.md" -Value $mdContent -Encoding UTF8
-Write-Host "✅ Fichier k8s-oidc-keycloak-guide.md créé avec succès sur ton Bureau !" -ForegroundColor Green
+Set-Content -Path "$env:USERPROFILE\Desktop\k8s-oidc-keycloak-guide-en.md" -Value $mdContent -Encoding UTF8
+Write-Host "✅ The file k8s-oidc-keycloak-guide-en.md has been successfully created on your Desktop!" -ForegroundColor Green
