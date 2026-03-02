@@ -1,11 +1,11 @@
 keycloakx:
   command:
-    - "/opt/keycloak/bin/kc.sh"
-    - "start"
-    - "--http-enabled=true"
-    - "--http-port=8080"
-    - "--hostname-strict=false"
-    - "--proxy-headers=xforwarded"
+    - /opt/keycloak/bin/kc.sh
+    - start
+    - '--http-enabled=true'
+    - '--http-port=8080'
+    - '--hostname-strict=false'
+    - '--proxy-headers=xforwarded'
 
   replicas: 1
 
@@ -31,7 +31,6 @@ keycloakx:
     database: postgres
     username: postgres
     existingSecret: byo-db-creds # Créé par l'ExternalSecret
-
     #tls:
     #- secretName: keycloak-tls-cert
     #hosts:
