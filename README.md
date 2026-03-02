@@ -47,7 +47,7 @@ This infrastructure is documented in a technical blog series published on Medium
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 <img width="1428" height="796" alt="image" src="https://github.com/user-attachments/assets/44eca1ba-b86c-4be8-b02e-984f8735ed6d" />
 
@@ -56,7 +56,7 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 
 ---
 
-## 🖥️ Node Topology
+##  Node Topology
 
 | Node | IP | Role | Key Workloads |
 |------|----|------|---------------|
@@ -78,7 +78,7 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 
 ---
 
-## 🧰 Stack
+##  Stack
 
 ### Platform & GitOps
 
@@ -134,7 +134,7 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 home_lab/
@@ -195,7 +195,7 @@ Every service follows the same pattern: a thin Helm wrapper chart (`Chart.yaml` 
 
 ---
 
-## 🔐 Secrets Pipeline
+##  Secrets Pipeline
 
 ```
 Vault KV v2
@@ -224,7 +224,7 @@ Kubernetes Secrets  ←──  consumed by  ──►  Pods / cert-manager
 
 ---
 
-## 🚀 Deployment Order
+##  Deployment Order
 
 ```
 1. vault-app              → Initialize, unseal, configure K8s auth (manual once)
@@ -245,7 +245,7 @@ Kubernetes Secrets  ←──  consumed by  ──►  Pods / cert-manager
 
 ---
 
-## 🔒 Security Posture
+##  Security Posture
 
 | Area | Implementation |
 |------|----------------|
@@ -275,7 +275,7 @@ Keycloak (realm: mirecloud)
 
 ---
 
-## 🧱 Infrastructure Notes
+##  Infrastructure Notes
 
 **Why two ESO Applications?**
 The `ClusterSecretStore` CRD is installed by the operator. Bundling both in one Application causes ArgoCD to try creating the store object before the CRD exists. Splitting them ensures the operator is healthy before the configuration is applied.
@@ -297,7 +297,7 @@ Both flags are required when TLS is terminated at the Cilium Gateway. Without `x
 
 ---
 
-## 🌐 DNS Zone (`mirecloud.com`)
+##  DNS Zone (`mirecloud.com`)
 
 Managed automatically by ExternalDNS. Records are created/deleted as Gateway HTTPRoutes appear or disappear. BIND on node-3 receives RFC2136 dynamic updates authenticated with TSIG/HMAC-SHA256.
 
@@ -313,7 +313,7 @@ n8n             A   <assigned>
 
 ---
 
-## 📊 Observability
+##  Observability
 
 **Metrics:** kube-prometheus-stack scrapes the full cluster via ServiceMonitors, including GitLab webservice, sidekiq, and shell exporters.
 
