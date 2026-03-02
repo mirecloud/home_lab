@@ -2,7 +2,7 @@ Voilà le guide complet, directement ici :
 
 ---
 
-```markdown
+ 
 # Kubernetes OIDC Authentication via Keycloak — Complete Production Guide
 
 > **Author:** Emmanuel Catin
