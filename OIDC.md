@@ -26,33 +26,8 @@ Voilà le guide complet, directement ici :
 
 ## 1. Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        BARE-METAL CLUSTER                        │
-│                                                                   │
-│   ┌─────────────────┐          ┌──────────────────────────────┐ │
-│   │    Keycloak      │          │       Kubernetes             │ │
-│   │  (Identity       │  OIDC    │                              │ │
-│   │   Provider)      │◄────────►│  ┌────────────────────────┐ │ │
-│   │                  │  Trust   │  │     kube-apiserver     │ │ │
-│   │  Realm:          │          │  │  --oidc-issuer-url      │ │ │
-│   │  mirecloud       │          │  │  --oidc-client-id       │ │ │
-│   │                  │          │  │  --oidc-username-claim  │ │ │
-│   │  Client:         │          │  │  --oidc-groups-claim    │ │ │
-│   │  kubernetes      │          │  │  --oidc-ca-file         │ │ │
-│   │  (Public)        │          │  └────────────────────────┘ │ │
-│   └─────────────────┘          │                              │ │
-│           ▲                     │  ┌──────────┐ ┌──────────┐  │ │
-│           │ HTTPS/TLS           │  │  node-2  │ │  node-3  │  │ │
-│           │ (keycloak-ca.crt)   │  └──────────┘ └──────────┘  │ │
-│           │                     └──────────────────────────────┘ │
-│   ┌───────┴──────────┐                                           │
-│   │  kubectl +        │  192.168.2.75:6443                       │
-│   │  kubelogin        │──────────────────────────────────────►   │
-│   │  (node-4 / PC)    │                                           │
-│   └──────────────────┘                                           │
-└─────────────────────────────────────────────────────────────────┘
-```
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/8bd9d73e-7298-4241-b754-43c6fcad8571" />
+
 
 **Key principle:** The API server never handles passwords. It delegates identity
 verification entirely to Keycloak via signed JWT tokens. RBAC then maps verified
