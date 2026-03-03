@@ -77,6 +77,7 @@ The following three pillars replace the static credential model entirely:
 ---
 
 ## 2. Architecture Overview
+<img width="3971" height="2711" alt="k8s-architecture" src="https://github.com/user-attachments/assets/78027baa-33b6-4fd0-af1d-ecf942287608" />
 
 ### 2.1 Full System Diagram
 
