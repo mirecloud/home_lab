@@ -11,32 +11,32 @@ kube-prometheus-stack:
         url: http://loki-stack.monitoring.svc.cluster.local:3100
         version: 1
         isDefault: true
-        editable: true
         jsonData:
-          maxLines: 1000
+          maxLines: 2000 # On augmente pour voir plus de debug
 
     grafana.ini:
       server:
         domain: grafana.mirecloud.com
         root_url: "https://grafana.mirecloud.com"
-        serve_from_sub_path: false
 
-      # --- CONFIG LOGS POUR TRACKING ---
+      # --- CONFIG LOGS MAXIMUM (DEBUG) ---
       log:
-        level: info
+        level: debug # On passe de info à debug
         mode: console
         format: json
 
       auth:
         disable_login_form: false
         oauth_auto_login: false
+        # Debugging profond de l'OIDC
         log_token_exchange: true
         log_user_id: true
 
       auth.generic_oauth:
         enabled: true
         name: "Keycloak"
-        allow_sign_up: true
+        # On force le debug spécifique sur l'OAuth
+        debug: true
         client_id: "grafana"
         client_secret: $__env{client_secret}
         scopes: "openid profile email"
