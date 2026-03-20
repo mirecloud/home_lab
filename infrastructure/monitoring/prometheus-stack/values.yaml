@@ -1,8 +1,18 @@
 kube-prometheus-stack:
   grafana:
     enabled: true
-    # Utilise le secret généré par ton ExternalSecret (grafana-keycloak-es)
     envFromSecret: grafana-keycloak-secret
+
+    # --- CONFIGURATION DE LA SOURCE DE DONNÉES LOKI ---
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki-stack.monitoring.svc.cluster.local:3100
+        version: 1
+        editable: true # Permet de modifier via l'UI si besoin
+        jsonData:
+          maxLines: 1000
 
     grafana.ini:
       server:
@@ -10,16 +20,14 @@ kube-prometheus-stack:
         root_url: "https://grafana.mirecloud.com"
         serve_from_sub_path: false
 
-      # --- CONFIGURATION LOGS POUR LOKI ---
       log:
         level: info
         mode: console
-        format: json # Le format JSON est plus facile à parser dans Loki
+        format: json
 
       auth:
         disable_login_form: false
         oauth_auto_login: false
-        # Crucial pour debugger l'auth dans Loki
         log_token_exchange: true
         log_user_id: true
 
@@ -28,36 +36,20 @@ kube-prometheus-stack:
         name: "Keycloak"
         allow_sign_up: true
         client_id: "grafana"
-        # Récupéré via envFromSecret (doit correspondre à la clé dans ton ExternalSecret)
         client_secret: $__env{client_secret}
-
-        # Scopes nécessaires pour récupérer l'email et les rôles
         scopes: "openid profile email"
-
-        # Désactive la vérif SSL si tes certificats internes sont auto-signés
         tls_skip_verify_insecure: true
 
-        # --- FLUX D'AUTHENTIFICATION ---
-        # URL Publique (Front-channel) : Ce que le navigateur de l'utilisateur appelle
         auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
-
-        # URLs Internes (Back-channel) : Communication directe entre Pods (plus rapide et sécurisé)
         token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/token"
         api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/userinfo"
 
-        # --- MAPPING DES RÔLES (RBAC) ---
-        # Si l'utilisateur a le rôle 'admin' dans Keycloak, il est Admin dans Grafana, sinon Viewer
         role_attribute_path: "contains(realm_access.roles[*], 'admin') && 'Admin' || 'Viewer'"
         role_attribute_strict: true
 
-    # Désactivation de l'ingress natif car tu utilises Cilium Gateway API
     ingress:
       enabled: false
 
-  # Désactivation des ingrés pour les autres composants si tu utilises des Gateways/Routes
   prometheus:
-    ingress:
-      enabled: false
-  alertmanager:
     ingress:
       enabled: false
