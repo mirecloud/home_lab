@@ -3,14 +3,15 @@ kube-prometheus-stack:
     enabled: true
     envFromSecret: grafana-keycloak-secret
 
-    # --- CONFIGURATION DE LA SOURCE DE DONNÉES LOKI ---
+    # --- PERSISTENCE DE LOKI ---
     additionalDataSources:
       - name: Loki
         type: loki
         access: proxy
         url: http://loki-stack.monitoring.svc.cluster.local:3100
         version: 1
-        editable: true # Permet de modifier via l'UI si besoin
+        isDefault: true
+        editable: true
         jsonData:
           maxLines: 1000
 
@@ -20,6 +21,7 @@ kube-prometheus-stack:
         root_url: "https://grafana.mirecloud.com"
         serve_from_sub_path: false
 
+      # --- CONFIG LOGS POUR TRACKING ---
       log:
         level: info
         mode: console
