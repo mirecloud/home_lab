@@ -1,0 +1,7 @@
+# infrastructure/vault-csi-provider/Chart.yaml
+apiVersion: v2
+name: vault-csi-provider-wrapper
+dependencies:
+  - name: vault-csi-provider
+    version: 4.7.0
+    repository: https://helm.releases.hashicorp.com

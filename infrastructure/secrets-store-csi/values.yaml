@@ -1,0 +1,5 @@
+secrets-store-csi-driver:
+  enableSecretRotation: true
+  rotationPollInterval: 2m
+  syncSecret:
+    enabled: false # We don't want CSI creating K8s Secrets — defeats the purpose

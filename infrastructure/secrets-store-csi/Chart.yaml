@@ -1,0 +1,8 @@
+apiVersion: v2
+name: secrets-store-csi-wrapper
+type: application
+version: 1.0.0
+dependencies:
+  - name: secrets-store-csi-driver
+    version: 1.4.5
+    repository: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
