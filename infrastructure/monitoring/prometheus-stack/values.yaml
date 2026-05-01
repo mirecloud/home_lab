@@ -3,17 +3,6 @@ kube-prometheus-stack:
     enabled: true
     envFromSecret: grafana-keycloak-secret
 
-    # --- PERSISTENCE DE LOKI ---
-    additionalDataSources:
-      - name: Loki
-        type: loki
-        access: proxy
-        url: http://loki-stack.monitoring.svc.cluster.local:3100
-        version: 1
-        isDefault: true
-        jsonData:
-          maxLines: 2000 # On augmente pour voir plus de debug
-
     grafana.ini:
       server:
         domain: grafana.mirecloud.com
@@ -42,9 +31,12 @@ kube-prometheus-stack:
         scopes: "openid profile email"
         tls_skip_verify_insecure: true
 
-        auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
-        token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/token"
-        api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/realms/mirecloud/protocol/openid-connect/userinfo"
+        auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid\
+          -connect/auth"
+        token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/r\
+          ealms/mirecloud/protocol/openid-connect/token"
+        api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/rea\
+          lms/mirecloud/protocol/openid-connect/userinfo"
 
         role_attribute_path: "contains(realm_access.roles[*], 'admin') && 'Admin' || 'Viewer'"
         role_attribute_strict: true
