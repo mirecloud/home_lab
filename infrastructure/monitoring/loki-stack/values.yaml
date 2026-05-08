@@ -1,17 +1,10 @@
-###############################################################################
-# LOKI (Wrapper Configuration)
-###############################################################################
 loki:
-  # --- Configs à la racine du sous-chart ---
   deploymentMode: SingleBinary
 
-  # --- Configs internes ("Double Loki") ---
   loki:
     auth_enabled: false
     commonConfig:
       replication_factor: 1
-
-    # 👇 ON PASSE EN MODE S3 (MinIO)
     storage:
       type: s3
       bucketNames:
@@ -19,12 +12,9 @@ loki:
         ruler: ruler
         admin: admin
       s3:
-        # L'adresse IP de ton node-3 (API Port 9000)
         endpoint: http://192.168.2.74:9000
-        # Tes credentials MinIO (vérifie /etc/default/minio sur node-3)
         accessKeyId: admin
         secretAccessKey: password
-        # Paramètres obligatoires pour MinIO
         s3ForcePathStyle: true
         insecure: true
 
@@ -32,38 +22,34 @@ loki:
       configs:
         - from: "2024-04-01"
           store: tsdb
-          object_store: s3 # <--- Changement ici : s3 au lieu de filesystem
+          object_store: s3
           schema: v13
           index:
             prefix: index_
             period: 24h
 
-  # --- Retour à la racine ---
   singleBinary:
     replicas: 1
     persistence:
-      # On garde la persistance pour le WAL (Write Ahead Log), mais les données vont dans MinIO
       enabled: true
       size: 10Gi
       accessModes:
         - ReadWriteOnce
 
-  # Désactivation des composants
   write: { replicas: 0 }
   read: { replicas: 0 }
   backend: { replicas: 0 }
+
+  chunksCache:
+    enabled: false
+
+  resultsCache:
+    enabled: false
 
   gateway:
     enabled: true
     service:
       type: ClusterIP
-
-  # Désactivation des extras
-  minio: { enabled: false } # On utilise ton MinIO externe, pas celui du chart
-  monitoring:
-    selfMonitoring: { enabled: false }
-    grafanaAgent: { installOperator: false }
-  test: { enabled: false }
 
 ###############################################################################
 # PROMTAIL
