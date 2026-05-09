@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-dynamic
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-dynamic-creds
+  namespace: test-dynamic
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.vault.svc.cluster.local:8200"
+    roleName: "dynamic-app-role" # Le rôle Vault configuré à l'étape précédente
+    objects: |
+      - objectName: "db-username"
+        secretPath: "database/creds/dynamic-app-role"
+        secretKey: "username"
+      - objectName: "db-password"
+        secretPath: "database/creds/dynamic-app-role"
+        secretKey: "password"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-test-app
+  namespace: test-dynamic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-test-app
+  template:
+    metadata:
+      labels:
+        app: secure-test-app
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: web
+          # ⚠️ REMPLACE PAR TON IMAGE DOCKER ⚠️
+          image: mirecloud/vaultest:3.0
+          ports:
+            - containerPort: 8080
+          securityContext:
+            # Sécurité additionnelle (l'attaquant ne peut pas écrire sur le disque)
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets"
+              readOnly: true
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "vault-dynamic-creds"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secure-test-app-svc
+  namespace: test-dynamic
+spec:
+  selector:
+    app: secure-test-app
+  ports:
+    - port: 80
+      targetPort: 8080
