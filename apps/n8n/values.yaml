@@ -13,7 +13,6 @@ n8n:
     # CORRECTION : La persistance va ici
     persistence:
       enabled: true
-      type: dynamic
       storageClass: nfs-client
       accessMode: ReadWriteMany
       size: 5Gi
