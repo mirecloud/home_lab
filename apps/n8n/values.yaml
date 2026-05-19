@@ -29,7 +29,7 @@ n8n:
       N8N_PROTOCOL: "https"
       WEBHOOK_URL: "https://n8n.mirecloud.com/"
       GENERIC_TIMEZONE: "America/Toronto"
-      N8N_ENCRYPTION_KEY: "MireCloud_Key_A_Ne_Jamais_Perdre"
+      N8N_ENCRYPTION_KEY: "MireCloud_Key"
       # Désactiver la gestion SSL interne de n8n car NGINX gère le TLS
       N8N_SECURE_COOKIE: "false"
 
@@ -40,9 +40,6 @@ n8n:
     concurrency: 20
     # Les workers ont aussi besoin des mêmes variables d'env critiques (DB, Key, etc)
     # Le chart propage souvent les configs, mais pour la clé de chiffrement, mieux vaut être sûr.
-    extraEnvVars:
-      N8N_ENCRYPTION_KEY: "MireCloud_Key_A_Ne_Jamais_Perdre"
-      GENERIC_TIMEZONE: "America/Toronto"
 
   # 4. Redis (Broker)
   redis:
