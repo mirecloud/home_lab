@@ -1,10 +1,5 @@
 n8n:
-  # 1. Base de données
-  db:
-    type: postgresdb
-    postgresdb:
-      connectionTimeout: 10000
-
+  # 1. Base de donné # CORRECTION MAJEURE : externalPostgresql est au même niveau que db, pas dedans.
   # CORRECTION MAJEURE : externalPostgresql est au même niveau que db, pas dedans.
   externalPostgresql:
     host: "postgres.postgres.svc"
