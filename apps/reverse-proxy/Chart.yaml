@@ -1,10 +1,11 @@
 apiVersion: v2
 name: nginx-wrapper
-description: Wrapper chart pour Nginx  MireCloud
+description: Wrapper chart pour Nginx MireCloud
 type: application
 version: 1.0.0
 appVersion: "1.0.0"
+
 dependencies:
-  - name: nginx 
-    version: 0.12.1
+  - name: nginx
+    version: "0.12.1"
     repository: oci://registry-1.docker.io/cloudpirates
