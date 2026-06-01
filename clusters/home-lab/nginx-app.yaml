@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: "git@github.com:mirecloud/home_lab.git"
     targetRevision: HEAD
-    path: apps/nginx
+    path: apps/reverse-proxy
   destination:
     server: https://kubernetes.default.svc
     namespace: nginx
