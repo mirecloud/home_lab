@@ -58,5 +58,5 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: proxmox-proxy-nginx
+        - name: nginx
           port: 80
