@@ -1,68 +1,62 @@
-# --- 1. La Demande de Certificat ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: nginx-tls-cert
-  namespace: nginx  #  Vérifie ton namespace !
+  name: pve-tls-cert
+  namespace: nginx
 spec:
-  secretName: nginx-tls-secret
+  secretName: pve-tls-secret
   issuerRef:
     name: mirecloud-ca-issuer
     kind: ClusterIssuer
   commonName: pve.mirecloud.com
   dnsNames:
-  - pve.mirecloud.com
+    - pve.mirecloud.com
 
 ---
-# --- 2. La Gateway (Porte d'entrée Grafana) ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: nginx-gateway
-  namespace: nginx  #  Vérifie ton namespace !
+  name: pve-gateway
+  namespace: nginx
 spec:
   gatewayClassName: cilium
   listeners:
-  # Port 80 (HTTP)
-  - name: http
-    protocol: HTTP
-    port: 80
-    allowedRoutes:
-      namespaces:
-        from: Same
-  
-  # Port 443 (HTTPS)
-  - name: https
-    protocol: HTTPS
-    port: 443
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: nginx-tls-secret # Créé par le Certificate ci-dessus
-    allowedRoutes:
-      namespaces:
-        from: Same
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+
+    - name: https
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: pve-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: Same
 
 ---
-# --- 3. La Route (Vers le Service Nginx) ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: nginx-route
-  namespace: nginx  #  Vérifie ton namespace !
+  name: pve-route
+  namespace: nginx
 spec:
   parentRefs:
-  - name: nginx-gateway
+    - name: pve-gateway
+      sectionName: https
   hostnames:
-  - "pve.mirecloud.com"
+    - pve.mirecloud.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    #  IMPORTANT : Vérifie le nom exact de ton service Nginx !
-    # Souvent "nginx", "nginx-service"
-    - name: nginx
-      port: 80 # Le service Nginx écoute généralement sur 80 (et redirige vers 3000)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: proxmox-proxy-nginx
+          port: 80
