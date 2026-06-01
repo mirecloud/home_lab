@@ -7,4 +7,4 @@ appVersion: "1.0.0"
 dependencies:
   - name: nginx 
     version: 2.2.0
-    repository: oci://registry-1.docker.io/cloudpirates/nginx
+    repository: oci://registry-1.docker.io/cloudpirates
