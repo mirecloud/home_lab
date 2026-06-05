@@ -4,7 +4,7 @@ metadata:
   name: vault-ui-tls-cert
   namespace: vault
 spec:
-  secretName: vault-ui -tls-secret
+  secretName: vault-ui-tls-secret
   issuerRef:
     name: mirecloud-ca-issuer
     kind: ClusterIssuer
