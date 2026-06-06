@@ -6,7 +6,18 @@ mlflow:
     repository: burakince/mlflow
     pullPolicy: IfNotPresent
     tag: ""
+  
 
+  artifactRoot:
+    s3:
+      enabled: true
+      bucket: mlflow
+      awsAccessKeyId: "admin"
+      awsSecretAccessKey: "password"
+
+  extraEnvVars:
+    MLFLOW_S3_ENDPOINT_URL: "http://minio.mirecloud.com:9000"
+    MLFLOW_S3_IGNORE_TLS: "true"
   # -- Configuration de la base de données (Postgres Externe)
   backendStore:
     postgres:
@@ -23,6 +34,7 @@ mlflow:
 
     # Migration automatique au démarrage
     databaseMigration: true
+  
 
   # -- Configuration de l'Authentification (Basic Auth)
   auth:
