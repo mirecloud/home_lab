@@ -32,26 +32,6 @@ mlflow:
       usernameKey: "usernameKey"
       passwordKey: "passwordKey"
 
-  # -- Configuration de l'Ingress (Accès Web)
-  ingress:
-    enabled: true
-    className: "nginx"
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: mirecloud-ca-issuer
-
-      # Force le SSL
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-
-    hosts:
-      - host: mlflow.mirecloud.com
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls:
-      - secretName: mlflow-tls
-        hosts:
-          - mlflow.mirecloud.com
 
   # -- LE FIX CRITIQUE --
   # 1. On désactive les logs pour supprimer l'argument "--gunicorn-opts" incompatible
