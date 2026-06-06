@@ -1,0 +1,71 @@
+# --- 1. La Demande de Certificat ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mlflow-tls-cert
+  namespace: mlflow
+spec:
+  # Le nom du secret Kubernetes qui va contenir le certificat final
+  secretName: mlflow-tls-secret
+  issuerRef:
+    # Ton Issuer Vault/CA existant
+    name: mirecloud-ca-issuer
+    kind: ClusterIssuer
+  commonName: mlflow.mirecloud.com
+  dnsNames:
+  - mlflow.mirecloud.com
+
+---
+# --- 2. La Gateway (Porte d'entrée) ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: mirecloud-gateway
+  namespace: mlflow
+spec:
+  gatewayClassName: cilium
+  listeners:
+  # Listener HTTP (Port 80) - Toujours utile pour les redirections
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+  
+  # Listener HTTPS (Port 443) - C'est ici que ça se passe
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      # "Terminate" signifie que la Gateway décrypte le SSL ici
+      # et envoie du trafic clair (HTTP) au pod Keycloak.
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: mlflow-tls-secret # Doit matcher le secretName du certificat plus haut
+    allowedRoutes:
+      namespaces:
+        from: Same
+
+---
+# --- 3. La Route (Le GPS) ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mlflow-route
+  namespace: mlflow
+spec:
+  parentRefs:
+  - name: mirecloud-gateway
+  hostnames:
+  - "mlflow.mirecloud.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    # On pointe vers le service Keycloak (Port 80, qui redirige vers 8080 du pod)
+    - name: mlflow
+      port: 80
