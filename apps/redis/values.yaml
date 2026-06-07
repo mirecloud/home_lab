@@ -1,0 +1,20 @@
+controller:
+  enabled: true
+  kind: StatefulSet
+  replicas: 1
+
+persistentVolumeClaim:
+  create: true
+  mountPath: /data
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClassName: ''
+
+ports:
+  redis:
+    enabled: true
+    port: 6379
+
+service:
+  enabled: true
+  type: ClusterIP
