@@ -8,4 +8,4 @@ dependencies:
   - name: keycloakx
     # On reprend la source que tu utilisais manuellement
     repository: "oci://ghcr.io/codecentric/helm-charts"
-    version: "7.1.5" # Version stable récente, ajuste si tu en visais une précise
+    version: "7.2.0" # Version stable récente, ajuste si tu en visais une précise
