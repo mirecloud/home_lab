@@ -1,6 +1,7 @@
 kube-prometheus-stack:
   grafana:
     enabled: true
+    # Assure-toi que ce secret existe et contient bien la clé "client_secret"
     envFromSecret: grafana-keycloak-secret
 
     grafana.ini:
@@ -8,35 +9,32 @@ kube-prometheus-stack:
         domain: grafana.mirecloud.com
         root_url: "https://grafana.mirecloud.com"
 
-      # --- CONFIG LOGS MAXIMUM (DEBUG) ---
       log:
-        level: debug # On passe de info à debug
+        level: debug
         mode: console
         format: json
 
       auth:
         disable_login_form: false
         oauth_auto_login: false
-        # Debugging profond de l'OIDC
         log_token_exchange: true
         log_user_id: true
 
       auth.generic_oauth:
         enabled: true
         name: "Keycloak"
-        # On force le debug spécifique sur l'OAuth
         debug: true
         client_id: "grafana"
         client_secret: $__env{client_secret}
         scopes: "openid profile email"
+        # FIX : Activation du PKCE pour correspondre à la config Keycloak
+        use_pkce: true
         tls_skip_verify_insecure: true
 
-        auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid\
-          -connect/auth"
-        token_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/r\
-          ealms/mirecloud/protocol/openid-connect/token"
-        api_url: "http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80/auth/rea\
-          lms/mirecloud/protocol/openid-connect/userinfo"
+        # FIX : URLs Publiques uniquement (Évite le Issuer Mismatch)
+        auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
+        token_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/token"
+        api_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/userinfo"
 
         role_attribute_path: "contains(realm_access.roles[*], 'admin') && 'Admin' || 'Viewer'"
         role_attribute_strict: true
