@@ -12,9 +12,9 @@ loki:
         ruler: ruler
         admin: admin
       s3:
-        endpoint: http://192.168.2.74:9000
+        endpoint: http://192.168.2.156:9000
         accessKeyId: admin
-        secretAccessKey: password
+        secretAccessKey: mirecloud
         s3ForcePathStyle: true
         insecure: true
 
