@@ -1,0 +1,28 @@
+ollama:
+  # Activation du GPU
+  gpu:
+    enabled: true
+    type: 'nvidia'
+    number: 1
+  
+  # Sélection du nœud avec GPU
+  nodeSelector:
+    nvidia.com/gpu.present: "true"
+
+  # Persistance des modèles sur NFS (ton storage actuel)
+  persistentVolume:
+    enabled: true
+    size: "30Gi"
+    # Utilise nfs-client qui est ton provisioner détecté
+    storageClass: "nfs-client" 
+
+  # Pré-chargement des modèles
+  models:
+    pull:
+      - llama3.2:1b
+      - llama3.1:8b
+
+  # Ressources pour garantir la stabilité
+  resources:
+    limits:
+      nvidia.com/gpu: 1

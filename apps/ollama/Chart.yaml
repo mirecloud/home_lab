@@ -1,0 +1,10 @@
+apiVersion: v2
+name: ollama-wrapper
+description: Wrapper pour déployer ollama via ArgoCD
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+dependencies:
+  - name: ollama
+    version: 1.62.0
+    repository: https://helm.otwld.com/
