@@ -1,10 +1,14 @@
-# 1. Configuration du Moteur de Serving (VLLM)
-# Il tournera exclusivement sur ton nœud GPU
+# Configuration MireCloud - Production ready
 servingEngineSpec:
   enableEngine: true
   runtimeClassName: "nvidia"
+  # Assure le placement sur ton nœud GPU
   nodeSelector:
     kubernetes.io/hostname: "node-gpu"
+  # Labels requis pour que le routeur identifie ce backend
+  labels:
+    environment: "test"
+    release: "test"
   modelSpec:
     - name: "mistral-7b-instruct"
       repository: "vllm/vllm-openai"
@@ -12,23 +16,31 @@ servingEngineSpec:
       modelURL: "mistralai/Mistral-7B-Instruct-v0.3"
       replicaCount: 1
       requestGPU: 1
+      # Allocation mémoire et stockage pour éviter les évictions
       limitMemory: "16Gi"
+      resources:
+        requests:
+          memory: "8Gi"
+          ephemeral-storage: "10Gi"
+        limits:
+          memory: "16Gi"
+          ephemeral-storage: "20Gi"
       vllmConfig:
         maxModelLen: 8192
         gpuMemoryUtilization: 0.85
         dtype: "bfloat16"
 
-# 2. Configuration du Routeur
-# Il peut rester sur un nœud standard, mais on force le placement
 routerSpec:
   enableRouter: true
   routingLogic: "roundrobin"
   nodeSelector:
-    kubernetes.io/hostname: "node-gpu" # Force le routeur sur le même nœud si c'est ton souhait
+    kubernetes.io/hostname: "node-gpu"
   resources:
     requests:
+      cpu: "1"
+      memory: "2Gi"
+      ephemeral-storage: "10Gi" # Crucial car l'image est très lourde
+    limits:
       cpu: "2"
       memory: "4Gi"
-    limits:
-      cpu: "4"
-      memory: "8Gi"
+      ephemeral-storage: "15Gi"
