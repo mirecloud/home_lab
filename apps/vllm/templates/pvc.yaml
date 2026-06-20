@@ -1,0 +1,13 @@
+# templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "vllm.fullname" . }}-storage-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  # AJOUTE CETTE LIGNE :
+  storageClassName: "nfs-client" 
+  resources:
+    requests:
+      storage: {{ .Values.extraInit.pvcStorage }}

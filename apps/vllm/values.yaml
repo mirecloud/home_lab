@@ -27,11 +27,11 @@ servingEngineSpec:
       requestGPU: 1
 
       # --- Configuration stockage unifiée ---
-      pvcStorage:
-        enabled: true
-        size: 50Gi
-        accessMode: ReadWriteOnce
-        storageClassName: nfs-client
+      #pvcStorage:
+       # enabled: true
+        #size: 50Gi
+        #accessMode: ReadWriteOnce
+        #storageClassName: nfs-client
       # -------------------------------------
 
       resources:
