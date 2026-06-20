@@ -1,0 +1,35 @@
+# Configuration pour le nœud GPU MireCloud
+servingEngineSpec:
+  enableEngine: true
+  runtimeClassName: "nvidia"
+  modelSpec:
+    - name: "mistral-7b-instruct"
+      repository: "vllm/vllm-openai"
+      tag: "latest"
+      modelURL: "mistralai/Mistral-7B-Instruct-v0.3"
+      replicaCount: 1
+      # Allocation pour ta 5060 Ti 16GB
+      requestGPU: 1
+      limitMemory: "16Gi"
+      vllmConfig:
+        maxModelLen: 8192
+        gpuMemoryUtilization: 0.85 # Laissé un peu de marge pour le système
+        dtype: "bfloat16"
+      # Assure-toi que le pod atterrit sur ton nouveau nœud
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "kubernetes.io/hostname"
+              operator: In
+              values:
+                - "node-gpu"
+
+routerSpec:
+  enableRouter: true
+  routingLogic: "roundrobin"
+  resources:
+    requests:
+      cpu: "2"
+      memory: "4Gi"
+    limits:
+      cpu: "4"
+      memory: "8Gi"
