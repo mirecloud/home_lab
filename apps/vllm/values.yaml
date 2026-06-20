@@ -1,46 +1,107 @@
-# Configuration MireCloud - Production ready
+# values.yaml - vLLM MireCloud
+
 servingEngineSpec:
   enableEngine: true
-  runtimeClassName: "nvidia"
-  # Assure le placement sur ton nœud GPU
+  runtimeClassName: nvidia
+
   nodeSelector:
-    kubernetes.io/hostname: "node-gpu"
-  # Labels requis pour que le routeur identifie ce backend
+    kubernetes.io/hostname: node-gpu
+
+  tolerations:
+    - key: gpu
+      operator: Equal
+      value: value
+      effect: NoSchedule
+
   labels:
-    environment: "test"
-    release: "test"
+    environment: test
+    release: test
+
   modelSpec:
-    - name: "mistral-7b-instruct"
-      repository: "vllm/vllm-openai"
-      tag: "latest"
-      modelURL: "mistralai/Mistral-7B-Instruct-v0.3"
+    - name: mistral-7b-instruct
+      repository: vllm/vllm-openai
+      tag: latest
+      modelURL: mistralai/Mistral-7B-Instruct-v0.3
+
       replicaCount: 1
       requestGPU: 1
-      # Allocation mémoire et stockage pour éviter les évictions
-      limitMemory: "16Gi"
+
+      limitMemory: 16Gi
+
       resources:
         requests:
-          memory: "8Gi"
-          ephemeral-storage: "10Gi"
+          cpu: "4"
+          memory: 8Gi
+          ephemeral-storage: 20Gi
+          nvidia.com/gpu: "1"
         limits:
-          memory: "16Gi"
-          ephemeral-storage: "20Gi"
+          cpu: "8"
+          memory: 16Gi
+          ephemeral-storage: 40Gi
+          nvidia.com/gpu: "1"
+
       vllmConfig:
         maxModelLen: 8192
         gpuMemoryUtilization: 0.85
-        dtype: "bfloat16"
+        dtype: bfloat16
+        trustRemoteCode: true
 
 routerSpec:
   enableRouter: true
-  routingLogic: "roundrobin"
+  routingLogic: roundrobin
+
   nodeSelector:
-    kubernetes.io/hostname: "node-gpu"
+    kubernetes.io/hostname: node-gpu
+
+  tolerations:
+    - key: gpu
+      operator: Equal
+      value: value
+      effect: NoSchedule
+
   resources:
     requests:
       cpu: "1"
-      memory: "2Gi"
-      ephemeral-storage: "10Gi" # Crucial car l'image est très lourde
+      memory: 2Gi
+      ephemeral-storage: 10Gi
     limits:
       cpu: "2"
-      memory: "4Gi"
-      ephemeral-storage: "15Gi"
+      memory: 4Gi
+      ephemeral-storage: 20Gi
+
+  serviceDiscovery: k8s
+  k8sNamespace: vllm
+  k8sServiceDiscoveryType: pod-ip
+  k8sLabelSelector: environment=test,release=test
+
+  startupProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 30
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+
+pvcStorage:
+  enabled: true
+  size: 50Gi
+  accessMode: ReadWriteOnce
