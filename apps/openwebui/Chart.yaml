@@ -1,0 +1,10 @@
+apiVersion: v2
+name: openwebui-wrapper
+description: Wrapper pour déployer openwebui via ArgoCD
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+dependencies:
+  - name: open-webui
+    version: 14.8.0
+    repository: https://helm.openwebui.com/
