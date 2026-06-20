@@ -1,16 +1,15 @@
-# Désactivation de l'installation du chart Ollama interne
-ollama:
-  enabled: false
+# Fichier values.yaml de ton "Wrapper" (chart parent)
+open-webui:
+  ollama:
+    enabled: false
 
-# Configuration de la connexion vers ton Ollama existant
-extraEnvVars:
-  - name: OLLAMA_BASE_URL
-    value: "http://ollama.ollama.svc.cluster.local:11434" # Remplace par le nom/namespace de ton service
-  - name: WEBUI_AUTH
-    value: "true" # Ou false si tu préfères une instance ouverte pour le lab
+  extraEnvVars:
+    - name: OLLAMA_BASE_URL
+      value: "http://ollama.ollama.svc.cluster.local:11434"
+    - name: WEBUI_AUTH
+      value: "true"
 
-# Configuration de la persistance (essentielle pour tes historiques de chat)
-persistence:
-  enabled: true
-  size: "2Gi"
-  storageClass: "nfs-client" # Ou ta classe de stockage standard
+  persistence:
+    enabled: true
+    size: "8Gi"
+    storageClass: "nfs-client"
