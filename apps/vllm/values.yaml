@@ -78,8 +78,4 @@ routerSpec:
   k8sServiceDiscoveryType: pod-ip
   k8sLabelSelector: environment=test,release=test
 
-pvcStorage:
-  enabled: true
-  size: 50Gi
-  accessMode: ReadWriteOnce
-  storageClassName: nfs-client
+ 
