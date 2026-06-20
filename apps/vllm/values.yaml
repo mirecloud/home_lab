@@ -18,7 +18,7 @@ servingEngineSpec:
     release: test
 
   modelSpec:
-    - name: mistral-7b-instruct
+    - name: mistral
       repository: vllm/vllm-openai
       tag: latest
       modelURL: mistralai/Mistral-7B-Instruct-v0.3
@@ -26,7 +26,11 @@ servingEngineSpec:
       replicaCount: 1
       requestGPU: 1
 
-      limitMemory: 16Gi
+      pvcStorage:
+        enabled: true
+        size: 50Gi
+        accessMode: ReadWriteOnce
+        storageClassName: nfs-client
 
       resources:
         requests:
@@ -41,9 +45,9 @@ servingEngineSpec:
           nvidia.com/gpu: "1"
 
       vllmConfig:
-        maxModelLen: 8192
-        gpuMemoryUtilization: 0.85
-        dtype: bfloat16
+        maxModelLen: 4096
+        gpuMemoryUtilization: 0.80
+        dtype: float16
         trustRemoteCode: true
 
 routerSpec:
@@ -74,34 +78,8 @@ routerSpec:
   k8sServiceDiscoveryType: pod-ip
   k8sLabelSelector: environment=test,release=test
 
-  startupProbe:
-    httpGet:
-      path: /health
-      port: 8000
-    initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 3
-    failureThreshold: 30
-
-  readinessProbe:
-    httpGet:
-      path: /health
-      port: 8000
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 3
-    failureThreshold: 6
-
-  livenessProbe:
-    httpGet:
-      path: /health
-      port: 8000
-    initialDelaySeconds: 90
-    periodSeconds: 10
-    timeoutSeconds: 3
-    failureThreshold: 6
-
 pvcStorage:
   enabled: true
   size: 50Gi
   accessMode: ReadWriteOnce
+  storageClassName: nfs-client
