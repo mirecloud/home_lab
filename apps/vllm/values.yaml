@@ -1,4 +1,4 @@
-# values.yaml - vLLM MireCloud
+# values.yaml - vLLM MireCloud (Version unifiée)
 
 servingEngineSpec:
   enableEngine: true
@@ -26,11 +26,13 @@ servingEngineSpec:
       replicaCount: 1
       requestGPU: 1
 
+      # --- Configuration stockage unifiée ---
       pvcStorage:
         enabled: true
         size: 50Gi
         accessMode: ReadWriteOnce
         storageClassName: nfs-client
+      # -------------------------------------
 
       resources:
         requests:
@@ -53,16 +55,13 @@ servingEngineSpec:
 routerSpec:
   enableRouter: true
   routingLogic: roundrobin
-
   nodeSelector:
     kubernetes.io/hostname: node-gpu
-
   tolerations:
     - key: gpu
       operator: Equal
       value: value
       effect: NoSchedule
-
   resources:
     requests:
       cpu: "1"
@@ -77,5 +76,3 @@ routerSpec:
   k8sNamespace: vllm
   k8sServiceDiscoveryType: pod-ip
   k8sLabelSelector: environment=test,release=test
-
- 
