@@ -1,7 +1,10 @@
 # values.yaml - vLLM MireCloud
-# Corrigé :
-#   - schéma pvcStorage : string + champs frères (pvcAccessMode, storageClass)
-#   - modèle FP8 pour tenir dans 16GB VRAM (RTX 5060 Ti / Blackwell)
+# Version complète corrigée. Récap des fixes appliqués :
+#   1. pvcStorage : schéma à plat (string) + champs frères pvcAccessMode / storageClass
+#   2. modelURL  : modèle FP8 pour tenir dans 16GB VRAM (RTX 5060 Ti / Blackwell)
+#   3. enabled: true sur le modelSpec  -> sinon le chart ne rend PAS le Deployment engine
+#   4. startupProbe du router desserrée -> cold start ~38s (imports torch/lmcache) qui
+#      se faisait tuer (SIGKILL/137) par une probe trop agressive
 
 servingEngineSpec:
   enableEngine: true
@@ -10,10 +13,14 @@ servingEngineSpec:
   nodeSelector:
     kubernetes.io/hostname: node-gpu
 
+  # ATTENTION au taint reel du node :
+  #   kubectl describe node node-gpu | grep -i taint
+  # - si taint type "gpu=true:NoSchedule" -> mettre value: "true"
+  # - si AUCUN taint sur node-gpu        -> supprimer tout ce bloc tolerations
   tolerations:
     - key: gpu
       operator: Equal
-      value: value          # ⚠️ vérifie le taint réel : kubectl describe node node-gpu | grep -i taint
+      value: value
       effect: NoSchedule
 
   labels:
@@ -22,16 +29,17 @@ servingEngineSpec:
 
   modelSpec:
     - name: mistral
+      enabled: true          # OBLIGATOIRE : sans ca, aucun Deployment engine n'est cree
       repository: vllm/vllm-openai
       tag: latest
       # FP8 : ~7.5GB de poids (vs ~14.5GB en fp16). Tient large dans 16GB,
-      # qualité quasi-fp16, accéléré nativement par Blackwell.
+      # qualite quasi-fp16, accelere nativement par Blackwell. Auto-detecte par vLLM.
       modelURL: RedHatAI/Mistral-7B-Instruct-v0.3-FP8
 
       replicaCount: 1
       requestGPU: 1
 
-      # --- Stockage : champs FRÈRES, PAS un objet imbriqué ---
+      # --- Stockage : champs FRERES, PAS un objet imbrique ---
       pvcStorage: "50Gi"
       pvcAccessMode:
         - ReadWriteOnce
@@ -53,18 +61,21 @@ servingEngineSpec:
       vllmConfig:
         maxModelLen: 4096
         gpuMemoryUtilization: 0.90
-        dtype: auto           # FP8 auto-détecté depuis le config du modèle
+        dtype: auto           # FP8 auto-detecte depuis le config du modele
 
 routerSpec:
   enableRouter: true
   routingLogic: roundrobin
+
   nodeSelector:
     kubernetes.io/hostname: node-gpu
+
   tolerations:
     - key: gpu
       operator: Equal
       value: value
       effect: NoSchedule
+
   resources:
     requests:
       cpu: "1"
@@ -74,6 +85,14 @@ routerSpec:
       cpu: "2"
       memory: 4Gi
       ephemeral-storage: 20Gi
+
+  # Cold start du router ~38s (imports torch/lmcache).
+  # La probe par defaut (5s + 3x5s ~= 20s) le tuait avant qu'il bind :8000.
+  # 300s de budget = large.
+  startupProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 30
 
   serviceDiscovery: k8s
   k8sNamespace: vllm
