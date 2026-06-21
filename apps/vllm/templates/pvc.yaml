@@ -1,14 +1,21 @@
-# templates/pvc.yaml
-kind: PersistentVolumeClaim
+{{- range .Values.servingEngineSpec.modelSpec }}
+{{- if .pvcStorage.enabled }}
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: {{ include ".Release.Name" . }}-storage-claim
-  namespace: {{ .Release.Namespace }}
+  # Use $.Release.Name to access the root scope inside the loop
+  # Use .name to access the current item in the iteration
+  name: {{ $.Release.Name }}-{{ .name }}-pvc
+  labels:
+    app: vllm
+    model: {{ .name }}
 spec:
   accessModes:
-    - ReadWriteOnce
-  # AJOUTE CETTE LIGNE :
-  storageClassName: "nfs-client" 
+    - {{ .pvcStorage.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.extraInit.pvcStorage }}
+      storage: {{ .pvcStorage.size }}
+  storageClassName: {{ .pvcStorage.storageClassName }}
+---
+{{- end }}
+{{- end }}
