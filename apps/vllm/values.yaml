@@ -1,4 +1,7 @@
-# values.yaml - vLLM MireCloud (Version unifiée)
+# values.yaml - vLLM MireCloud
+# Corrigé :
+#   - schéma pvcStorage : string + champs frères (pvcAccessMode, storageClass)
+#   - modèle FP8 pour tenir dans 16GB VRAM (RTX 5060 Ti / Blackwell)
 
 servingEngineSpec:
   enableEngine: true
@@ -10,7 +13,7 @@ servingEngineSpec:
   tolerations:
     - key: gpu
       operator: Equal
-      value: value
+      value: value          # ⚠️ vérifie le taint réel : kubectl describe node node-gpu | grep -i taint
       effect: NoSchedule
 
   labels:
@@ -21,20 +24,19 @@ servingEngineSpec:
     - name: mistral
       repository: vllm/vllm-openai
       tag: latest
-      modelURL: mistralai/Mistral-7B-Instruct-v0.3
+      # FP8 : ~7.5GB de poids (vs ~14.5GB en fp16). Tient large dans 16GB,
+      # qualité quasi-fp16, accéléré nativement par Blackwell.
+      modelURL: RedHatAI/Mistral-7B-Instruct-v0.3-FP8
 
       replicaCount: 1
       requestGPU: 1
 
-      # --- Configuration stockage unifiée ---
-      # Fix pour l'erreur "nil pointer" : le bloc existe maintenant,
-      # mais 'enabled: false' empêche le rendu du PVC.
-      pvcStorage:
-        enabled: false
-        size: 50Gi
-        accessMode: ReadWriteOnce
-        storageClassName: nfs-client
-      # -------------------------------------
+      # --- Stockage : champs FRÈRES, PAS un objet imbriqué ---
+      pvcStorage: "50Gi"
+      pvcAccessMode:
+        - ReadWriteOnce
+      storageClass: "nfs-client"
+      # -------------------------------------------------------
 
       resources:
         requests:
@@ -50,9 +52,8 @@ servingEngineSpec:
 
       vllmConfig:
         maxModelLen: 4096
-        gpuMemoryUtilization: 0.80
-        dtype: float16
-        trustRemoteCode: true
+        gpuMemoryUtilization: 0.90
+        dtype: auto           # FP8 auto-détecté depuis le config du modèle
 
 routerSpec:
   enableRouter: true
