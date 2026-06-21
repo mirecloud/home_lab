@@ -1,100 +1,105 @@
-# values.yaml - vLLM MireCloud
-# Version complète corrigée. Récap des fixes appliqués :
-#   1. pvcStorage : schéma à plat (string) + champs frères pvcAccessMode / storageClass
-#   2. modelURL  : modèle FP8 pour tenir dans 16GB VRAM (RTX 5060 Ti / Blackwell)
-#   3. enabled: true sur le modelSpec  -> sinon le chart ne rend PAS le Deployment engine
-#   4. startupProbe du router desserrée -> cold start ~38s (imports torch/lmcache) qui
-#      se faisait tuer (SIGKILL/137) par une probe trop agressive
+# values.yaml - vLLM MireCloud (chart parapluie vllm-wrapper)
+#
+# IMPORTANT : Chart.yaml declare vllm-stack comme DEPENDANCE.
+# En Helm, les values d'une dependance doivent etre IMBRIQUEES sous le nom
+# de la dependance. D'ou la cle racine "vllm-stack:" ci-dessous.
+# Sans cette imbrication, le subchart ignore tout et tourne sur ses defaults
+# (modelSpec exemple enabled:false + storageClass:"" -> PVC FailedBinding,
+#  aucun Deployment engine).
+#
+# Fixes inclus :
+#   1. Imbrication sous vllm-stack:  <- LA correction racine
+#   2. pvcStorage a plat (string) + pvcAccessMode + storageClass nfs-client
+#   3. modelURL FP8 (tient dans 16GB VRAM Blackwell)
+#   4. enabled: true sur le modelSpec
+#   5. startupProbe router desserree
 
-servingEngineSpec:
-  enableEngine: true
-  runtimeClassName: nvidia
+vllm-stack:
 
-  nodeSelector:
-    kubernetes.io/hostname: node-gpu
+  servingEngineSpec:
+    enableEngine: true
+    runtimeClassName: nvidia
 
-  # ATTENTION au taint reel du node :
-  #   kubectl describe node node-gpu | grep -i taint
-  # - si taint type "gpu=true:NoSchedule" -> mettre value: "true"
-  # - si AUCUN taint sur node-gpu        -> supprimer tout ce bloc tolerations
-  tolerations:
-    - key: gpu
-      operator: Equal
-      value: value
-      effect: NoSchedule
+    nodeSelector:
+      kubernetes.io/hostname: node-gpu
 
-  labels:
-    environment: test
-    release: test
+    # ATTENTION au taint reel : kubectl describe node node-gpu | grep -i taint
+    # - taint type "gpu=true:NoSchedule" -> value: "true"
+    # - aucun taint                      -> supprimer ce bloc tolerations
+    tolerations:
+      - key: gpu
+        operator: Equal
+        value: value
+        effect: NoSchedule
 
-  modelSpec:
-    - name: mistral
-      enabled: true          # OBLIGATOIRE : sans ca, aucun Deployment engine n'est cree
-      repository: vllm/vllm-openai
-      tag: latest
-      # FP8 : ~7.5GB de poids (vs ~14.5GB en fp16). Tient large dans 16GB,
-      # qualite quasi-fp16, accelere nativement par Blackwell. Auto-detecte par vLLM.
-      modelURL: RedHatAI/Mistral-7B-Instruct-v0.3-FP8
+    labels:
+      environment: test
+      release: test
 
-      replicaCount: 1
-      requestGPU: 1
+    modelSpec:
+      - name: mistral
+        enabled: true          # OBLIGATOIRE : sinon aucun Deployment engine
+        repository: vllm/vllm-openai
+        tag: latest
+        # FP8 : ~7.5GB de poids, tient large dans 16GB, accelere par Blackwell
+        modelURL: RedHatAI/Mistral-7B-Instruct-v0.3-FP8
 
-      # --- Stockage : champs FRERES, PAS un objet imbrique ---
-      pvcStorage: "50Gi"
-      pvcAccessMode:
-        - ReadWriteOnce
-      storageClass: "nfs-client"
-      # -------------------------------------------------------
+        replicaCount: 1
+        requestGPU: 1
 
-      resources:
-        requests:
-          cpu: "4"
-          memory: 8Gi
-          ephemeral-storage: 20Gi
-          nvidia.com/gpu: "1"
-        limits:
-          cpu: "8"
-          memory: 16Gi
-          ephemeral-storage: 40Gi
-          nvidia.com/gpu: "1"
+        # Stockage : champs FRERES, PAS un objet imbrique
+        pvcStorage: "50Gi"
+        pvcAccessMode:
+          - ReadWriteOnce
+        storageClass: "nfs-client"
 
-      vllmConfig:
-        maxModelLen: 4096
-        gpuMemoryUtilization: 0.90
-        dtype: auto           # FP8 auto-detecte depuis le config du modele
+        resources:
+          requests:
+            cpu: "4"
+            memory: 8Gi
+            ephemeral-storage: 20Gi
+            nvidia.com/gpu: "1"
+          limits:
+            cpu: "8"
+            memory: 16Gi
+            ephemeral-storage: 40Gi
+            nvidia.com/gpu: "1"
 
-routerSpec:
-  enableRouter: true
-  routingLogic: roundrobin
+        vllmConfig:
+          maxModelLen: 4096
+          gpuMemoryUtilization: 0.90
+          dtype: auto           # FP8 auto-detecte
 
-  nodeSelector:
-    kubernetes.io/hostname: node-gpu
+  routerSpec:
+    enableRouter: true
+    routingLogic: roundrobin
 
-  tolerations:
-    - key: gpu
-      operator: Equal
-      value: value
-      effect: NoSchedule
+    nodeSelector:
+      kubernetes.io/hostname: node-gpu
 
-  resources:
-    requests:
-      cpu: "1"
-      memory: 2Gi
-      ephemeral-storage: 10Gi
-    limits:
-      cpu: "2"
-      memory: 4Gi
-      ephemeral-storage: 20Gi
+    tolerations:
+      - key: gpu
+        operator: Equal
+        value: value
+        effect: NoSchedule
 
-  # Cold start du router ~38s (imports torch/lmcache).
-  # La probe par defaut (5s + 3x5s ~= 20s) le tuait avant qu'il bind :8000.
-  # 300s de budget = large.
-  startupProbe:
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    failureThreshold: 30
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+        ephemeral-storage: 10Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+        ephemeral-storage: 20Gi
 
-  serviceDiscovery: k8s
-  k8sNamespace: vllm
-  k8sServiceDiscoveryType: pod-ip
-  k8sLabelSelector: environment=test,release=test
+    # Marge pour le cold start du router (imports torch/lmcache)
+    startupProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      failureThreshold: 30
+
+    serviceDiscovery: k8s
+    k8sNamespace: vllm
+    k8sServiceDiscoveryType: pod-ip
+    k8sLabelSelector: environment=test,release=test
