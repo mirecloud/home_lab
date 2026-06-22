@@ -50,9 +50,7 @@ vllm-stack:
         # ── Token HuggingFace ── ⚠️ À FIXER selon ta gestion de secrets
         # Si le modèle RedHatAI est public tu peux retirer ce bloc.
         # Sinon, référence ton secret (probablement via Vault/ESO chez toi)
-        hf_token:
-          secretName: "hf-token-secret"
-          secretKey: "token"
+        #
 
         # ── Placement sur le node GPU ── ⚠️ À FIXER : ton label réel de node GPU
         nodeSelectorTerms:
