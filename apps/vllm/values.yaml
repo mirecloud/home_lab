@@ -1,105 +1,87 @@
-# values.yaml - vLLM MireCloud (chart parapluie vllm-wrapper)
-#
-# IMPORTANT : Chart.yaml declare vllm-stack comme DEPENDANCE.
-# En Helm, les values d'une dependance doivent etre IMBRIQUEES sous le nom
-# de la dependance. D'ou la cle racine "vllm-stack:" ci-dessous.
-# Sans cette imbrication, le subchart ignore tout et tourne sur ses defaults
-# (modelSpec exemple enabled:false + storageClass:"" -> PVC FailedBinding,
-#  aucun Deployment engine).
-#
-# Fixes inclus :
-#   1. Imbrication sous vllm-stack:  <- LA correction racine
-#   2. pvcStorage a plat (string) + pvcAccessMode + storageClass nfs-client
-#   3. modelURL FP8 (tient dans 16GB VRAM Blackwell)
-#   4. enabled: true sur le modelSpec
-#   5. startupProbe router desserree
-
+# values.yaml — vllm-wrapper (umbrella chart)
+# Tout est nesté sous la dépendance vllm-stack
 vllm-stack:
 
+  # ─────────────────────────────────────────────
+  # ENGINE — le pod qui charge et sert le modèle
+  # ─────────────────────────────────────────────
   servingEngineSpec:
     enableEngine: true
-    runtimeClassName: nvidia
-
-    nodeSelector:
-      kubernetes.io/hostname: node-gpu
-
-    # ATTENTION au taint reel : kubectl describe node node-gpu | grep -i taint
-    # - taint type "gpu=true:NoSchedule" -> value: "true"
-    # - aucun taint                      -> supprimer ce bloc tolerations
-    tolerations:
-      - key: gpu
-        operator: Equal
-        value: value
-        effect: NoSchedule
-
-    labels:
-      environment: test
-      release: test
 
     modelSpec:
-      - name: mistral
-        enabled: true          # OBLIGATOIRE : sinon aucun Deployment engine
-        repository: vllm/vllm-openai
-        tag: latest
-        # FP8 : ~7.5GB de poids, tient large dans 16GB, accelere par Blackwell
-        modelURL: RedHatAI/Mistral-7B-Instruct-v0.3-FP8
+      - name: "mistral"                                   # → vllm-mistral-deployment-vllm
+        repository: "vllm/vllm-openai"
+        tag: "latest"                                     # ⚠️ À FIXER : épingle ta version exacte (ex: v0.10.x) — "latest" est dangereux en GitOps
+        modelURL: "RedHatAI/Mistral-7B-Instruct-v0.3-FP8"
 
         replicaCount: 1
-        requestGPU: 1
 
-        # Stockage : champs FRERES, PAS un objet imbrique
-        pvcStorage: "50Gi"
+        # ── Ressources ── ⚠️ À RÉCONCILIER avec ton sizing réel (VM 8 cores / 24Gi)
+        requestCPU: 6
+        requestMemory: "16Gi"
+        requestGPU: 1
+        limitGPU: 1
+
+        # ── Stockage du modèle (cache HF) ──
+        pvcStorage: "30Gi"                                # ⚠️ FP8 7B ≈ 8-9Gi, 30Gi laisse de la marge
         pvcAccessMode:
           - ReadWriteOnce
-        storageClass: "nfs-client"
 
-        resources:
-          requests:
-            cpu: "4"
-            memory: 8Gi
-            ephemeral-storage: 20Gi
-            nvidia.com/gpu: "1"
-          limits:
-            cpu: "8"
-            memory: 16Gi
-            ephemeral-storage: 40Gi
-            nvidia.com/gpu: "1"
-
+        # ── Config vLLM ──
         vllmConfig:
-          maxModelLen: 4096
-          gpuMemoryUtilization: 0.90
-          dtype: auto           # FP8 auto-detecte
+          maxModelLen: 8192                               # ⚠️ Ajuste selon ta VRAM dispo (16Gi)
+          dtype: "auto"                                   # FP8 géré par le modèle quantifié lui-même
+          extraArgs:
+            - "--chat-template"
+            - "/templates/mistral-v0.3.jinja"
+            - "--gpu-memory-utilization"
+            - "0.90"
 
+        # ── LE FIX : montage du chat template ──
+        extraVolumes:
+          - name: chat-template
+            configMap:
+              name: mistral-chat-template
+        extraVolumeMounts:
+          - name: chat-template
+            mountPath: /templates
+            readOnly: true
+
+        # ── Token HuggingFace ── ⚠️ À FIXER selon ta gestion de secrets
+        # Si le modèle RedHatAI est public tu peux retirer ce bloc.
+        # Sinon, référence ton secret (probablement via Vault/ESO chez toi)
+        hf_token:
+          secretName: "hf-token-secret"
+          secretKey: "token"
+
+        # ── Placement sur le node GPU ── ⚠️ À FIXER : ton label réel de node GPU
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: "nvidia.com/gpu.present"
+                operator: In
+                values:
+                  - "true"
+
+        # Variables d'env utiles pour Blackwell / debugging
+        env:
+          - name: VLLM_LOGGING_LEVEL
+            value: "INFO"
+
+  # ─────────────────────────────────────────────
+  # ROUTER — point d'entrée OpenAI-compatible
+  # (c'est lui que Open WebUI cible : vllm-router-service:80/v1)
+  # ─────────────────────────────────────────────
   routerSpec:
     enableRouter: true
-    routingLogic: roundrobin
-
-    nodeSelector:
-      kubernetes.io/hostname: node-gpu
-
-    tolerations:
-      - key: gpu
-        operator: Equal
-        value: value
-        effect: NoSchedule
-
+    replicaCount: 1
+    repository: "lmcache/lmstack-router"
+    tag: "latest"                                         # ⚠️ Épingle aussi
+    routingLogic: "roundrobin"
     resources:
       requests:
         cpu: "1"
-        memory: 2Gi
-        ephemeral-storage: 10Gi
+        memory: "512Mi"
       limits:
         cpu: "2"
-        memory: 4Gi
-        ephemeral-storage: 20Gi
-
-    # Marge pour le cold start du router (imports torch/lmcache)
-    startupProbe:
-      initialDelaySeconds: 10
-      periodSeconds: 10
-      failureThreshold: 30
-
-    serviceDiscovery: k8s
-    k8sNamespace: vllm
-    k8sServiceDiscoveryType: pod-ip
-    k8sLabelSelector: environment=test,release=test
+        memory: "1Gi"
+    serviceType: ClusterIP
