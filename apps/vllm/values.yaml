@@ -16,6 +16,13 @@ vllm-stack:
         requestGPU: 1                                   # FP8 nécessite un GPU
         limitGPU: 1
 
+        # ── Cache du modèle sur PVC (PAS sur le disque local du nœud) ──
+        # Sans ça, les poids (~8 Gi) + cache HF + cache torch.compile vont en
+        # ephemeral-storage de node-gpu → saturation disque → éviction du pod.
+        pvcStorage: "30Gi"
+        pvcAccessMode:
+          - ReadWriteOnce
+
         vllmConfig:
           maxModelLen: 8192
           dtype: "auto"
