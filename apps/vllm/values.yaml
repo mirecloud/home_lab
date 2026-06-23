@@ -13,8 +13,7 @@ vllm-stack:
 
         requestCPU: 2
         requestMemory: "8Gi"
-        requestGPU: 1
-        limitGPU: 1
+        # requestGPU: 1 # <-- Mettez cette ligne en commentaire
 
         vllmConfig:
           maxModelLen: 8192
