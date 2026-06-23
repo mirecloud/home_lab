@@ -7,23 +7,24 @@ vllm-stack:
     modelSpec:
       - name: "mistral"
         repository: "vllm/vllm-openai"
-        tag: "v0.6.3" 
+        tag: "v0.11.0"                                  # compatible chart vllm-stack 0.1.11 (moteur V1). Évite "latest" en GitOps.
         modelURL: "RedHatAI/Mistral-7B-Instruct-v0.3-FP8"
         replicaCount: 1
 
         requestCPU: 2
         requestMemory: "8Gi"
-        # requestGPU: 1 # <-- Mettez cette ligne en commentaire
+        requestGPU: 1                                   # FP8 nécessite un GPU
+        limitGPU: 1
 
         vllmConfig:
           maxModelLen: 8192
           dtype: "auto"
+          enablePrefixCaching: true                     # champ natif du chart → émet "--enable-prefix-caching" (et PAS "--no-...")
           extraArgs:
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
             - "--gpu-memory-utilization"
             - "0.85"
-            - "--enable-prefix-caching"
 
         extraVolumes:
           - name: chat-template
@@ -49,7 +50,7 @@ vllm-stack:
     repository: "lmcache/lmstack-router"
     tag: "v0.1.11"
     routingLogic: "roundrobin"
-    
+
     startupProbe:
       httpGet:
         path: /health
@@ -57,7 +58,7 @@ vllm-stack:
       initialDelaySeconds: 30
       periodSeconds: 5
       failureThreshold: 12
-      
+
     readinessProbe:
       httpGet:
         path: /health
