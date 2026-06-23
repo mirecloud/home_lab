@@ -19,6 +19,7 @@ vllm-stack:
         vllmConfig:
           maxModelLen: 8192
           dtype: "auto"
+          # Assure-toi que le template ne rajoute pas des arguments "hardcodés"
           extraArgs:
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
@@ -47,10 +48,9 @@ vllm-stack:
     enableRouter: true
     replicaCount: 1
     repository: "lmcache/lmstack-router"
-    tag: "latest" # Tag validé par ton curl
+    tag: "v0.1.11" # Version stable
     routingLogic: "roundrobin"
     
-    # Probes ajustées pour laisser le temps au Router de découvrir le moteur (service discovery)
     startupProbe:
       httpGet:
         path: /health
