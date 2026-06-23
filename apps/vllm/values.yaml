@@ -19,6 +19,7 @@ vllm-stack:
         vllmConfig:
           maxModelLen: 8192
           dtype: "auto"
+          enablePrefixCaching: false # <-- AJOUTEZ CETTE LIGNE
           # PAS D'ARGUMENT D'ERREUR ICI
           extraArgs:
             - "--chat-template"
