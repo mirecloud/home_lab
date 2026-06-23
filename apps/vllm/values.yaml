@@ -7,7 +7,7 @@ vllm-stack:
     modelSpec:
       - name: "mistral"
         repository: "vllm/vllm-openai"
-        tag: "v0.6.3" # ⚠️ ÉPINGLER : Ne jamais utiliser 'latest' en prod
+        tag: "v0.6.3" 
         modelURL: "RedHatAI/Mistral-7B-Instruct-v0.3-FP8"
         replicaCount: 1
 
@@ -23,7 +23,7 @@ vllm-stack:
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
             - "--gpu-memory-utilization"
-            - "0.85" # ⚠️ Baissé à 0.85 pour laisser de la marge au système
+            - "0.85"
 
         extraVolumes:
           - name: chat-template
@@ -47,17 +47,17 @@ vllm-stack:
     enableRouter: true
     replicaCount: 1
     repository: "lmcache/lmstack-router"
-    tag: "v0.1.0" # ⚠️ ÉPINGLER
+    tag: "latest" # ⚠️ Revenu à 'latest' pour corriger le ErrImagePull
     routingLogic: "roundrobin"
     
-    # ── FIX : Probes pour éviter le CrashLoopBackOff ──
+    # ── FIX : Probes ajustées ──
     startupProbe:
       httpGet:
         path: /health
         port: 8000
-      initialDelaySeconds: 20 # Attendre 20s que le router trouve le backend
+      initialDelaySeconds: 30 # Augmenté à 30s pour la sécurité
       periodSeconds: 5
-      failureThreshold: 12    # 1 min de délai avant de tuer le pod
+      failureThreshold: 12
       
     readinessProbe:
       httpGet:
