@@ -1,43 +1,30 @@
-# values.yaml — vllm-wrapper (umbrella chart)
-# Tout est nesté sous la dépendance vllm-stack
 vllm-stack:
-
   # ─────────────────────────────────────────────
-  # ENGINE — le pod qui charge et sert le modèle
+  # ENGINE
   # ─────────────────────────────────────────────
   servingEngineSpec:
     enableEngine: true
-
     modelSpec:
-      - name: "mistral"                                   # → vllm-mistral-deployment-vllm
+      - name: "mistral"
         repository: "vllm/vllm-openai"
-        tag: "latest"                                     # ⚠️ À FIXER : épingle ta version exacte (ex: v0.10.x) — "latest" est dangereux en GitOps
+        tag: "v0.6.3" # ⚠️ ÉPINGLER : Ne jamais utiliser 'latest' en prod
         modelURL: "RedHatAI/Mistral-7B-Instruct-v0.3-FP8"
-
         replicaCount: 1
 
-        # ── Ressources ── ⚠️ À RÉCONCILIER avec ton sizing réel (VM 8 cores / 24Gi)
         requestCPU: 6
         requestMemory: "16Gi"
         requestGPU: 1
         limitGPU: 1
 
-        # ── Stockage du modèle (cache HF) ──
-        pvcStorage: "30Gi"                                # ⚠️ FP8 7B ≈ 8-9Gi, 30Gi laisse de la marge
-        pvcAccessMode:
-          - ReadWriteOnce
-
-        # ── Config vLLM ──
         vllmConfig:
-          maxModelLen: 8192                               # ⚠️ Ajuste selon ta VRAM dispo (16Gi)
-          dtype: "auto"                                   # FP8 géré par le modèle quantifié lui-même
+          maxModelLen: 8192
+          dtype: "auto"
           extraArgs:
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
             - "--gpu-memory-utilization"
-            - "0.90"
+            - "0.85" # ⚠️ Baissé à 0.85 pour laisser de la marge au système
 
-        # ── LE FIX : montage du chat template ──
         extraVolumes:
           - name: chat-template
             configMap:
@@ -47,39 +34,43 @@ vllm-stack:
             mountPath: /templates
             readOnly: true
 
-        # ── Token HuggingFace ── ⚠️ À FIXER selon ta gestion de secrets
-        # Si le modèle RedHatAI est public tu peux retirer ce bloc.
-        # Sinon, référence ton secret (probablement via Vault/ESO chez toi)
-        #
-
-        # ── Placement sur le node GPU ── ⚠️ À FIXER : ton label réel de node GPU
         nodeSelectorTerms:
           - matchExpressions:
               - key: "nvidia.com/gpu.present"
                 operator: In
-                values:
-                  - "true"
-
-        # Variables d'env utiles pour Blackwell / debugging
-        env:
-          - name: VLLM_LOGGING_LEVEL
-            value: "INFO"
+                values: ["true"]
 
   # ─────────────────────────────────────────────
-  # ROUTER — point d'entrée OpenAI-compatible
-  # (c'est lui que Open WebUI cible : vllm-router-service:80/v1)
+  # ROUTER
   # ─────────────────────────────────────────────
   routerSpec:
     enableRouter: true
     replicaCount: 1
     repository: "lmcache/lmstack-router"
-    tag: "latest"                                         # ⚠️ Épingle aussi
+    tag: "v0.1.0" # ⚠️ ÉPINGLER
     routingLogic: "roundrobin"
+    
+    # ── FIX : Probes pour éviter le CrashLoopBackOff ──
+    startupProbe:
+      httpGet:
+        path: /health
+        port: 8000
+      initialDelaySeconds: 20 # Attendre 20s que le router trouve le backend
+      periodSeconds: 5
+      failureThreshold: 12    # 1 min de délai avant de tuer le pod
+      
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8000
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
     resources:
       requests:
-        cpu: "1"
+        cpu: "500m"
         memory: "512Mi"
       limits:
-        cpu: "2"
+        cpu: "1"
         memory: "1Gi"
     serviceType: ClusterIP
