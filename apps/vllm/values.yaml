@@ -11,8 +11,8 @@ vllm-stack:
         modelURL: "RedHatAI/Mistral-7B-Instruct-v0.3-FP8"
         replicaCount: 1
 
-        requestCPU: 6
-        requestMemory: "16Gi"
+        requestCPU: 2
+        requestMemory: "8Gi"
         requestGPU: 1
         limitGPU: 1
 
