@@ -19,7 +19,8 @@ vllm-stack:
         vllmConfig:
           maxModelLen: 8192
           dtype: "auto"
-          # Assure-toi que le template ne rajoute pas des arguments "hardcodés"
+          # L'argument "--no-enable-prefix-caching" est retiré d'ici.
+          # S'il apparaît encore dans ton pod, il est "hardcodé" dans tes templates.
           extraArgs:
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
@@ -48,9 +49,10 @@ vllm-stack:
     enableRouter: true
     replicaCount: 1
     repository: "lmcache/lmstack-router"
-    tag: "v0.1.11" # Version stable
+    tag: "v0.1.11" # Tag stable validé
     routingLogic: "roundrobin"
     
+    # Probes ajustées pour laisser le temps au Router de découvrir le moteur
     startupProbe:
       httpGet:
         path: /health
