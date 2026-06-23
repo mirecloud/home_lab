@@ -47,15 +47,15 @@ vllm-stack:
     enableRouter: true
     replicaCount: 1
     repository: "lmcache/lmstack-router"
-    tag: "latest" # ⚠️ Revenu à 'latest' pour corriger le ErrImagePull
+    tag: "latest" # Tag validé par ton curl
     routingLogic: "roundrobin"
     
-    # ── FIX : Probes ajustées ──
+    # Probes ajustées pour laisser le temps au Router de découvrir le moteur (service discovery)
     startupProbe:
       httpGet:
         path: /health
         port: 8000
-      initialDelaySeconds: 30 # Augmenté à 30s pour la sécurité
+      initialDelaySeconds: 30
       periodSeconds: 5
       failureThreshold: 12
       
@@ -63,7 +63,7 @@ vllm-stack:
       httpGet:
         path: /health
         port: 8000
-      initialDelaySeconds: 5
+      initialDelaySeconds: 10
       periodSeconds: 5
 
     resources:
