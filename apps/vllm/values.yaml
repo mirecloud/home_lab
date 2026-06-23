@@ -19,13 +19,12 @@ vllm-stack:
         vllmConfig:
           maxModelLen: 8192
           dtype: "auto"
-          enablePrefixCaching: false # <-- AJOUTEZ CETTE LIGNE
-          # PAS D'ARGUMENT D'ERREUR ICI
           extraArgs:
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
             - "--gpu-memory-utilization"
             - "0.85"
+            - "--enable-prefix-caching=" # <-- Remplacez la ligne précédente par celle-ci
 
         extraVolumes:
           - name: chat-template
