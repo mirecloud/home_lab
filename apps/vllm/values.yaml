@@ -23,7 +23,7 @@ vllm-stack:
             - "/templates/mistral-v0.3.jinja"
             - "--gpu-memory-utilization"
             - "0.85"
-            - "--enable-prefix-caching=" # <-- Remplacez la ligne précédente par celle-ci
+            - "--enable-prefix-caching"
 
         extraVolumes:
           - name: chat-template
