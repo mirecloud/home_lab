@@ -16,7 +16,7 @@ vllm-stack:
       # ─────────────────────────────────────────────────────────────
       # MODÈLE 1 — Qwen2.5-14B-Instruct-AWQ
       # ─────────────────────────────────────────────────────────────
-      - name: "qwen2.5-14b"                             # id affiché dans OpenWebUI
+      - name: "qwen25-14b"                              # id affiché dans OpenWebUI (PAS de point : interdit dans les noms K8s)
         repository: "vllm/vllm-openai"
         tag: "v0.11.0"                                  # moteur V1, compatible chart 0.1.11
         modelURL: "Qwen/Qwen2.5-14B-Instruct-AWQ"       # poids AWQ 4-bit (~8,5 Go VRAM)
@@ -73,7 +73,7 @@ vllm-stack:
       # Un 3B AWQ (~2,5 Go) peut cohabiter avec le 14B en 16 Go si tu
       # baisses gpu-memory-utilization des DEUX (p.ex. 14B→0.60, 3B→0.20).
       # ─────────────────────────────────────────────────────────────
-      # - name: "qwen2.5-3b"
+      # - name: "qwen25-3b"
       #   repository: "vllm/vllm-openai"
       #   tag: "v0.11.0"
       #   modelURL: "Qwen/Qwen2.5-3B-Instruct-AWQ"
