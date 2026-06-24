@@ -13,7 +13,7 @@ vllm-stack:
 
         requestCPU: 2
         requestMemory: "12Gi"                           # ↑ marge pour le pic RAM hôte au chargement
-        limitMemory: "16Gi"                             # plafond explicite (évite l'OOM node-level sur pod Burstable)
+        limitMemory: "20Gi"                             # plafond explicite (évite l'OOM node-level sur pod Burstable)
         requestGPU: 1                                   # FP8 nécessite un GPU
         limitGPU: 1
 
