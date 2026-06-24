@@ -12,7 +12,8 @@ vllm-stack:
         replicaCount: 1
 
         requestCPU: 2
-        requestMemory: "8Gi"
+        requestMemory: "12Gi"                           # ↑ marge pour le pic RAM hôte au chargement
+        limitMemory: "16Gi"                             # plafond explicite (évite l'OOM node-level sur pod Burstable)
         requestGPU: 1                                   # FP8 nécessite un GPU
         limitGPU: 1
 
@@ -28,6 +29,7 @@ vllm-stack:
           dtype: "auto"
           enablePrefixCaching: true                     # champ natif du chart → émet "--enable-prefix-caching" (et PAS "--no-...")
           extraArgs:
+            - "--enforce-eager"                         # désactive torch.compile/cudagraph → supprime le pic RAM hôte qui OOM-kill au démarrage
             - "--chat-template"
             - "/templates/mistral-v0.3.jinja"
             - "--gpu-memory-utilization"
