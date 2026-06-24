@@ -1,64 +1,64 @@
+# =====================================================================
+# vllm-stack values.yaml — MireCloud / nœud AI (RTX 5060 16 Go, Blackwell sm_120)
+# Modèle principal : Qwen2.5-14B-Instruct-AWQ (RAG + français)
+# =====================================================================
 vllm-stack:
-  # ─────────────────────────────────────────────
-  # ENGINE
-  # ─────────────────────────────────────────────
+
   servingEngineSpec:
     enableEngine: true
+
+    # La liste modelSpec accepte PLUSIEURS entrées = plusieurs modèles.
+    # ⚠️ Chaque entrée avec requestGPU:1 occupe 1 GPU entier. Avec UN seul
+    #    GPU, un seul modèle peut être chargé à la fois (le 2e reste Pending).
+    #    Voir la note "Plusieurs modèles" en bas pour les options.
     modelSpec:
-      - name: "mistral"
+
+      # ─────────────────────────────────────────────────────────────
+      # MODÈLE 1 — Qwen2.5-14B-Instruct-AWQ
+      # ─────────────────────────────────────────────────────────────
+      - name: "qwen2.5-14b"                             # id affiché dans OpenWebUI
         repository: "vllm/vllm-openai"
-        tag: "v0.11.0"                                  # compatible chart vllm-stack 0.1.11 (moteur V1). Évite "latest" en GitOps.
-        modelURL: "RedHatAI/Mistral-7B-Instruct-v0.3-FP8"
+        tag: "v0.11.0"                                  # moteur V1, compatible chart 0.1.11
+        modelURL: "Qwen/Qwen2.5-14B-Instruct-AWQ"       # poids AWQ 4-bit (~8,5 Go VRAM)
         replicaCount: 1
 
         requestCPU: 2
-        requestMemory: "12Gi"                           # ↑ marge pour le pic RAM hôte au chargement
-        limitMemory: "20Gi"                             # plafond explicite (évite l'OOM node-level sur pod Burstable)
-        requestGPU: 1                                   # FP8 nécessite un GPU
+        requestMemory: "12Gi"                           # marge RAM hôte au chargement
+        limitMemory: "20Gi"
+        requestGPU: 1                                   # AWQ nécessite un GPU
         limitGPU: 1
 
-        # ── Variables d'env : limite la compilation JIT des kernels CUDA ──
-        # GPU Blackwell (RTX 5060 Ti, sm_120) trop récent pour les kernels
-        # précompilés de vLLM 0.11.0 → compilation runtime. Sans limite,
-        # ~6 process "cicc" × 1,3 Go = ~18 Go → OOMKilled au profiling.
+        # ── Limite la compilation JIT des kernels CUDA (Blackwell sm_120) ──
+        # GPU trop récent pour les kernels précompilés de vLLM 0.11.0 →
+        # compilation runtime. Sans limite : ~6×cicc×1,3 Go ≈ 18 Go → OOMKilled.
         env:
           - name: MAX_JOBS
-            value: "2"                                  # max 2 compilations parallèles (~2,6 Go au lieu de ~18 Go)
+            value: "2"                                  # max 2 compils parallèles (~2,6 Go)
           - name: NVCC_THREADS
             value: "1"
           - name: TORCH_CUDA_ARCH_LIST
-            value: "12.0"                               # compile UNIQUEMENT pour sm_120 (ton GPU), pas toutes les archis
+            value: "12.0"                               # compile UNIQUEMENT pour sm_120
           - name: VLLM_CACHE_ROOT
-            value: "/data/vllm_cache"                   # cache JIT sur le PVC → compilé une seule fois, persiste aux restarts
+            value: "/data/vllm_cache"                   # cache JIT sur PVC → compilé une fois
           - name: TORCH_EXTENSIONS_DIR
-            value: "/data/torch_ext"                    # idem pour les extensions torch compilées
+            value: "/data/torch_ext"
 
-        # ── Cache du modèle sur PVC (PAS sur le disque local du nœud) ──
-        # Sans ça, les poids (~8 Gi) + cache HF + cache torch.compile vont en
-        # ephemeral-storage de node-gpu → saturation disque → éviction du pod.
+        # ── Cache modèle + JIT sur PVC (pas sur l'ephemeral-storage du nœud) ──
         pvcStorage: "30Gi"
         pvcAccessMode:
           - ReadWriteOnce
 
         vllmConfig:
-          maxModelLen: 8192
-          dtype: "auto"
-          enablePrefixCaching: true                     # champ natif du chart → émet "--enable-prefix-caching" (et PAS "--no-...")
+          maxModelLen: 8192                             # si OOM KV cache → 4096
+          dtype: "half"                                 # AWQ = float16
+          enablePrefixCaching: true                     # --enable-prefix-caching natif
           extraArgs:
-            - "--enforce-eager"                         # désactive torch.compile/cudagraph → supprime le pic RAM hôte qui OOM-kill au démarrage
-            - "--chat-template"
-            - "/templates/mistral-v0.3.jinja"
+            - "--enforce-eager"                         # pas de torch.compile/cudagraph → évite l'OOM RAM hôte
+            - "--quantization"
+            - "awq_marlin"                              # kernel rapide ; fallback "awq" si erreur Marlin sm_120
             - "--gpu-memory-utilization"
-            - "0.85"
-
-        extraVolumes:
-          - name: chat-template
-            configMap:
-              name: mistral-chat-template
-        extraVolumeMounts:
-          - name: chat-template
-            mountPath: /templates
-            readOnly: true
+            - "0.90"                                    # 14B → + de place KV ; si OOM profiling → 0.85
+          # ⚠️ PAS de --chat-template : Qwen embarque le sien dans son tokenizer.
 
         nodeSelectorTerms:
           - matchExpressions:
@@ -66,8 +66,55 @@ vllm-stack:
                 operator: In
                 values: ["true"]
 
+      # ─────────────────────────────────────────────────────────────
+      # MODÈLE 2 (OPTIONNEL) — petit modèle co-résident
+      # Décommente UNIQUEMENT si tu as activé le GPU time-slicing/MPS
+      # (sinon il restera Pending faute de 2e GPU). Voir note en bas.
+      # Un 3B AWQ (~2,5 Go) peut cohabiter avec le 14B en 16 Go si tu
+      # baisses gpu-memory-utilization des DEUX (p.ex. 14B→0.60, 3B→0.20).
+      # ─────────────────────────────────────────────────────────────
+      # - name: "qwen2.5-3b"
+      #   repository: "vllm/vllm-openai"
+      #   tag: "v0.11.0"
+      #   modelURL: "Qwen/Qwen2.5-3B-Instruct-AWQ"
+      #   replicaCount: 1
+      #   requestCPU: 2
+      #   requestMemory: "8Gi"
+      #   limitMemory: "12Gi"
+      #   requestGPU: 1
+      #   limitGPU: 1
+      #   env:
+      #     - name: TORCH_CUDA_ARCH_LIST
+      #       value: "12.0"
+      #     - name: MAX_JOBS
+      #       value: "2"
+      #     - name: NVCC_THREADS
+      #       value: "1"
+      #     - name: VLLM_CACHE_ROOT
+      #       value: "/data/vllm_cache"
+      #     - name: TORCH_EXTENSIONS_DIR
+      #       value: "/data/torch_ext"
+      #   pvcStorage: "15Gi"
+      #   pvcAccessMode:
+      #     - ReadWriteOnce
+      #   vllmConfig:
+      #     maxModelLen: 8192
+      #     dtype: "half"
+      #     enablePrefixCaching: true
+      #     extraArgs:
+      #       - "--enforce-eager"
+      #       - "--quantization"
+      #       - "awq_marlin"
+      #       - "--gpu-memory-utilization"
+      #       - "0.20"
+      #   nodeSelectorTerms:
+      #     - matchExpressions:
+      #         - key: "nvidia.com/gpu.present"
+      #           operator: In
+      #           values: ["true"]
+
   # ─────────────────────────────────────────────
-  # ROUTER
+  # ROUTER (inchangé)
   # ─────────────────────────────────────────────
   routerSpec:
     enableRouter: true
