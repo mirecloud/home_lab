@@ -1,49 +1,45 @@
-ollama:
-  enabled: false
+open-webui:
+  ollama:
+    enabled: false
 
-oidc:
-  enabled: true
-  clientId: "openwebui"
-  clientExistingSecret: "openwebui-oidc"
-  clientExistingSecretKey: "client-secret"
-  providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
-  providerName: "Keycloak"
-  scopes: "openid email profile groups"
+  oidc:
+    enabled: true
+    clientId: "openwebui"
+    clientExistingSecret: "openwebui-oidc"
+    clientExistingSecretKey: "client-secret"
+    providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
+    providerName: "Keycloak"
+    scopes: "openid email profile groups"
 
-extraEnvVars:
-  - name: OLLAMA_BASE_URL
-    value: "http://ollama.ollama.svc.cluster.local:11434"
+  extraEnvVars:
+    - name: OLLAMA_BASE_URL
+      value: "http://ollama.ollama.svc.cluster.local:11434"
+    - name: WEBUI_AUTH
+      value: "true"
+    - name: ENABLE_OAUTH_SIGNUP
+      value: "true"
+    - name: REQUESTS_CA_BUNDLE
+      value: "/etc/ssl/certs/mirecloud-ca.crt"
+    - name: SSL_CERT_FILE
+      value: "/etc/ssl/certs/mirecloud-ca.crt"
+    - name: WEBUI_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: openwebui-secret
+          key: webui-secret-key
 
-  - name: WEBUI_AUTH
-    value: "true"
+  extraVolumes:
+    - name: ca-certs
+      secret:
+        secretName: mirecloud-ca-cert
 
-  - name: ENABLE_OAUTH_SIGNUP
-    value: "true"
+  extraVolumeMounts:
+    - name: ca-certs
+      mountPath: /etc/ssl/certs/mirecloud-ca.crt
+      subPath: ca.crt
+      readOnly: true
 
-  - name: REQUESTS_CA_BUNDLE
-    value: "/etc/ssl/certs/mirecloud-ca.crt"
-
-  - name: SSL_CERT_FILE
-    value: "/etc/ssl/certs/mirecloud-ca.crt"
-
-  - name: WEBUI_SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: openwebui-secret
-        key: webui-secret-key
-
-extraVolumes:
-  - name: ca-certs
-    secret:
-      secretName: mirecloud-ca-cert
-
-extraVolumeMounts:
-  - name: ca-certs
-    mountPath: /etc/ssl/certs/mirecloud-ca.crt
-    subPath: ca.crt
-    readOnly: true
-
-persistence:
-  enabled: true
-  size: "8Gi"
-  storageClass: "nfs-client"
+  persistence:
+    enabled: true
+    size: "8Gi"
+    storageClass: "nfs-client"
