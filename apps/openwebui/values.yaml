@@ -1,39 +1,53 @@
-open-webui:
-  ollama:
-    enabled: false
+# Configuration Ollama (Désactivé)
+ollama:
+  enabled: false
 
-  extraEnvVars:
-    - name: OLLAMA_BASE_URL
-      value: "http://ollama.ollama.svc.cluster.local:11434"
+# Variables d'environnement
+extraEnvVars:
+  - name: OLLAMA_BASE_URL
+    value: "http://ollama.ollama.svc.cluster.local:11434"
 
-    - name: WEBUI_AUTH
-      value: "true"
+  # Auth & OIDC
+  - name: WEBUI_AUTH
+    value: "true"
+  - name: ENABLE_OAUTH_SIGNUP
+    value: "true"
+  - name: OAUTH_CLIENT_ID
+    value: "openwebui"
+  - name: OAUTH_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: openwebui-oidc
+        key: client-secret
+  - name: OPENID_PROVIDER_URL
+    value: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
+  - name: OAUTH_PROVIDER_NAME
+    value: "Keycloak"
+  - name: OAUTH_SCOPES
+    value: "openid email profile groups"
 
-    - name: ENABLE_OAUTH_SIGNUP
-      value: "true"
+  # Sécurité SSL / TLS (Activé)
+  - name: OAUTH_SSL_VERIFY
+    value: "true"
+  # Configuration pour forcer Python à utiliser votre CA Vault
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/certs/vault-ca.crt"
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/certs/vault-ca.crt"
 
-    - name: OAUTH_CLIENT_ID
-      value: "openwebui"
+# Montage des certificats CA
+extraVolumes:
+  - name: ca-certs
+    secret:
+      secretName: mirecloud-ca-cert
 
-    - name: OAUTH_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: openwebui-oidc
-          key: client-secret
+extraVolumeMounts:
+  - name: ca-certs
+    mountPath: /etc/ssl/certs/vault-ca.crt
+    subPath: ca.crt
 
-    - name: OPENID_PROVIDER_URL
-      value: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
-
-    - name: OAUTH_PROVIDER_NAME
-      value: "Keycloak"
-
-    - name: OAUTH_SCOPES
-      value: "openid email profile groups"
-
-    - name: OAUTH_SSL_VERIFY
-      value: "false"
-
-  persistence:
-    enabled: true
-    size: "8Gi"
-    storageClass: "nfs-client"
+# Persistance
+persistence:
+  enabled: true
+  size: "8Gi"
+  storageClass: "nfs-client"
