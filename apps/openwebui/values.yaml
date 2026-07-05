@@ -30,6 +30,9 @@ open-webui:
     - name: OAUTH_SCOPES
       value: "openid email profile groups"
 
+    - name: OAUTH_SSL_VERIFY
+      value: "false"
+
   persistence:
     enabled: true
     size: "8Gi"
