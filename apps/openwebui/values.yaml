@@ -22,11 +22,6 @@ open-webui:
       value: "/etc/ssl/certs/mirecloud-ca.crt"
     - name: SSL_CERT_FILE
       value: "/etc/ssl/certs/mirecloud-ca.crt"
-    - name: WEBUI_SECRET_KEY
-      valueFrom:
-        secretKeyRef:
-          name: openwebui-secret
-          key: webui-secret-key
 
   extraVolumes:
     - name: ca-certs
