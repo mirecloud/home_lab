@@ -1,44 +1,37 @@
-# Configuration Ollama (Désactivé)
+# -- Configuration Ollama
 ollama:
   enabled: false
 
-# Variables d'environnement
+# -- Configuration OIDC (Native)
+oidc:
+  enabled: true
+  clientId: "openwebui"
+  # Utilise le secret Kubernetes existant géré par ExternalSecrets
+  clientExistingSecret: "openwebui-oidc"
+  clientExistingSecretKey: "client-secret"
+  providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
+  providerName: "Keycloak"
+  scopes: "openid email profile groups"
+
+# -- Configuration Système & SSL
 extraEnvVars:
   - name: OLLAMA_BASE_URL
     value: "http://ollama.ollama.svc.cluster.local:11434"
-
-  # Auth & OIDC
   - name: WEBUI_AUTH
     value: "true"
   - name: ENABLE_OAUTH_SIGNUP
     value: "true"
-  - name: OAUTH_CLIENT_ID
-    value: "openwebui"
-  - name: OAUTH_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: openwebui-oidc
-        key: client-secret
-  - name: OPENID_PROVIDER_URL
-    value: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
-  - name: OAUTH_PROVIDER_NAME
-    value: "Keycloak"
-  - name: OAUTH_SCOPES
-    value: "openid email profile groups"
-
-  # Sécurité SSL / TLS (Activé)
-  - name: OAUTH_SSL_VERIFY
-    value: "true"
-  # Configuration pour forcer Python à utiliser votre CA Vault
+  # Ces variables sont vitales pour que httpx/authlib fasse confiance à votre CA Vault
   - name: REQUESTS_CA_BUNDLE
     value: "/etc/ssl/certs/vault-ca.crt"
   - name: SSL_CERT_FILE
     value: "/etc/ssl/certs/vault-ca.crt"
 
-# Montage des certificats CA
+# -- Montage des certificats
 extraVolumes:
   - name: ca-certs
     secret:
+      # Doit correspondre au secret créé par votre ExternalSecret
       secretName: mirecloud-ca-cert
 
 extraVolumeMounts:
@@ -46,8 +39,11 @@ extraVolumeMounts:
     mountPath: /etc/ssl/certs/vault-ca.crt
     subPath: ca.crt
 
-# Persistance
+# -- Persistance
 persistence:
   enabled: true
   size: "8Gi"
+  # ATTENTION: Vérifiez exactement la valeur dans votre cluster avec:
+  # kubectl get pvc openwebui-open-webui -n openwebui -o yaml
+  # Si le storageClassName sur le cluster est différent, mettez-le ici.
   storageClass: "nfs-client"
