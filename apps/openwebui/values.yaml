@@ -1,4 +1,3 @@
-# Fichier values.yaml de ton "Wrapper" (chart parent)
 open-webui:
   ollama:
     enabled: false
@@ -6,8 +5,30 @@ open-webui:
   extraEnvVars:
     - name: OLLAMA_BASE_URL
       value: "http://ollama.ollama.svc.cluster.local:11434"
+
     - name: WEBUI_AUTH
       value: "true"
+
+    - name: ENABLE_OAUTH_SIGNUP
+      value: "true"
+
+    - name: OAUTH_CLIENT_ID
+      value: "openwebui"
+
+    - name: OAUTH_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: openwebui-oidc
+          key: client-secret
+
+    - name: OPENID_PROVIDER_URL
+      value: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
+
+    - name: OAUTH_PROVIDER_NAME
+      value: "Keycloak"
+
+    - name: OAUTH_SCOPES
+      value: "openid email profile groups"
 
   persistence:
     enabled: true
