@@ -2,14 +2,24 @@ open-webui:
   ollama:
     enabled: false
 
-  oidc:
+  # --- Authentification SSO (Keycloak / OIDC) ---
+  sso:
+    # Interrupteur global SSO — OBLIGATOIRE, sinon oidc.enabled est ignoré
     enabled: true
-    clientId: "openwebui"
-    clientExistingSecret: "openwebui-oidc"
-    clientExistingSecretKey: "client-secret"
-    providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
-    providerName: "Keycloak"
-    scopes: "openid email profile groups"
+    # Crée le compte au 1er login OAuth
+    enableSignup: true
+    # Gestion des groupes Keycloak (vision produit : accès par groupe)
+    enableGroupManagement: true
+    oidc:
+      enabled: true
+      clientId: "openwebui"
+      clientExistingSecret: "openwebui-oidc"
+      clientExistingSecretKey: "client-secret"
+      providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
+      providerName: "Keycloak"
+      scopes: "openid email profile groups"
+    groupManagement:
+      groupsClaim: "groups"
 
   extraEnvVars:
     - name: OLLAMA_BASE_URL
@@ -21,8 +31,6 @@ open-webui:
       value: "all-minilm" # Ou le modèle que vous avez téléchargé dans Ollama
     # Configuration WebUI
     - name: WEBUI_AUTH
-      value: "true"
-    - name: ENABLE_OAUTH_SIGNUP
       value: "true"
     # Configuration SSL (Correction du path)
     - name: REQUESTS_CA_BUNDLE
