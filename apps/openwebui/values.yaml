@@ -34,6 +34,8 @@ open-webui:
       value: "/etc/ssl/certs/vault-ca.crt"
     - name: SSL_CERT_FILE
       value: "/etc/ssl/certs/vault-ca.crt"
+    - name: ENABLE_OAUTH_GROUP_CREATION
+      value: "true"
 
   volumes:
     - name: ca-certs
