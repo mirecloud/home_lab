@@ -14,14 +14,21 @@ open-webui:
   extraEnvVars:
     - name: OLLAMA_BASE_URL
       value: "http://ollama.ollama.svc.cluster.local:11434"
+    # Configuration du moteur Embedding (RAG)
+    - name: RAG_EMBEDDING_ENGINE
+      value: "ollama"
+    - name: RAG_EMBEDDING_MODEL
+      value: "all-minilm" # Ou le modèle que vous avez téléchargé dans Ollama
+    # Configuration WebUI
     - name: WEBUI_AUTH
       value: "true"
     - name: ENABLE_OAUTH_SIGNUP
       value: "true"
+    # Configuration SSL (Correction du path)
     - name: REQUESTS_CA_BUNDLE
-      value: "/etc/ssl/certs/mirecloud-ca.crt"
+      value: "/etc/ssl/certs/vault-ca.crt"
     - name: SSL_CERT_FILE
-      value: "/etc/ssl/certs/mirecloud-ca.crt"
+      value: "/etc/ssl/certs/vault-ca.crt"
 
   extraVolumes:
     - name: ca-certs
@@ -30,7 +37,7 @@ open-webui:
 
   extraVolumeMounts:
     - name: ca-certs
-      mountPath: /etc/ssl/certs/mirecloud-ca.crt
+      mountPath: /etc/ssl/certs/vault-ca.crt
       subPath: ca.crt
       readOnly: true
 
