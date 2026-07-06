@@ -2,13 +2,9 @@ open-webui:
   ollama:
     enabled: false
 
-  # --- Authentification SSO (Keycloak / OIDC) ---
   sso:
-    # Interrupteur global SSO — OBLIGATOIRE, sinon oidc.enabled est ignoré
     enabled: true
-    # Crée le compte au 1er login OAuth
     enableSignup: true
-    # Gestion des groupes Keycloak (vision produit : accès par groupe)
     enableGroupManagement: true
     oidc:
       enabled: true
@@ -24,30 +20,33 @@ open-webui:
   extraEnvVars:
     - name: OLLAMA_BASE_URL
       value: "http://ollama.ollama.svc.cluster.local:11434"
-    # Configuration du moteur Embedding (RAG)
     - name: RAG_EMBEDDING_ENGINE
       value: "ollama"
     - name: RAG_EMBEDDING_MODEL
-      value: "all-minilm" # Ou le modèle que vous avez téléchargé dans Ollama
-    # Configuration WebUI
+      value: "all-minilm"
     - name: WEBUI_AUTH
       value: "true"
-    # Configuration SSL (Correction du path)
+    # PKCE — requis par tes clients Keycloak (cf. use_pkce de ton Grafana)
+    - name: OAUTH_CODE_CHALLENGE_METHOD
+      value: "S256"
     - name: REQUESTS_CA_BUNDLE
       value: "/etc/ssl/certs/vault-ca.crt"
     - name: SSL_CERT_FILE
       value: "/etc/ssl/certs/vault-ca.crt"
 
-  extraVolumes:
+  # ⚠️ CLÉS CORRIGÉES : "volumes" + "volumeMounts.container"
+  # (avant : extraVolumes / extraVolumeMounts → ignorés en silence)
+  volumes:
     - name: ca-certs
       secret:
         secretName: mirecloud-ca-cert
 
-  extraVolumeMounts:
-    - name: ca-certs
-      mountPath: /etc/ssl/certs/vault-ca.crt
-      subPath: ca.crt
-      readOnly: true
+  volumeMounts:
+    container:
+      - name: ca-certs
+        mountPath: /etc/ssl/certs/vault-ca.crt
+        subPath: ca.crt
+        readOnly: true
 
   persistence:
     enabled: true
