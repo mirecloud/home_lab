@@ -4,6 +4,8 @@ keycloakx:
     - start
     - '--http-enabled=true'
     - '--http-port=8080'
+    # Force le scheme+host public → issuer OIDC en https (fix du 500 Open WebUI)
+    - '--hostname=https://keycloak.mirecloud.com'
     - '--hostname-strict=false'
     - '--proxy-headers=xforwarded'
 
@@ -18,8 +20,6 @@ keycloakx:
         secretKeyRef:
           name: keycloak-admin-password # Créé par l'ExternalSecret
           key: password
-    - name: KC_PROXY
-      value: edge
 
   dbchecker:
     enabled: true
