@@ -4,10 +4,10 @@ open-webui:
 
   # --- Authentification SSO (Keycloak / OIDC) ---
   sso:
-    enabled: true                 # Interrupteur global SSO (obligatoire)
-    enableSignup: true            # Crée le compte au 1er login OAuth
-    mergeAccountsByEmail: true    # Lie l'OAuth à un compte local existant (même email)
-    enableGroupManagement: true   # Mapping des groupes Keycloak
+    enabled: true
+    enableSignup: true
+    mergeAccountsByEmail: true
+    enableGroupManagement: true
     oidc:
       enabled: true
       clientId: "openwebui"
@@ -15,32 +15,26 @@ open-webui:
       clientExistingSecretKey: "client-secret"
       providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
       providerName: "Keycloak"
-      scopes: "openid email profile groups"
+      scopes: "openid email profile"      # ← "groups" retiré (scope invalide côté Keycloak)
     groupManagement:
       groupsClaim: "groups"
 
   extraEnvVars:
     - name: OLLAMA_BASE_URL
       value: "http://ollama.ollama.svc.cluster.local:11434"
-    # Moteur Embedding (RAG) via Ollama
     - name: RAG_EMBEDDING_ENGINE
       value: "ollama"
     - name: RAG_EMBEDDING_MODEL
       value: "all-minilm"
-    # WebUI
     - name: WEBUI_AUTH
       value: "true"
-    # PKCE — requis par tes clients Keycloak (cf. use_pkce de ton Grafana)
     - name: OAUTH_CODE_CHALLENGE_METHOD
       value: "S256"
-    # SSL — CA interne pour valider Keycloak
     - name: REQUESTS_CA_BUNDLE
       value: "/etc/ssl/certs/vault-ca.crt"
     - name: SSL_CERT_FILE
       value: "/etc/ssl/certs/vault-ca.crt"
 
-  # ⚠️ Bonnes clés du chart : "volumes" + "volumeMounts.container"
-  # (PAS extraVolumes / extraVolumeMounts, qui étaient ignorés en silence)
   volumes:
     - name: ca-certs
       secret:
