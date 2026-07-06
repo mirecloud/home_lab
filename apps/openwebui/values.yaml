@@ -20,6 +20,8 @@ open-webui:
       groupsClaim: "groups"
 
   extraEnvVars:
+    - name: PGVECTOR_DB_URL
+      value: "postgresql://raguser:mirecloud@192.168.2.164:5432/ragdb"
     - name: OPENAI_API_BASE_URL
       value: "http://vllm-router-service.vllm.svc.cluster.local/v1"
     - name: OPENAI_API_KEY
