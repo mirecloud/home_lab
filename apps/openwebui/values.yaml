@@ -1,7 +1,11 @@
 open-webui:
+  # Composants bundlés non utilisés
   ollama:
     enabled: false
+  pipelines:
+    enabled: false        # ← coupe le service pipelines (le 403 sur :9099)
 
+  # --- Authentification SSO (Keycloak / OIDC) ---
   sso:
     enabled: true
     enableSignup: true
@@ -31,7 +35,7 @@ open-webui:
       value: "S256"
     - name: ENABLE_OAUTH_GROUP_CREATION
       value: "true"
-    # ← NOUVEAU : forwarde l'identité (email/groupes) vers ton API RAG
+    # Forwarde l'identité (email/groupes) vers ton API RAG
     - name: ENABLE_FORWARD_USER_INFO_HEADERS
       value: "true"
     # SSL (CA interne pour Keycloak)
