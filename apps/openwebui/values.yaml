@@ -2,7 +2,6 @@ open-webui:
   ollama:
     enabled: false
 
-  # --- Authentification SSO (Keycloak / OIDC) ---
   sso:
     enabled: true
     enableSignup: true
@@ -15,33 +14,31 @@ open-webui:
       clientExistingSecretKey: "client-secret"
       providerUrl: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
       providerName: "Keycloak"
-      scopes: "openid email profile"      # ← "groups" retiré (scope invalide côté Keycloak)
+      scopes: "openid email profile"
     groupManagement:
       groupsClaim: "groups"
 
   extraEnvVars:
-    - name: VECTOR_DB
-      value: "pgvector"
-    - name: PGVECTOR_DB_URL
-      value: "postgresql://raguser:mirecloud@192.168.2.164:5432/ragdb"
-    - name: OPENAI_API_BASE_URL
-      value: "http://vllm-router-service.vllm.svc.cluster.local/v1"
-    - name: OPENAI_API_KEY
-      value: "EMPTY"      # vLLM n'exige pas de clé, mais Open WebUI veut un champ non vide
-    - name: RAG_EMBEDDING_ENGINE
-      value: "ollama"
-    - name: RAG_EMBEDDING_MODEL
-      value: "all-minilm"
+    # DEUX connexions OpenAI : vLLM (chat qwen) + ton API RAG (cloisonné)
+    - name: OPENAI_API_BASE_URLS
+      value: "http://vllm-router-service.vllm.svc.cluster.local/v1;http://rag-api.rag.svc.cluster.local:8000/v1"
+    - name: OPENAI_API_KEYS
+      value: "EMPTY;dummy"          # une clé par URL, même ordre
+    # SSO / groupes
     - name: WEBUI_AUTH
       value: "true"
     - name: OAUTH_CODE_CHALLENGE_METHOD
       value: "S256"
+    - name: ENABLE_OAUTH_GROUP_CREATION
+      value: "true"
+    # ← NOUVEAU : forwarde l'identité (email/groupes) vers ton API RAG
+    - name: ENABLE_FORWARD_USER_INFO_HEADERS
+      value: "true"
+    # SSL (CA interne pour Keycloak)
     - name: REQUESTS_CA_BUNDLE
       value: "/etc/ssl/certs/vault-ca.crt"
     - name: SSL_CERT_FILE
       value: "/etc/ssl/certs/vault-ca.crt"
-    - name: ENABLE_OAUTH_GROUP_CREATION
-      value: "true"
 
   volumes:
     - name: ca-certs
