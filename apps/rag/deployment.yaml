@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-api
+  namespace: rag
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: rag-api }
+  template:
+    metadata:
+      labels: { app: rag-api }
+    spec:
+      containers:
+        - name: rag-api
+          image: docker.io/mirecloud/rag:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: { name: rag-pgvector, key: db-url }
+            - name: KEYCLOAK_JWKS
+              value: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/certs"
+            - name: KEYCLOAK_ISSUER
+              value: "https://keycloak.mirecloud.com/auth/realms/mirecloud"
+            - name: VLLM_URL
+              value: "http://vllm-router-service.vllm.svc.cluster.local/v1"
+            - name: VLLM_MODEL
+              value: "Qwen/Qwen2.5-14B-Instruct-AWQ"
+            - name: ADMIN_GROUP
+              value: "admin"
+            - name: SSL_CERT_FILE          # pour valider Keycloak (JWKS)
+              value: "/etc/ssl/certs/vault-ca.crt"
+          volumeMounts:
+            - name: ca-certs
+              mountPath: /etc/ssl/certs/vault-ca.crt
+              subPath: ca.crt
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests: { cpu: "500m", memory: "1Gi" }
+            limits:   { cpu: "2",    memory: "2.5Gi" }
+      volumes:
+        - name: ca-certs
+          secret:
+            secretName: mirecloud-ca-cert
