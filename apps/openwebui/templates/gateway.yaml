@@ -58,12 +58,14 @@ metadata:
 spec:
   parentRefs:
   - name: mirecloud-gateway
-    sectionName: http # Lie la route au listener port 80
-  - name: mirecloud-gateway
-    sectionName: https # Lie la route au listener port 443
   hostnames:
   - "openwebui.mirecloud.com"
   rules:
-  - backendRefs:
-    - name: openwebui-open-webui
-      port: 80  
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    # On pointe vers le service Keycloak (Port 80, qui redirige vers 8080 du pod)
+    - name:  openwebui-open-webui 
+      port:  80    
