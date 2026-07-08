@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+pgvector
+httpx
+requests
+pyjwt[crypto]
+sentence-transformers
+python-multipart
