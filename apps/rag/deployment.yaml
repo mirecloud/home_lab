@@ -31,7 +31,15 @@ spec:
               value: "Qwen/Qwen2.5-14B-Instruct-AWQ"
             - name: ADMIN_GROUP
               value: "admin"
-            - name: SSL_CERT_FILE          # pour valider Keycloak (JWKS)
+            # --- Résolution email -> groupes via Keycloak (client openwebui) ---
+            - name: KC_SA_CLIENT_ID
+              value: "openwebui"
+            - name: KC_SA_CLIENT_SECRET
+              value: "9PSxICBfVfMbjRhl1qAPM9QQhS9OUwdR"
+            # --- TLS Keycloak : JWKS (ssl) ET requests (admin API) ---
+            - name: SSL_CERT_FILE
+              value: "/etc/ssl/certs/vault-ca.crt"
+            - name: REQUESTS_CA_BUNDLE
               value: "/etc/ssl/certs/vault-ca.crt"
           volumeMounts:
             - name: ca-certs
