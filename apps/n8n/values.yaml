@@ -1,11 +1,16 @@
 n8n:
+  db:
+    type: postgresdb
+
+  postgresql:
+    enabled: false
+
   externalPostgresql:
     host: "postgres.postgres.svc"
     port: 5432
     database: "n8n"
     username: "postgres"
     existingSecret: "n8n-db-creds"
-    existingSecretPasswordKey: "password"
 
   main:
     persistence:
@@ -13,7 +18,6 @@ n8n:
       storageClass: nfs-client
       accessMode: ReadWriteMany
       size: 5Gi
-      # mountPath retiré
 
     extraEnvVars:
       N8N_HOST: "n8n.mirecloud.com"
@@ -22,7 +26,6 @@ n8n:
       WEBHOOK_URL: "https://n8n.mirecloud.com/"
       GENERIC_TIMEZONE: "America/Toronto"
       N8N_SECURE_COOKIE: "false"
-      # N8N_ENCRYPTION_KEY → migrer vers existingSecret
 
   worker:
     mode: queue
@@ -34,20 +37,5 @@ n8n:
     architecture: standalone
     auth:
       enabled: true
-      existingSecret: "n8n-redis-creds"      # ← depuis Vault
+      existingSecret: "n8n-redis-creds"
       existingSecretPasswordKey: "password"
-
-  ingress:
-    enabled: true
-    className: "cilium-ingress-controller"
-    annotations:
-      cert-manager.io/cluster-issuer: "mirecloud-ca-issuer"
-    hosts:
-      - host: n8n.mirecloud.com
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: n8n-tls-cert
-        hosts:
-          - n8n.mirecloud.com
