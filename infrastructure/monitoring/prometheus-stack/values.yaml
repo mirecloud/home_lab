@@ -1,7 +1,8 @@
 kube-prometheus-stack:
   grafana:
     enabled: true
-    # Assure-toi que ce secret existe et contient bien la clé "client_secret"
+
+    # Ce secret doit contenir la clé client_secret
     envFromSecret: grafana-keycloak-secret
 
     grafana.ini:
@@ -27,11 +28,9 @@ kube-prometheus-stack:
         client_id: "grafana"
         client_secret: $__env{client_secret}
         scopes: "openid profile email"
-        # FIX : Activation du PKCE pour correspondre à la config Keycloak
         use_pkce: true
         tls_skip_verify_insecure: true
 
-        # FIX : URLs Publiques uniquement (Évite le Issuer Mismatch)
         auth_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/auth"
         token_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/token"
         api_url: "https://keycloak.mirecloud.com/auth/realms/mirecloud/protocol/openid-connect/userinfo"
@@ -45,3 +44,37 @@ kube-prometheus-stack:
   prometheus:
     ingress:
       enabled: false
+
+    prometheusSpec:
+      additionalScrapeConfigs:
+        - job_name: proxmox
+          scrape_interval: 30s
+          scrape_timeout: 25s
+          metrics_path: /pve
+
+          params:
+            module:
+              - default
+            cluster:
+              - "1"
+            node:
+              - "1"
+
+          static_configs:
+            - targets:
+                - "192.168.2.124"
+
+          relabel_configs:
+            # Envoie l’adresse Proxmox comme paramètre target à l’exporter
+            - source_labels:
+                - __address__
+              target_label: __param_target
+
+            # Affiche le serveur Proxmox comme instance
+            - source_labels:
+                - __param_target
+              target_label: instance
+
+            # Prometheus contacte réellement l’exporter ici
+            - target_label: __address__
+              replacement: "192.168.2.124:9221"
