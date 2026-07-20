@@ -43,7 +43,7 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: keycloak-tls-secret # Doit matcher le secretName du certificat plus haut
+        name: n8n-tls-secret # Doit matcher le secretName du certificat plus haut
     allowedRoutes:
       namespaces:
         from: Same
@@ -66,6 +66,6 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    # On pointe vers le service Keycloak (Port 80, qui redirige vers 8080 du pod)
-    - name:  n8n-main-service
-      port: 5678    
+    # On pointe vers le service N8N (Port 80, qui redirige vers 5678 du pod)
+    - name: n8n 
+      port: 5678
