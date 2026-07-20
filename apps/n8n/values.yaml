@@ -16,7 +16,7 @@ n8n:
     persistence:
       enabled: true
       storageClass: nfs-client
-      accessMode: ReadWriteMany
+      accessMode: ReadWriteOnce        # ← was ReadWriteMany; RWX + count=1 → chart never renders the PVC
       size: 5Gi
 
     extraEnvVars:
@@ -38,7 +38,7 @@ n8n:
     auth:
       enabled: true
       existingSecret: "n8n-redis-creds"
-      existingSecretPasswordKey: "password"
+      existingSecretPasswordKey: "redis-password"   # ← was "password"; must match the key n8n pods read
 
   externalRedis:
     host: "n8n-redis-master"
