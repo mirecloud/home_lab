@@ -39,3 +39,9 @@ n8n:
       enabled: true
       existingSecret: "n8n-redis-creds"
       existingSecretPasswordKey: "password"
+
+  externalRedis:
+    host: "n8n-redis-master"
+    port: 6379
+    username: "default"
+    existingSecret: "n8n-redis-creds"
