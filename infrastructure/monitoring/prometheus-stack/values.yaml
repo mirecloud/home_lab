@@ -2,8 +2,13 @@ kube-prometheus-stack:
   grafana:
     enabled: true
 
-    # Ce secret doit contenir la clé client_secret
     envFromSecret: grafana-keycloak-secret
+
+    sidecar:
+      datasources:
+        enabled: true
+        initDatasources: true
+        skipReload: false
 
     grafana.ini:
       server:
@@ -65,16 +70,13 @@ kube-prometheus-stack:
                 - "192.168.2.124"
 
           relabel_configs:
-            # Envoie l’adresse Proxmox comme paramètre target à l’exporter
             - source_labels:
                 - __address__
               target_label: __param_target
 
-            # Affiche le serveur Proxmox comme instance
             - source_labels:
                 - __param_target
               target_label: instance
 
-            # Prometheus contacte réellement l’exporter ici
             - target_label: __address__
               replacement: "192.168.2.124:9221"
