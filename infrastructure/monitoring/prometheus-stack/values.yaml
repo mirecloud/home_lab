@@ -7,7 +7,18 @@ kube-prometheus-stack:
     sidecar:
       datasources:
         enabled: true
+        initDatasources: true
+        restartPolicy: Always
         skipReload: false
+
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        uid: loki
+        access: proxy
+        url: http://loki-stack.monitoring.svc:3100
+        jsonData:
+          maxLines: 1000
 
     grafana.ini:
       server:
