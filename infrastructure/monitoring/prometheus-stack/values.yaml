@@ -79,6 +79,7 @@ kube-prometheus-stack:
             - targets:
                 - "192.168.2.124"
 
+          # relable_configs are applied to the metrics before scraping, allowing you to modify the labels of the scraped metrics. In this case, we are relabeling the __address__ label to __param_target, then setting the instance label to the value of __param_target, and finally replacing the __address__ label with a specific IP address and port.
           relabel_configs:
             - source_labels:
                 - __address__
