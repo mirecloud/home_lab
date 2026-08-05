@@ -18,7 +18,7 @@
 ---
 
 ## Overview
-<img width="1257" height="825" alt="image" src="https://github.com/user-attachments/assets/95098546-7395-485b-826c-5bc4775889d6" />
+![MireCloud full-stack architecture](Articles/MireCloud-architecture-2026.svg)
 
 MireCloud is a multi-node Kubernetes homelab running across bare-metal and Proxmox-hosted nodes, built with production-oriented practices. Every in-repository service is deployed declaratively via ArgoCD. Credentials live in HashiCorp Vault — never in Git. TLS certificates are issued and renewed automatically. DNS entries are managed programmatically.
 
@@ -49,10 +49,10 @@ This infrastructure is documented in a technical blog series published on Medium
 
 ##  Architecture
 
-<img width="1428" height="796" alt="image" src="https://github.com/user-attachments/assets/44eca1ba-b86c-4be8-b02e-984f8735ed6d" />
+![MireCloud identity and private AI flow](Articles/MireCloud-oidc-ai-flow-2026.svg)
 
 
-See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for the full visual diagram.
+The editable diagrams live in [`Articles/MireCloud-architecture-2026.svg`](Articles/MireCloud-architecture-2026.svg) and [`Articles/MireCloud-oidc-ai-flow-2026.svg`](Articles/MireCloud-oidc-ai-flow-2026.svg).
 
 ---
 
@@ -200,8 +200,8 @@ home_lab/
 │   └── kill-curl.yaml              # TracingPolicy — runtime security
 │
 └── Articles/                   # Published blog content + diagrams
-    ├── architecture-diagram.svg
-    ├── oidc-flow-diagram.svg
+    ├── MireCloud-architecture-2026.svg
+    ├── MireCloud-oidc-ai-flow-2026.svg
     ├── part-1.md
     ├── mirecloud-part2-keycloak.md
     ├── mirecloud-part3-grafana-oidc.md
