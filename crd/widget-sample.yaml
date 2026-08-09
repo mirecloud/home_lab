@@ -1,0 +1,9 @@
+apiVersion: training.kodekloud.com/v1
+kind: Widget
+metadata:
+  name: blue-widget
+  namespace: widget-demo
+spec:
+  size: <REPLACE>
+  color: <REPLACE>
+  replicas: <REPLACE>

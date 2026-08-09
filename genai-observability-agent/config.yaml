@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Configuration de l'agent d'observabilité GenAI
+# ─────────────────────────────────────────────────────────────────────────
+
+# 1) D'OÙ l'agent lit les logs
+source:
+  type: file                       # file | opensearch | loki
+  # --- mode file (défaut, pour tester tout de suite) ---
+  paths:
+    - sample_logs/app.log
+  only_errors: true                # ne garder que ERROR/WARN/FATAL
+
+  # --- mode opensearch (décommenter pour brancher un vrai cluster) ---
+  # type: opensearch
+  # url: http://localhost:9200
+  # index: logs-otel-*
+  # lookback_minutes: 15
+  # auth: ["admin", "admin"]        # optionnel [user, password]
+
+  # --- mode loki ---
+  # type: loki
+  # url: http://localhost:3100
+  # query: '{level=~"error|warn"}'
+  # lookback_minutes: 15
+
+# 2) Le modèle LLM utilisé pour l'analyse
+llm:
+  model: claude-sonnet-5           # sonnet = bon rapport coût/qualité pour le triage
+  # model: claude-opus-5           # pour du RCA complexe
+  # model: claude-haiku-4-5-20251001   # pour du triage haute fréquence, très économique
+
+# 3) Où l'agent restitue ses propositions
+output:
+  json_log: proposals.jsonl        # historique machine (audit)
+  audit_log: audit.jsonl           # trace des décisions de remédiation
+  slack_webhook: ""                # colle ici une Incoming Webhook URL pour activer Slack
+
+# 4) Politique de remédiation (garde-fous)
+remediation:
+  auto_execute: false              # false = l'agent PROPOSE seulement (recommandé au départ)
+  dry_run: true                    # si auto_execute=true, simule d'abord les commandes
+  min_confidence: 0.85             # seuil de confiance pour auto-exécuter
+
+# 5) Paramètres du mode --watch
+watch:
+  interval_seconds: 60

@@ -1,0 +1,37 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: widgets.training.kodekloud.com
+spec:
+  group: training.kodekloud.com
+  scope: Namespaced
+  names:
+    plural: widgets
+    singular: widget
+    kind: Widget
+    # First edit: uncomment the next line (remove the "# ") to add the shortName
+    # shortNames: [wg]
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: [spec]
+        properties:
+          spec:
+            type: object
+            required: [size, color]
+            properties:
+              size:
+                type: string
+                # Second edit: uncomment the next line (remove the "# ") to allow only these values
+                # enum: [small, medium, large]
+              color:
+                type: string
+              replicas:
+                type: integer
+                minimum: 1
+                maximum: 10
+                default: 1
