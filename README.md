@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.34-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.36.x-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?style=flat-square&logo=ubuntu&logoColor=white)
 ![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D?style=flat-square&logo=argo&logoColor=white)
 ![Vault](https://img.shields.io/badge/HashiCorp_Vault-0.31.0-FFEC6E?style=flat-square&logo=vault&logoColor=black)
@@ -18,9 +18,9 @@
 ---
 
 ## Overview
-<img width="1257" height="825" alt="image" src="https://github.com/user-attachments/assets/95098546-7395-485b-826c-5bc4775889d6" />
+![MireCloud full-stack architecture](Articles/MireCloud-architecture-2026.svg)
 
-MireCloud is a multi-node Kubernetes homelab running on bare metal, built to production standards. Every service is deployed declaratively via ArgoCD from this repository. Credentials live in HashiCorp Vault — never in Git. TLS certificates are issued and renewed automatically. DNS entries are managed programmatically.
+MireCloud is a multi-node Kubernetes homelab running across bare-metal and Proxmox-hosted nodes, built with production-oriented practices. Every in-repository service is deployed declaratively via ArgoCD. Credentials live in HashiCorp Vault — never in Git. TLS certificates are issued and renewed automatically. DNS entries are managed programmatically.
 
 The lab serves as a hands-on environment for SRE/DevOps workflows, identity federation, observability, GitOps automation, and CKA/CKS preparation.
 
@@ -49,14 +49,23 @@ This infrastructure is documented in a technical blog series published on Medium
 
 ##  Architecture
 
-<img width="1428" height="796" alt="image" src="https://github.com/user-attachments/assets/44eca1ba-b86c-4be8-b02e-984f8735ed6d" />
+![MireCloud identity and private AI flow](Articles/MireCloud-oidc-ai-flow-2026.svg)
 
 
-See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for the full visual diagram.
+The editable diagrams live in [`Articles/MireCloud-architecture-2026.svg`](Articles/MireCloud-architecture-2026.svg) and [`Articles/MireCloud-oidc-ai-flow-2026.svg`](Articles/MireCloud-oidc-ai-flow-2026.svg).
 
 ---
 
 ##  Node Topology
+
+### Virtualization and GPU layer
+
+| Host | Platform | Hardware role | Key capabilities |
+|------|----------|---------------|------------------|
+| **Proxmox host** | Proxmox VE 9 | Ryzen 5 7600X + NVIDIA RTX 5060 Ti 16 GB | VM lifecycle, IOMMU and GPU passthrough |
+| **node-gpu** | Kubernetes worker VM | Dedicated NVIDIA GPU passthrough | vLLM inference, CUDA workloads and local LLM serving |
+
+### Kubernetes nodes
 
 | Node | IP | Role | Key Workloads |
 |------|----|------|---------------|
@@ -64,8 +73,9 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 | **node-1** | `192.168.2.29` | General Worker | GitLab, Keycloak, PgAdmin, n8n, MLflow, PostgreSQL |
 | **node-2** | `192.168.2.46` | Monitoring Worker | Prometheus, Alertmanager, Grafana, Loki, Promtail, cert-manager, ESO |
 | **node-3** | `192.168.2.74` | Infrastructure Worker | BIND DNS (`:53`), OpenLDAP, MinIO S3 (`:9000`) |
+| **node-gpu** | Internal | GPU Worker | vLLM, Qwen2.5-14B-Instruct-AWQ and NVIDIA device workloads |
 
-**OS:** Ubuntu 24.04 LTS · **Network interface:** `eno1` · **LAN:** `192.168.2.0/24`
+**Kubernetes:** v1.36.x · **OS:** Ubuntu 24.04 LTS · **LAN:** `192.168.2.0/24`
 
 **LoadBalancer IP pool:** `192.168.2.200–240` (Cilium L2 announcements, node-4 only)
 
@@ -84,9 +94,9 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 
 | Component | Version | Role |
 |-----------|---------|------|
-| **Kubernetes** | v1.34 | Container orchestration |
-| **ArgoCD** | latest | GitOps controller — `selfHeal: true`, `prune: true` |
-| **Cilium** | latest | CNI, eBPF networking, Gateway API, kube-proxy replacement |
+| **Kubernetes** | v1.36.x | Container orchestration |
+| **ArgoCD** | Externally managed | GitOps controller — `selfHeal: true`, `prune: true` |
+| **Cilium** | Externally managed | CNI, eBPF networking, Gateway API, kube-proxy replacement |
 | **Reloader** | v1.4.12 | Auto-restart pods on Secret/ConfigMap changes |
 
 ### Secrets & PKI
@@ -109,7 +119,7 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 
 | Component | Version | Role |
 |-----------|---------|------|
-| **Keycloak** | keycloakx 7.1.5 | IdP — realm `mirecloud`, 2 replicas, Infinispan session cluster |
+| **Keycloak** | keycloakx chart 7.2.0 | IdP — realm `mirecloud`, 2 replicas, Infinispan session cluster |
 | **OpenLDAP** | — | User directory, `dc=mirecloud,dc=com` (node-3) |
 
 ### Observability
@@ -131,6 +141,9 @@ See [`Articles/architecture-diagram.svg`](Articles/architecture-diagram.svg) for
 | **PgAdmin 4** | 1.32.0 | PostgreSQL web UI, Cilium Gateway, admin creds from Vault |
 | **MLflow** | 1.8.1 | ML experiment tracking, Basic Auth, NGINX Ingress |
 | **n8n** | 1.16.15 | Workflow automation, queue mode, 2 workers, Redis broker |
+| **vLLM Production Stack** | chart 0.1.11 / engine 0.11.0 | OpenAI-compatible local inference on `node-gpu` |
+| **Open WebUI** | chart 14.8.0 | Multi-user LLM interface with Keycloak OIDC |
+| **Qwen2.5-14B-Instruct-AWQ** | AWQ 4-bit | Primary local model, 8192-token context and prefix caching |
 
 ---
 
@@ -153,7 +166,9 @@ home_lab/
 │       ├── gitlab-app.yaml
 │       ├── pgadmin-app.yaml
 │       ├── n8n-app.yaml
-│       └── mlflow-app.yaml
+│       ├── mlflow-app.yaml
+│       ├── vllm-app.yaml
+│       └── openwebui-app.yaml
 │
 ├── infrastructure/             # Platform Helm wrapper charts
 │   ├── vault/
@@ -171,7 +186,9 @@ home_lab/
 │   ├── gitlab/
 │   ├── pgadmin/
 │   ├── n8n/
-│   └── mlflow/
+│   ├── mlflow/
+│   ├── vllm/                    # vLLM Production Stack + Qwen model
+│   └── openwebui/               # Open WebUI + Keycloak OIDC
 │
 ├── cilium/                     # Cilium-specific manifests
 │   ├── cilium-pool.yaml            # CiliumLoadBalancerIPPool
@@ -183,8 +200,8 @@ home_lab/
 │   └── kill-curl.yaml              # TracingPolicy — runtime security
 │
 └── Articles/                   # Published blog content + diagrams
-    ├── architecture-diagram.svg
-    ├── oidc-flow-diagram.svg
+    ├── MireCloud-architecture-2026.svg
+    ├── MireCloud-oidc-ai-flow-2026.svg
     ├── part-1.md
     ├── mirecloud-part2-keycloak.md
     ├── mirecloud-part3-grafana-oidc.md
@@ -192,6 +209,10 @@ home_lab/
 ```
 
 Every service follows the same pattern: a thin Helm wrapper chart (`Chart.yaml` + `values.yaml`) declared as an ArgoCD Application. No `helm install` commands — only `git push`.
+
+### Version policy
+
+All Helm dependencies managed by this repository use explicit versions in their wrapper `Chart.yaml` files. ArgoCD and Cilium are currently managed outside this repository, so the README identifies them as externally managed instead of falsely claiming a floating `latest` version. ArgoCD Applications follow the repository branch through `HEAD` or `main`; those Git revisions are separate from application package versions.
 
 ---
 
@@ -291,6 +312,9 @@ The Vault injector regenerates its webhook certificate on every pod restart. Wit
 
 **Keycloak `--proxy-headers=xforwarded` + `KC_PROXY=edge`**
 Both flags are required when TLS is terminated at the Cilium Gateway. Without `xforwarded`, Keycloak builds redirect URIs using `http://` instead of `https://`, breaking the OIDC callback flow.
+
+**Local AI serving on the GPU worker**
+vLLM runs on `node-gpu` with NVIDIA GPU passthrough from Proxmox. It serves `Qwen/Qwen2.5-14B-Instruct-AWQ` through an OpenAI-compatible API. Open WebUI uses that endpoint and delegates authentication to Keycloak. CUDA JIT caches and model weights persist on PVC storage to avoid recompilation and repeated downloads.
 
 **Loki back-channel URLs in Grafana config**
 `token_url` and `api_url` use internal cluster DNS (`keycloak-keycloakx-http.keycloak.svc.cluster.local`) — not the public hostname. Avoids DNS resolution issues from inside pods in a homelab environment.

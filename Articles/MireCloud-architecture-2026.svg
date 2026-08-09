@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#0b1220"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#5eead4"/></marker>
+    <marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#a78bfa"/></marker>
+    <style>
+      .title{font:700 24px 'Segoe UI',sans-serif;letter-spacing:5px;fill:#f8fafc}.sub{font:500 13px 'Segoe UI',sans-serif;letter-spacing:2px;fill:#5eead4}
+      .lane{fill:#0f172a;stroke:#243244;stroke-width:1.5}.laneTitle{font:700 12px 'Segoe UI',sans-serif;letter-spacing:3px;fill:#64748b}
+      .box{fill:#111c2e;stroke-width:2}.h{font:700 17px 'Segoe UI',sans-serif}.t{font:500 12px 'Segoe UI',sans-serif;fill:#cbd5e1}.s{font:500 10px 'Segoe UI',sans-serif;fill:#94a3b8}
+      .blue{stroke:#38bdf8}.green{stroke:#22c55e}.amber{stroke:#f59e0b}.purple{stroke:#a78bfa}.red{stroke:#fb7185}.cyan{stroke:#22d3ee}.gray{stroke:#64748b}
+      .hb{fill:#7dd3fc}.hg{fill:#86efac}.ha{fill:#fcd34d}.hp{fill:#c4b5fd}.hr{fill:#fda4af}.hc{fill:#67e8f9}.hw{fill:#e2e8f0}
+      .flow{fill:none;stroke:#5eead4;stroke-width:2;marker-end:url(#arrow)}.flow2{fill:none;stroke:#a78bfa;stroke-width:2;stroke-dasharray:7 5;marker-end:url(#arrow2)}
+      .chip{fill:#07111f;stroke:#334155}.chipText{font:600 10px 'Segoe UI',sans-serif;fill:#cbd5e1}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1598" height="998" rx="14" fill="none" stroke="#334155" stroke-width="2"/>
+  <circle cx="24" cy="25" r="7" fill="#ff5f56"/><circle cx="46" cy="25" r="7" fill="#ffbd2e"/><circle cx="68" cy="25" r="7" fill="#27c93f"/>
+  <text x="800" y="31" text-anchor="middle" class="title">MIRECLOUD · FULL STACK ARCHITECTURE</text>
+  <text x="800" y="58" text-anchor="middle" class="sub">KUBERNETES 1.36 · PROXMOX VE 9 · GITOPS · ZERO-TRUST IDENTITY · LOCAL AI</text>
+  <line x1="0" y1="72" x2="1600" y2="72" stroke="#14b8a6" stroke-width="3" filter="url(#glow)"/>
+
+  <rect x="20" y="90" width="1560" height="145" rx="12" class="lane"/><text x="800" y="111" text-anchor="middle" class="laneTitle">EDGE · INGRESS · DNS</text>
+  <rect x="42" y="125" width="190" height="82" rx="9" class="box blue"/><text x="137" y="150" text-anchor="middle" class="h hb">Users &amp; Clients</text><text x="137" y="171" text-anchor="middle" class="t">Browser · API clients</text><text x="137" y="190" text-anchor="middle" class="s">HTTPS only</text>
+  <rect x="320" y="125" width="410" height="82" rx="9" class="box purple"/><text x="525" y="150" text-anchor="middle" class="h hp">Cilium Gateway API</text><text x="525" y="171" text-anchor="middle" class="t">TLS termination · L7 routing · L2 announcements</text><text x="525" y="190" text-anchor="middle" class="s">LoadBalancer pool 192.168.2.200–240</text>
+  <rect x="820" y="125" width="300" height="82" rx="9" class="box green"/><text x="970" y="150" text-anchor="middle" class="h hg">ExternalDNS</text><text x="970" y="171" text-anchor="middle" class="t">Gateway routes → RFC2136</text><text x="970" y="190" text-anchor="middle" class="s">TSIG from Vault via ESO</text>
+  <rect x="1210" y="125" width="320" height="82" rx="9" class="box amber"/><text x="1370" y="150" text-anchor="middle" class="h ha">BIND 9 · node-3</text><text x="1370" y="171" text-anchor="middle" class="t">Authoritative zone: mirecloud.com</text><text x="1370" y="190" text-anchor="middle" class="s">Authenticated dynamic updates</text>
+  <path d="M232 166H318" class="flow"/><path d="M730 166H818" class="flow"/><path d="M1120 166H1208" class="flow"/>
+
+  <rect x="20" y="250" width="1560" height="155" rx="12" class="lane"/><text x="800" y="272" text-anchor="middle" class="laneTitle">GITOPS · SECRETS · PKI</text>
+  <rect x="42" y="290" width="250" height="85" rx="9" class="box gray"/><text x="167" y="315" text-anchor="middle" class="h hw">GitHub + Argo CD</text><text x="167" y="337" text-anchor="middle" class="t">Declarative source of truth</text><text x="167" y="357" text-anchor="middle" class="s">prune · selfHeal · wrapper charts</text>
+  <rect x="350" y="290" width="280" height="85" rx="9" class="box amber"/><text x="490" y="315" text-anchor="middle" class="h ha">HashiCorp Vault</text><text x="490" y="337" text-anchor="middle" class="t">KV v2 · HA Raft · Kubernetes auth</text><text x="490" y="357" text-anchor="middle" class="s">Single source of truth for credentials</text>
+  <rect x="690" y="290" width="280" height="85" rx="9" class="box cyan"/><text x="830" y="315" text-anchor="middle" class="h hc">External Secrets</text><text x="830" y="337" text-anchor="middle" class="t">ClusterSecretStore: vault-backend</text><text x="830" y="357" text-anchor="middle" class="s">Refresh 1m · creationPolicy Owner</text>
+  <rect x="1030" y="290" width="250" height="85" rx="9" class="box purple"/><text x="1155" y="315" text-anchor="middle" class="h hp">cert-manager</text><text x="1155" y="337" text-anchor="middle" class="t">Internal CA · automated TLS</text><text x="1155" y="357" text-anchor="middle" class="s">ClusterIssuer: mirecloud-ca-issuer</text>
+  <rect x="1340" y="290" width="190" height="85" rx="9" class="box green"/><text x="1435" y="315" text-anchor="middle" class="h hg">Reloader</text><text x="1435" y="337" text-anchor="middle" class="t">Secret rotation</text><text x="1435" y="357" text-anchor="middle" class="s">Controlled restarts</text>
+  <path d="M292 332H348" class="flow2"/><path d="M630 332H688" class="flow"/><path d="M970 332H1028" class="flow"/><path d="M1280 332H1338" class="flow"/>
+
+  <rect x="20" y="420" width="1560" height="205" rx="12" class="lane"/><text x="800" y="442" text-anchor="middle" class="laneTitle">IDENTITY · APPLICATIONS · LOCAL AI</text>
+  <rect x="42" y="465" width="260" height="125" rx="9" class="box red"/><text x="172" y="490" text-anchor="middle" class="h hr">Keycloak · chart 7.2.0</text><text x="172" y="514" text-anchor="middle" class="t">Central IdP · realm mirecloud</text><text x="172" y="537" text-anchor="middle" class="s">OIDC · PKCE · group claims</text><text x="172" y="558" text-anchor="middle" class="s">OpenLDAP federation</text><text x="172" y="579" text-anchor="middle" class="s">Two replicas · Infinispan sessions</text>
+  <rect x="335" y="465" width="165" height="125" rx="9" class="box green"/><text x="417" y="490" text-anchor="middle" class="h hg">Grafana</text><text x="417" y="516" text-anchor="middle" class="t">OIDC relying party</text><text x="417" y="540" text-anchor="middle" class="s">Prometheus + Loki</text><text x="417" y="564" text-anchor="middle" class="s">Role mapping</text>
+  <rect x="520" y="465" width="165" height="125" rx="9" class="box purple"/><text x="602" y="490" text-anchor="middle" class="h hp">GitLab CE</text><text x="602" y="516" text-anchor="middle" class="t">Git + CI/CD</text><text x="602" y="540" text-anchor="middle" class="s">Keycloak OIDC</text><text x="602" y="564" text-anchor="middle" class="s">External PostgreSQL</text>
+  <rect x="705" y="465" width="165" height="125" rx="9" class="box blue"/><text x="787" y="490" text-anchor="middle" class="h hb">Platform Apps</text><text x="787" y="516" text-anchor="middle" class="t">n8n · MLflow</text><text x="787" y="540" text-anchor="middle" class="s">PgAdmin · MinIO</text><text x="787" y="564" text-anchor="middle" class="s">PostgreSQL 18</text>
+  <rect x="900" y="465" width="630" height="125" rx="9" class="box cyan" filter="url(#glow)"/><text x="1215" y="490" text-anchor="middle" class="h hc">Private AI Platform · node-gpu</text><text x="1020" y="518" text-anchor="middle" class="t">Open WebUI</text><text x="1020" y="540" text-anchor="middle" class="s">chart 14.8.0</text><text x="1020" y="560" text-anchor="middle" class="s">Keycloak OIDC</text><text x="1215" y="518" text-anchor="middle" class="t">vLLM 0.11.0</text><text x="1215" y="540" text-anchor="middle" class="s">OpenAI-compatible API</text><text x="1215" y="560" text-anchor="middle" class="s">8192-token context</text><text x="1410" y="518" text-anchor="middle" class="t">Qwen2.5 14B AWQ</text><text x="1410" y="540" text-anchor="middle" class="s">RTX 5060 Ti · 16 GB</text><text x="1410" y="560" text-anchor="middle" class="s">GPU passthrough</text>
+  <path d="M302 527H333" class="flow2"/><path d="M500 527H518" class="flow2"/><path d="M870 527H898" class="flow2"/>
+
+  <rect x="20" y="640" width="1560" height="150" rx="12" class="lane"/><text x="800" y="662" text-anchor="middle" class="laneTitle">DATA · OBSERVABILITY · SECURITY</text>
+  <rect x="42" y="690" width="260" height="70" rx="9" class="box blue"/><text x="172" y="716" text-anchor="middle" class="h hb">PostgreSQL + NFS</text><text x="172" y="740" text-anchor="middle" class="s">Shared databases · RWX persistent storage</text>
+  <rect x="335" y="690" width="290" height="70" rx="9" class="box green"/><text x="480" y="716" text-anchor="middle" class="h hg">Prometheus + Alertmanager</text><text x="480" y="740" text-anchor="middle" class="s">Metrics · alerts · ServiceMonitors</text>
+  <rect x="658" y="690" width="260" height="70" rx="9" class="box amber"/><text x="788" y="716" text-anchor="middle" class="h ha">Loki + Promtail</text><text x="788" y="740" text-anchor="middle" class="s">Logs · MinIO S3 backend</text>
+  <rect x="950" y="690" width="280" height="70" rx="9" class="box purple"/><text x="1090" y="716" text-anchor="middle" class="h hp">Cilium + Hubble</text><text x="1090" y="740" text-anchor="middle" class="s">eBPF networking · flow visibility</text>
+  <rect x="1262" y="690" width="268" height="70" rx="9" class="box red"/><text x="1396" y="716" text-anchor="middle" class="h hr">Tetragon</text><text x="1396" y="740" text-anchor="middle" class="s">Runtime security · tracing policies</text>
+
+  <rect x="20" y="805" width="1560" height="145" rx="12" class="lane"/><text x="800" y="827" text-anchor="middle" class="laneTitle">INFRASTRUCTURE · PROXMOX VE 9 · KUBERNETES 1.36</text>
+  <rect x="42" y="850" width="260" height="68" rx="9" class="box blue"/><text x="172" y="875" text-anchor="middle" class="h hb">node-4 · Control Plane</text><text x="172" y="899" text-anchor="middle" class="s">etcd · API server · Argo CD · Vault · NFS</text>
+  <rect x="322" y="850" width="240" height="68" rx="9" class="box gray"/><text x="442" y="875" text-anchor="middle" class="h hw">node-1 · Apps</text><text x="442" y="899" text-anchor="middle" class="s">Identity · databases · automation</text>
+  <rect x="582" y="850" width="240" height="68" rx="9" class="box green"/><text x="702" y="875" text-anchor="middle" class="h hg">node-2 · Monitoring</text><text x="702" y="899" text-anchor="middle" class="s">Prometheus · Grafana · Loki</text>
+  <rect x="842" y="850" width="240" height="68" rx="9" class="box amber"/><text x="962" y="875" text-anchor="middle" class="h ha">node-3 · Infra</text><text x="962" y="899" text-anchor="middle" class="s">BIND · OpenLDAP · MinIO</text>
+  <rect x="1102" y="850" width="428" height="68" rx="9" class="box cyan"/><text x="1316" y="875" text-anchor="middle" class="h hc">node-gpu · Proxmox VM</text><text x="1316" y="899" text-anchor="middle" class="s">NVIDIA passthrough · CUDA · local inference</text>
+  <text x="800" y="980" text-anchor="middle" class="sub">MIRECLOUD · PRIVATE CLOUD · GITHUB.COM/MIRECLOUD/HOME_LAB</text>
+</svg>
