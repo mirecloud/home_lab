@@ -1,0 +1,145 @@
+# ============================================================================
+#  Valeurs globales — propagées à TOUS les sous-charts (Helm `global`)
+#  Doit rester au niveau racine (pas sous `librechat:`) pour être global.
+# ============================================================================
+global:
+  librechat:
+    # Secret unique qui porte TOUS les envs/mots de passe requis :
+    #   CREDS_KEY, CREDS_IV, JWT_SECRET, JWT_REFRESH_SECRET, MEILI_MASTER_KEY
+    #   + OPENID_CLIENT_SECRET, OPENID_SESSION_SECRET
+    # Créé par templates/external-secrets.yaml (depuis Vault).
+    existingSecretName: "librechat-credentials-env"
+    existingSecretApiKey: OPENAI_API_KEY
+
+# ============================================================================
+#  Valeurs du sous-chart `librechat` (oci://ghcr.io/danny-avila/librechat-chart)
+# ============================================================================
+librechat:
+
+  librechat:
+    # URL publique (utilisée pour les redirections OAuth/SSO)
+    adminPanelUrl: ""
+
+    # ------------------------------------------------------------------
+    #  Variables d'environnement de config (ConfigMap → envFrom)
+    #  Les SECRETS (client-secret, session-secret) viennent, eux, du
+    #  Secret `librechat-credentials-env` (voir external-secrets.yaml).
+    # ------------------------------------------------------------------
+    configEnv:
+      # --- Domaine public ---
+      DOMAIN_CLIENT: "https://librechat.mirecloud.com"
+      DOMAIN_SERVER: "https://librechat.mirecloud.com"
+
+      # --- Inscriptions / login ---
+      ALLOW_REGISTRATION: "true"
+      ALLOW_EMAIL_LOGIN: "true"
+      ALLOW_SOCIAL_LOGIN: "true"
+      ALLOW_SOCIAL_REGISTRATION: "true"
+
+      # --- SSO OpenID (Keycloak / realm mirecloud) ---
+      OPENID_ISSUER: "https://keycloak.mirecloud.com/auth/realms/mirecloud"
+      OPENID_CLIENT_ID: "librechat"
+      OPENID_SCOPE: "openid profile email"
+      OPENID_CALLBACK_URL: "/oauth/openid/callback"
+      OPENID_BUTTON_LABEL: "Keycloak"
+      OPENID_AUTO_REDIRECT: "false"
+      # OPENID_CLIENT_SECRET  → injecté depuis le Secret
+      # OPENID_SESSION_SECRET → injecté depuis le Secret
+
+      # --- CA interne (Vault) pour que Node fasse confiance à Keycloak en HTTPS ---
+      NODE_EXTRA_CA_CERTS: "/etc/ssl/certs/vault-ca.crt"
+
+    existingSecretName: "librechat-credentials-env"
+
+    # ------------------------------------------------------------------
+    #  librechat.yaml — branche les endpoints custom (vLLM + RAG)
+    # ------------------------------------------------------------------
+    configYamlContent: |
+      version: 1.2.8
+      cache: true
+      endpoints:
+        custom:
+          # --- vLLM : chat Qwen2.5-14B (OpenAI-compatible) ---
+          - name: "vLLM Qwen2.5-14B"
+            apiKey: "EMPTY"
+            baseURL: "http://vllm-router-service.vllm.svc.cluster.local/v1"
+            models:
+              default: ["Qwen/Qwen2.5-14B-Instruct-AWQ"]
+              fetch: true
+            titleConvo: true
+            titleModel: "Qwen/Qwen2.5-14B-Instruct-AWQ"
+            modelDisplayLabel: "Qwen2.5-14B"
+
+          # --- API RAG MireCloud (cloisonné par utilisateur) ---
+          - name: "RAG MireCloud"
+            apiKey: "dummy"
+            baseURL: "http://rag-api.rag.svc.cluster.local:8000/v1"
+            models:
+              default: ["rag"]        # ⚠️ ajuster au nom réel exposé par /v1/models
+              fetch: true
+            titleConvo: false
+            modelDisplayLabel: "RAG"
+            # Forwarde l'identité vers l'API RAG (équivalent des user-info headers d'OpenWebUI)
+            headers:
+              X-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
+              X-User-Id: "{{LIBRECHAT_USER_ID}}"
+
+    existingConfigYaml: ""
+
+    # Volume pour les images uploadées dans le Web UI
+    imageVolume:
+      enabled: true
+      size: 10G
+      accessModes: ReadWriteOnce
+      storageClassName: "nfs-client"
+
+  # RAG lite bundlé : désactivé, on utilise l'API RAG externe (rag namespace)
+  librechat-rag-api:
+    enabled: false
+
+  # On expose via Gateway API (templates/gateway.yaml), pas via Ingress
+  ingress:
+    enabled: false
+
+  # --- CA interne montée dans le conteneur (pour NODE_EXTRA_CA_CERTS) ---
+  volumes:
+    - name: ca-certs
+      secret:
+        secretName: mirecloud-ca-cert
+  volumeMounts:
+    - name: ca-certs
+      mountPath: /etc/ssl/certs/vault-ca.crt
+      subPath: ca.crt
+      readOnly: true
+
+  # --- MongoDB (bundlé) ---
+  mongodb:
+    enabled: true
+    image:
+      repository: bitnamilegacy/mongodb
+    auth:
+      enabled: false
+    databases:
+      - LibreChat
+    persistence:
+      size: 8Gi
+      storageClass: "nfs-client"
+
+  # --- Meilisearch (bundlé) ---
+  meilisearch:
+    enabled: true
+    persistence:
+      enabled: true
+      storageClass: "nfs-client"
+    image:
+      tag: "v1.7.3"
+    auth:
+      # Réutilise le Secret unique (clé MEILI_MASTER_KEY)
+      existingMasterKeySecret: "librechat-credentials-env"
+
+  # --- Redis (non utilisé) ---
+  redis:
+    enabled: false
+    architecture: standalone
+    auth:
+      enabled: false

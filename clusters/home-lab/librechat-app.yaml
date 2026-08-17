@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: librechat
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:mirecloud/home_lab.git"
+    targetRevision: HEAD
+    path: apps/librechat
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: librechat
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
