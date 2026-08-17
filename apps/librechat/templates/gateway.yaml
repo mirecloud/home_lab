@@ -67,5 +67,5 @@ spec:
         value: /
     backendRefs:
     # On pointe vers le service LibreChat (Port 3080)
-    - name: librechat
+    - name: librechat-librechat
       port: 3080
