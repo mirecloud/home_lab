@@ -117,6 +117,9 @@ librechat:
     enabled: true
     image:
       repository: bitnamilegacy/mongodb
+      # MongoDB 5.0+ exige AVX (crash "Illegal instruction" sur CPU homelab sans AVX).
+      # 4.4 = dernière série sans AVX. Retirer ce pin si le nœud passe en CPU host-passthrough.
+      tag: "4.4.15"
     auth:
       enabled: false
     databases:

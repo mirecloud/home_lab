@@ -30,17 +30,27 @@ LibreChat exige : `CREDS_KEY` (32o hex), `CREDS_IV` (16o hex), `JWT_SECRET`,
 `JWT_REFRESH_SECRET`, `MEILI_MASTER_KEY`. On ajoute les secrets OIDC
 (`OPENID_SESSION_SECRET` + `OPENID_CLIENT_SECRET`, ce dernier vient de Keycloak — voir §2).
 
+> L'image `vault-0` est minimale (BusyBox) : **pas d'openssl**. On génère l'hex avec
+> `/dev/urandom` + `tr`. Et il faut **s'authentifier** avant d'écrire (sinon 403) :
+> ```bash
+> vault login   # colle le root token (ou une policy avec create/update sur secret/)
+> ```
+
 ```bash
+# Dans le pod : k -n vault exec -it vault-0 -- /bin/sh
 # Génère les secrets d'un coup et les écrit dans Vault (KVv2 mount "secret")
 vault kv put secret/librechat/env \
-  CREDS_KEY="$(openssl rand -hex 32)" \
-  CREDS_IV="$(openssl rand -hex 16)" \
-  JWT_SECRET="$(openssl rand -hex 32)" \
-  JWT_REFRESH_SECRET="$(openssl rand -hex 32)" \
-  MEILI_MASTER_KEY="$(openssl rand -hex 32)" \
-  OPENID_SESSION_SECRET="$(openssl rand -hex 32)" \
+  CREDS_KEY="$(tr -dc 'a-f0-9' </dev/urandom | head -c 64)" \
+  CREDS_IV="$(tr -dc 'a-f0-9' </dev/urandom | head -c 32)" \
+  JWT_SECRET="$(tr -dc 'a-f0-9' </dev/urandom | head -c 64)" \
+  JWT_REFRESH_SECRET="$(tr -dc 'a-f0-9' </dev/urandom | head -c 64)" \
+  MEILI_MASTER_KEY="$(tr -dc 'a-f0-9' </dev/urandom | head -c 64)" \
+  OPENID_SESSION_SECRET="$(tr -dc 'a-f0-9' </dev/urandom | head -c 64)" \
   OPENID_CLIENT_SECRET="REMPLACER_PAR_LE_SECRET_KEYCLOAK"
 ```
+
+> Alt sans root, si `sys/tools/random` est autorisé pour ta policy :
+> `$(vault write -field=random_bytes sys/tools/random/32 format=hex)` (16 pour l'IV).
 
 > Le `OPENID_CLIENT_SECRET` sera connu après la création du client Keycloak (§2).
 > Tu peux relancer un `vault kv patch` pour ne mettre à jour que cette clé :
