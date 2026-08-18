@@ -37,7 +37,7 @@ librechat:
 
       # --- SSO OpenID (Keycloak / realm mirecloud) ---
       OPENID_ISSUER: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
-      OPENID_CLIENT_ID: "librechat"
+      OPENID_CLIENT_ID: "Librechat"
       OPENID_SCOPE: "openid profile email"
       OPENID_CALLBACK_URL: "/oauth/openid/callback"
       OPENID_BUTTON_LABEL: "Keycloak"
