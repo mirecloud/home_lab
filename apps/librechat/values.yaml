@@ -116,14 +116,16 @@ librechat:
     enabled: true
     image:
       repository: bitnamilegacy/mongodb
-      # MongoDB 5.0+ exige AVX (crash "Illegal instruction" sur CPU homelab sans AVX).
-      # 4.4 = dernière série sans AVX. Retirer ce pin si le nœud passe en CPU host-passthrough.
-      tag: "4.4.15"
+      # Image MODERNE requise : le chart monte un emptyDir vide sur
+      # /opt/bitnami/mongodb/conf et compte sur l'image pour (re)créer
+      # mongodb.conf au runtime. Les vieilles images (ex. 4.4.15) avaient le
+      # conf "cuit" à la construction → masqué par l'emptyDir → conf absent →
+      # `sed: can't read .../mongodb.conf`. 8.0 le recrée au démarrage.
+      # (node-1 expose AVX en host-passthrough, donc MongoDB 5.0+ OK.)
+      tag: "8.0.13-debian-12-r0"
       # ⚠️ Le sous-chart Bitnami épingle un `digest`, et son helper d'image
-      #    (common.images.image) utilise le digest EN PRIORITÉ sur le tag :
-      #    sans ce `digest: ""`, l'image tirée est `...@sha256:<digest>` (image
-      #    récente) et le tag 4.4.15 ci-dessus est ignoré → scripts d'init qui
-      #    ne créent pas mongodb.conf → `sed: can't read .../mongodb.conf`.
+      #    (common.images.image) l'utilise EN PRIORITÉ sur le tag : sans ce
+      #    `digest: ""`, le tag ci-dessus serait ignoré.
       digest: ""
     auth:
       enabled: false
