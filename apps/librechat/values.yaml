@@ -36,8 +36,8 @@ librechat:
       ALLOW_SOCIAL_REGISTRATION: "true"
 
       # --- SSO OpenID (Keycloak / realm mirecloud) ---
-      OPENID_ISSUER: "https://keycloak.mirecloud.com/auth/realms/mirecloud/.well-known/openid-configuration"
-      OPENID_CLIENT_ID: "Librechat"
+      OPENID_ISSUER: "https://keycloak.mirecloud.com/auth/realms/mirecloud"
+      OPENID_CLIENT_ID: "librechat"
       OPENID_SCOPE: "openid profile email"
       OPENID_CALLBACK_URL: "/oauth/openid/callback"
       OPENID_BUTTON_LABEL: "Keycloak"
@@ -78,10 +78,13 @@ librechat:
               fetch: true
             titleConvo: false
             modelDisplayLabel: "RAG"
-            # Forwarde l'identité vers l'API RAG (équivalent des user-info headers d'OpenWebUI)
+            # Forwarde l'identité vers l'API RAG. L'endpoint /v1/chat/completions
+            # lit UNIQUEMENT `X-OpenWebUI-User-Email` (puis résout les groupes via
+            # le service account Keycloak — chemin #3, identique à Open WebUI).
+            # Les anciens noms X-User-Email/X-User-Id étaient ignorés → email=None
+            # → `IDENTITY jwt=yes x_groups=None email=None` → 401.
             headers:
-              X-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
-              X-User-Id: "{{LIBRECHAT_USER_ID}}"
+              X-OpenWebUI-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
 
     existingConfigYaml: ""
 
