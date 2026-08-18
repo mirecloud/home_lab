@@ -15,7 +15,6 @@ global:
 #  Valeurs du sous-chart `librechat` (oci://ghcr.io/danny-avila/librechat-chart)
 # ============================================================================
 librechat:
-
   librechat:
     # URL publique (utilisée pour les redirections OAuth/SSO)
     adminPanelUrl: ""
@@ -120,6 +119,12 @@ librechat:
       # MongoDB 5.0+ exige AVX (crash "Illegal instruction" sur CPU homelab sans AVX).
       # 4.4 = dernière série sans AVX. Retirer ce pin si le nœud passe en CPU host-passthrough.
       tag: "4.4.15"
+      # ⚠️ Le sous-chart Bitnami épingle un `digest`, et son helper d'image
+      #    (common.images.image) utilise le digest EN PRIORITÉ sur le tag :
+      #    sans ce `digest: ""`, l'image tirée est `...@sha256:<digest>` (image
+      #    récente) et le tag 4.4.15 ci-dessus est ignoré → scripts d'init qui
+      #    ne créent pas mongodb.conf → `sed: can't read .../mongodb.conf`.
+      digest: ""
     auth:
       enabled: false
     databases:
@@ -136,6 +141,9 @@ librechat:
       storageClass: "nfs-client"
     image:
       tag: "v1.7.3"
+      # Même piège que MongoDB : on neutralise le digest hérité pour que le
+      # tag v1.7.3 soit réellement appliqué.
+      digest: ""
     auth:
       # Réutilise le Secret unique (clé MEILI_MASTER_KEY)
       existingMasterKeySecret: "librechat-credentials-env"
