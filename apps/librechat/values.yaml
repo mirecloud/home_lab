@@ -58,16 +58,17 @@ librechat:
       cache: true
       endpoints:
         custom:
-          # --- vLLM : chat Qwen2.5-14B (OpenAI-compatible) ---
-          - name: "vLLM Qwen2.5-14B"
+          # --- vLLM : chat Qwen3-14B abliterated-v2 (sans filtre, OpenAI-compatible) ---
+          # L'id du modèle servi = le modelURL vLLM (voir apps/vllm/values.yaml).
+          - name: "vLLM Qwen3-14B (sans filtre)"
             apiKey: "EMPTY"
             baseURL: "http://vllm-router-service.vllm.svc.cluster.local/v1"
             models:
-              default: ["Qwen/Qwen2.5-14B-Instruct-AWQ"]
+              default: ["warshanks/Huihui-Qwen3-14B-abliterated-v2-AWQ"]
               fetch: true
             titleConvo: true
-            titleModel: "Qwen/Qwen2.5-14B-Instruct-AWQ"
-            modelDisplayLabel: "Qwen2.5-14B"
+            titleModel: "warshanks/Huihui-Qwen3-14B-abliterated-v2-AWQ"
+            modelDisplayLabel: "Qwen3-14B (sans filtre)"
 
           # --- API RAG MireCloud (cloisonné par utilisateur) ---
           - name: "RAG MireCloud"

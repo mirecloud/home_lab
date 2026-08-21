@@ -1,6 +1,8 @@
 # =====================================================================
 # vllm-stack values.yaml — MireCloud / nœud AI (RTX 5060 16 Go, Blackwell sm_120)
-# Modèle principal : Qwen2.5-14B-Instruct-AWQ (RAG + français)
+# Modèle principal : Qwen3-14B abliterated-v2 (int4, SANS FILTRE)
+#   repo : warshanks/Huihui-Qwen3-14B-abliterated-v2-AWQ
+#   ⚠️ malgré le "-AWQ" du nom, la quant est compressed-tensors int4 (pas AWQ classique)
 # =====================================================================
 vllm-stack:
 
@@ -14,18 +16,18 @@ vllm-stack:
     modelSpec:
 
       # ─────────────────────────────────────────────────────────────
-      # MODÈLE 1 — Qwen2.5-14B-Instruct-AWQ
+      # MODÈLE 1 — Qwen3-14B abliterated-v2 (int4, sans filtre)
       # ─────────────────────────────────────────────────────────────
-      - name: "qwen25-14b"                              # id affiché dans OpenWebUI (PAS de point : interdit dans les noms K8s)
+      - name: "qwen25-14b"                              # nom K8s LEGACY conservé exprès → réutilise le PVC/JIT existant (PAS de point : interdit en K8s). L'id réel du modèle = modelURL ci-dessous.
         repository: "vllm/vllm-openai"
-        tag: "v0.11.0"                                  # moteur V1, compatible chart 0.1.11
-        modelURL: "Qwen/Qwen2.5-14B-Instruct-AWQ"       # poids AWQ 4-bit (~8,5 Go VRAM)
+        tag: "v0.11.0"                                  # moteur V1, supporte Qwen3 + compressed-tensors
+        modelURL: "warshanks/Huihui-Qwen3-14B-abliterated-v2-AWQ"  # Qwen3-14B abliterated, int4 g128 (~9 Go VRAM)
         replicaCount: 1
 
         requestCPU: 2
         requestMemory: "12Gi"                           # marge RAM hôte au chargement
         limitMemory: "20Gi"
-        requestGPU: 1                                   # AWQ nécessite un GPU
+        requestGPU: 1
         limitGPU: 1
 
         # ── Limite la compilation JIT des kernels CUDA (Blackwell sm_120) ──
@@ -49,16 +51,22 @@ vllm-stack:
           - ReadWriteOnce
 
         vllmConfig:
-          maxModelLen: 8192                             # si OOM KV cache → 4096
-          dtype: "half"                                 # AWQ = float16
-          enablePrefixCaching: true                     # --enable-prefix-caching natif
+          maxModelLen: 8192                             # modèle supporte 40k ; garde 8192 pour le KV en 16 Go (si besoin → 16384)
+          dtype: "half"                                 # calcul en float16
+          enablePrefixCaching: true
           extraArgs:
             - "--enforce-eager"                         # pas de torch.compile/cudagraph → évite l'OOM RAM hôte
             - "--quantization"
-            - "awq_marlin"                              # kernel rapide ; fallback "awq" si erreur Marlin sm_120
+            - "compressed-tensors"                      # ⚠️ Qwen3 = compressed-tensors int4 (PAS awq_marlin). Kernel Marlin w4a16 compilé pour sm_120.
             - "--gpu-memory-utilization"
-            - "0.90"                                    # 14B → + de place KV ; si OOM profiling → 0.85
-          # ⚠️ PAS de --chat-template : Qwen embarque le sien dans son tokenizer.
+            - "0.90"                                    # si OOM profiling → 0.85
+            # ── OPTION (raisonnement Qwen3) ──
+            # Qwen3 émet des blocs <think>…</think> par défaut (mode thinking).
+            # Pour des réponses propres (chat/RAG), décommente pour router le
+            # raisonnement dans un champ séparé que LibreChat ignore :
+            # - "--reasoning-parser"
+            # - "qwen3"
+          # ⚠️ PAS de --chat-template : Qwen3 embarque le sien dans son tokenizer.
 
         nodeSelectorTerms:
           - matchExpressions:
@@ -70,8 +78,6 @@ vllm-stack:
       # MODÈLE 2 (OPTIONNEL) — petit modèle co-résident
       # Décommente UNIQUEMENT si tu as activé le GPU time-slicing/MPS
       # (sinon il restera Pending faute de 2e GPU). Voir note en bas.
-      # Un 3B AWQ (~2,5 Go) peut cohabiter avec le 14B en 16 Go si tu
-      # baisses gpu-memory-utilization des DEUX (p.ex. 14B→0.60, 3B→0.20).
       # ─────────────────────────────────────────────────────────────
       # - name: "qwen25-3b"
       #   repository: "vllm/vllm-openai"
