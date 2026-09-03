@@ -11,21 +11,16 @@ kube-prometheus-stack:
         restartPolicy: Always
         skipReload: false
 
+    # Prometheus est déjà fourni par le chart (name=Prometheus, uid=prometheus,
+    # isDefault=true). Ne pas le redéfinir ici, sinon 2 datasources "default"
+    # => "Only one datasource per organization can be marked as default" => crash.
     additionalDataSources:
-      - name: Prometheus
-        type: prometheus
-        uid: prometheus
-        access: proxy
-        url: http://prometheus-stack-kube-prom-prometheus.monitoring.svc:9090
-        isDefault: true
-        jsonData:
-          timeInterval: 30s
-
       - name: Loki
         type: loki
         uid: loki
         access: proxy
         url: http://loki-stack.monitoring.svc:3100
+        isDefault: false
         jsonData:
           maxLines: 1000
 
