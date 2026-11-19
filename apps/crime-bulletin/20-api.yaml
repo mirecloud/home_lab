@@ -17,7 +17,7 @@ spec:
         runAsUser: 10001
       containers:
         - name: api
-          image: docker.io/mirecloud/crime-api:1.0.0
+          image: docker.io/mirecloud/crime-api:1.1.0
           imagePullPolicy: IfNotPresent
           ports: [{name: http, containerPort: 8000}]
           envFrom:
