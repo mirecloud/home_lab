@@ -1,3 +1,4 @@
+# API : prévision (modèle du notebook 04) + bilan (LLM + contrôles). Sans état : 2 réplicas.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,19 +13,25 @@ spec:
     metadata:
       labels: {app: crime-api}
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
       containers:
         - name: api
-          image: docker.io/mirecloud/crime-api:1.1.0
+          image: docker.io/mirecloud/crime-api:1.2.0
           imagePullPolicy: IfNotPresent
           ports: [{name: http, containerPort: 8000}]
           envFrom:
             - configMapRef: {name: crime-llm}
+            - secretRef: {name: crime-llm, optional: true}   # seulement si le vLLM exige une clé
+          securityContext:              # rien à écrire hors de /tmp, aucun privilège
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
           resources:
             requests: {cpu: 100m, memory: 384Mi}
             limits: {cpu: "1", memory: 1Gi}
+          # ready = modèle chargé ; un pod sans modèle ne reçoit pas de trafic
           readinessProbe:
             httpGet: {path: /health/ready, port: http}
             initialDelaySeconds: 5
@@ -33,10 +40,9 @@ spec:
             httpGet: {path: /health/live, port: http}
             initialDelaySeconds: 10
             periodSeconds: 20
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,16 @@
+# L'API n'accepte que le trafic venant du namespace ml510 (interface et tâche du lundi).
+# Aucun autre pod du cluster ne peut l'appeler ; l'interface reste joignable par la gateway.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crime-api-interne
+  namespace: ml510
+spec:
+  podSelector:
+    matchLabels: {app: crime-api}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: {}          # tout pod du même namespace (crime-ui, crime-bilan-hebdo)
+      ports:
+        - {protocol: TCP, port: 8000}

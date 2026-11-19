@@ -1,37 +1,38 @@
-# Suspend until the CSV/model image are refreshed automatically.
-# Static model artefacts otherwise produce the same target week repeatedly.
+# Chaque lundi : bilan de la dernière semaine consolidée, vérifié par les contrôles.
+# Job réussi = le service a répondu (bilan accepté OU rejeté : le statut est dans le log JSON).
+# Job en échec = panne (API ou LLM injoignable, LLM non configuré) : c'est la seule alerte.
+# Un an d'historique est gardé pour calculer le taux de rejet :
+#   kubectl -n ml510 logs -l job-name --tail=1 --prefix | grep -c '"rejete"' 
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: crime-bilan-hebdo
   namespace: ml510
 spec:
-  schedule: "0 7 * * 1"
+  schedule: "0 7 * * 1"            # lundi 07:00 Montréal
   timeZone: "America/Toronto"
-  suspend: true
+  suspend: true                     # pas de nouvelles données sans reconstruction des artefacts
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 8
-  failedJobsHistoryLimit: 8
+  successfulJobsHistoryLimit: 52   # un an de lundis : la base du taux de rejet
+  failedJobsHistoryLimit: 10
   jobTemplate:
     spec:
-      backoffLimit: 0
+      backoffLimit: 1              # une panne peut être passagère : un seul nouvel essai
       template:
         spec:
           restartPolicy: Never
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 10001
+          securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
           containers:
             - name: bilan
-              image: docker.io/mirecloud/crime-api:1.0.0
-              imagePullPolicy: IfNotPresent
+              image: docker.io/mirecloud/crime-api:1.2.0
+              imagePullPolicy: IfNotPresent   # même tag que le Deployment en service
               command: ["python", "apps/crime_bulletin/jobs/bilan_hebdo.py"]
               env:
                 - {name: CRIME_API_URL, value: "http://crime-api.ml510.svc.cluster.local"}
+              securityContext:              # rien à écrire hors de /tmp, aucun privilège
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: {drop: [ALL]}
               resources:
                 requests: {cpu: 50m, memory: 64Mi}
                 limits: {cpu: 200m, memory: 256Mi}
-              securityContext:
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop: ["ALL"]
