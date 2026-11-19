@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crime-ui
+  namespace: ml510
+  labels: {app: crime-ui}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: crime-ui}
+  template:
+    metadata:
+      labels: {app: crime-ui}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: ui
+          image: docker.io/mirecloud/crime-ui:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8501}]
+          env:
+            - {name: CRIME_API_URL, value: "http://crime-api.ml510.svc.cluster.local"}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: 500m, memory: 768Mi}
+          readinessProbe:
+            httpGet: {path: /_stcore/health, port: http}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /_stcore/health, port: http}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crime-ui
+  namespace: ml510
+spec:
+  type: ClusterIP
+  selector: {app: crime-ui}
+  ports: [{name: http, port: 80, targetPort: http}]

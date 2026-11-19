@@ -1,0 +1,18 @@
+# Manual sync: do not deploy until images and model artefacts are verified.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crime-bulletin
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "git@github.com:mirecloud/home_lab.git"
+    targetRevision: HEAD
+    path: apps/crime-bulletin
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ml510
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

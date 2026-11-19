@@ -1,0 +1,44 @@
+# TLS via cert-manager, HTTPS only; DNS managed by ExternalDNS on HTTPRoute.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: crime-bulletin-tls
+  namespace: ml510
+spec:
+  secretName: crime-bulletin-tls
+  issuerRef: {name: mirecloud-ca-issuer, kind: ClusterIssuer}
+  dnsNames: [crimes.mirecloud.com]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: crime-bulletin-gateway
+  namespace: ml510
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - name: https
+      hostname: crimes.mirecloud.com
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {name: crime-bulletin-tls, kind: Secret}
+      allowedRoutes:
+        namespaces: {from: Same}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: crime-bulletin-route
+  namespace: ml510
+spec:
+  parentRefs:
+    - {name: crime-bulletin-gateway, sectionName: https}
+  hostnames: [crimes.mirecloud.com]
+  rules:
+    - matches:
+        - path: {type: PathPrefix, value: /}
+      backendRefs:
+        - {name: crime-ui, port: 80}

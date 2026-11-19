@@ -1,0 +1,11 @@
+# Home-lab vLLM router is assumed to have no API authentication.
+# EMPTY is a required OpenAI-client placeholder, not a real API key.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crime-llm
+  namespace: ml510
+data:
+  AI_MODEL: "warshanks/Huihui-Qwen3-14B-abliterated-v2-AWQ"
+  LLM_BASE_URL: "http://vllm-router-service.vllm.svc.cluster.local/v1"
+  LLM_API_KEY: "EMPTY"

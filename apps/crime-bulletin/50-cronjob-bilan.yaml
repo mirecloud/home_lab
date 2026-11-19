@@ -1,0 +1,37 @@
+# Suspend until the CSV/model image are refreshed automatically.
+# Static model artefacts otherwise produce the same target week repeatedly.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crime-bilan-hebdo
+  namespace: ml510
+spec:
+  schedule: "0 7 * * 1"
+  timeZone: "America/Toronto"
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 8
+  failedJobsHistoryLimit: 8
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+          containers:
+            - name: bilan
+              image: docker.io/mirecloud/crime-api:1.0.0
+              imagePullPolicy: IfNotPresent
+              command: ["python", "apps/crime_bulletin/jobs/bilan_hebdo.py"]
+              env:
+                - {name: CRIME_API_URL, value: "http://crime-api.ml510.svc.cluster.local"}
+              resources:
+                requests: {cpu: 50m, memory: 64Mi}
+                limits: {cpu: 200m, memory: 256Mi}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
