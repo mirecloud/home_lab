@@ -24,7 +24,7 @@ spec:
           securityContext: {runAsNonRoot: true, runAsUser: 10001, seccompProfile: {type: RuntimeDefault}}
           containers:
             - name: bilan
-              image: docker.io/mirecloud/crime-api:1.2.0
+              image: docker.io/mirecloud/crime-api:1.3.0
               imagePullPolicy: IfNotPresent   # même tag que le Deployment en service
               command: ["python", "apps/crime_bulletin/jobs/bilan_hebdo.py"]
               env:
