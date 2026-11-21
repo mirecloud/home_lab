@@ -1,13 +1,13 @@
 # ==========================================================
-# GitLab CE – homelab mirecloud
+# GitLab CE – homelab mirecloud (chart 10.6.1 / GitLab 19.6.1)
 # Postgres externe (ns postgres) · MinIO externe (192.168.2.156)
-# Ingress Cilium · cert-manager mirecloud-ca-issuer
+# Redis externe (ns gitlab) · Ingress Cilium · cert-manager
 # ==========================================================
 
 # --- Composants du chart qu'on n'installe PAS ---
-installCertmanager: false        # nom de la clé dans les anciennes versions du chart
+installCertmanager: false
 certmanager:
-  install: false                 # nom de la clé dans les versions récentes
+  install: false
 certmanager-issuer:
   email: info@mirecloud.com
 upgradeCheck:
@@ -26,13 +26,19 @@ global:
   edition: ce
 
   hosts:
-    domain: mirecloud.com        # gitlab.mirecloud.com, registry.mirecloud.com
+    domain: mirecloud.com          # gitlab.mirecloud.com, registry.mirecloud.com
     https: true
 
   kas:
-    enabled: false               # inutile, tu fais le GitOps avec ArgoCD
+    enabled: false                 # inutile avec ArgoCD
+
+  gatewayApi:
+    enabled: false                 # pas de Gateway API / Envoy du chart
+    installEnvoy: false
 
   ingress:
+    enabled: true                  # Ingress classique, géré par Cilium
+    provider: cilium
     class: cilium
     configureCertmanager: false
     annotations:
@@ -42,7 +48,7 @@ global:
 
   certificates:
     customCAs:
-      - secret: mirecloud-ca     # ta CA, pour que GitLab lui fasse confiance
+      - secret: mirecloud-ca       # ta CA
 
   psql:
     host: postgres.postgres.svc.cluster.local
@@ -55,7 +61,17 @@ global:
       key: password
 
   minio:
-    enabled: false               # on utilise le MinIO externe
+    enabled: false                 # MinIO externe
+
+  redis:
+    host: redis.gitlab.svc.cluster.local   # le Redis qu'on va déployer
+    auth:
+      enabled: true
+      secret: gitlab-redis
+      key: password
+
+  monitoring:
+    enabled: true                  # génère les ServiceMonitors
 
   appConfig:
     object_store:
@@ -75,13 +91,6 @@ global:
     backups:
       bucket: gitlab-backups
       tmpBucket: gitlab-tmp
-    # SSO Keycloak : on l'activera APRÈS une première installation qui marche
-
-# --- Redis (fourni par le chart, petit) ---
-redis:
-  master:
-    persistence:
-      size: 5Gi
 
 # --- Registry -> MinIO ---
 registry:
@@ -122,14 +131,14 @@ gitlab:
     minReplicas: 1
     maxReplicas: 1
     service:
-      type: LoadBalancer         # une IP du pool Cilium pour git en SSH
+      type: LoadBalancer           # IP du pool Cilium pour git en SSH
 
   gitaly:
     persistence:
       size: 20Gi
 
   gitlab-exporter:
-    enabled: false               # économise de la RAM
+    enabled: false
 
   toolbox:
     backups:
