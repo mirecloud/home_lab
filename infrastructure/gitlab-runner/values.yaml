@@ -11,11 +11,25 @@ gitlab-runner:
     secret: gitlab-runner-token
     executor: kubernetes
     name: homelab-k8s
+    # Deux usages :
+    #  - jobs script classiques : image par défaut alpine, rien à déclarer
+    #  - builds Docker : `image: docker:27` + `services: [docker:27-dind]` dans le job.
+    #    DOCKER_HOST / TLS sont pré-configurés ci-dessous, le job n'a rien à définir.
+    # ⚠ privileged = true : un job peut obtenir root sur le nœud. Runner à réserver
+    #   à des projets de confiance (instance privée du home lab).
     config: |
       [[runners]]
+        environment = [
+          "DOCKER_HOST=tcp://docker:2376",
+          "DOCKER_TLS_CERTDIR=/certs",
+          "DOCKER_TLS_VERIFY=1",
+          "DOCKER_CERT_PATH=/certs/client",
+          "DOCKER_DRIVER=overlay2"
+        ]
         [runners.kubernetes]
           namespace = "{{ .Release.Namespace }}"
           image = "alpine:3.20"
+          privileged = true
           poll_timeout = 600
           cpu_request = "100m"
           memory_request = "128Mi"
@@ -23,8 +37,16 @@ gitlab-runner:
           memory_limit = "2Gi"
           helper_cpu_request = "50m"
           helper_memory_request = "64Mi"
-          service_cpu_request = "50m"
-          service_memory_request = "64Mi"
+          # Le service dind fait le build : il lui faut bien plus que 64Mi
+          service_cpu_request = "200m"
+          service_memory_request = "512Mi"
+          service_cpu_limit = "2"
+          service_memory_limit = "4Gi"
+          # Certificats TLS générés par dind, partagés avec le conteneur du job
+          [[runners.kubernetes.volumes.empty_dir]]
+            name = "docker-certs"
+            mount_path = "/certs/client"
+            medium = "Memory"
 
   # CA interne mirecloud : le fichier DOIT s'appeler <hostname-gitlab>.crt
   certsSecretName: gitlab-runner-certs
